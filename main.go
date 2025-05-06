@@ -46,7 +46,8 @@ func handleWebhook(c *fiber.Ctx) error {
 		for _, msg := range entry.Messaging {
 			senderID := msg.Sender.ID
 			if msg.Message.Text != "" {
-				sendMessage(senderID, "You said: "+msg.Message.Text)
+				log.Println("sending message:", senderID, " ", msg.Message.Text)
+				// sendMessage(senderID, "You said: "+msg.Message.Text)
 			} else if msg.Postback.Payload != "" {
 				sendMessage(senderID, "You clicked: "+msg.Postback.Payload)
 			}
