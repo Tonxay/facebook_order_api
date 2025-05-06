@@ -8,28 +8,21 @@ import (
 	"os"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/joho/godotenv"
 )
 
 type WebhookEvent struct {
 	Object string `json:"object"`
 	Entry  []struct {
 		Messaging []struct {
-			Sender struct {
-				ID string `json:"id"`
-			} `json:"sender"`
+			Sender  struct{ ID string } `json:"sender"`
 			Message struct {
 				Text string `json:"text"`
 			} `json:"message,omitempty"`
+			Postback struct {
+				Payload string `json:"payload"`
+			} `json:"postback,omitempty"`
 		} `json:"messaging"`
 	} `json:"entry"`
-}
-
-func init() {
-	if err := godotenv.Load(".env"); err != nil {
-		log.Println("No .env file found")
-	}
-
 }
 
 func verifyWebhook(c *fiber.Ctx) error {
@@ -46,7 +39,6 @@ func verifyWebhook(c *fiber.Ctx) error {
 func handleWebhook(c *fiber.Ctx) error {
 	var event WebhookEvent
 	if err := c.BodyParser(&event); err != nil {
-		log.Println("Failed to parse body:", err)
 		return c.SendStatus(fiber.StatusBadRequest)
 	}
 
@@ -54,11 +46,13 @@ func handleWebhook(c *fiber.Ctx) error {
 		for _, msg := range entry.Messaging {
 			senderID := msg.Sender.ID
 			if msg.Message.Text != "" {
-				log.Printf("Received from %s: %s\n", senderID, msg.Message.Text)
-				sendMessage(senderID, "Hello")
+				sendMessage(senderID, "You said: "+msg.Message.Text)
+			} else if msg.Postback.Payload != "" {
+				sendMessage(senderID, "You clicked: "+msg.Postback.Payload)
 			}
 		}
 	}
+
 	return c.SendStatus(fiber.StatusOK)
 }
 
@@ -72,19 +66,14 @@ func sendMessage(recipientID, messageText string) {
 	}
 
 	body, _ := json.Marshal(message)
-	resp, err := http.Post(url, "application/json", bytes.NewBuffer(body))
+	_, err := http.Post(url, "application/json", bytes.NewBuffer(body))
 	if err != nil {
 		log.Println("Error sending message:", err)
-		return
 	}
-	defer resp.Body.Close()
 }
 
 func main() {
 	app := fiber.New()
-	if err := godotenv.Load(".env"); err != nil {
-		log.Println("No .env file found")
-	}
 
 	app.Get("/webhook", verifyWebhook)
 	app.Post("/webhook", handleWebhook)
@@ -93,6 +82,5 @@ func main() {
 	if port == "" {
 		port = "8080"
 	}
-	log.Println("Server running on port", port)
-	log.Fatal(app.Listen(":8080"))
+	log.Fatal(app.Listen(":" + port))
 }
