@@ -74,7 +74,6 @@ func sendMessage(recipientID, messageText string) {
 
 func main() {
 	app := fiber.New()
-
 	app.Get("/webhook", verifyWebhook)
 	app.Post("/webhook", handleWebhook)
 
