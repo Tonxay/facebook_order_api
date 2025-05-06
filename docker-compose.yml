@@ -1,7 +1,6 @@
-version: '3.8'
-
+version: "3.6"
 services:
   web:
-    build: .
+    image: tonxay/go-api-web
     ports:
-      - "8081:8081"
+      - "8080:8080"

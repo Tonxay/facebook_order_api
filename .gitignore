@@ -1,0 +1,7 @@
+
+*.log
+*.pyc
+*.env
+*.env.dev
+*.env.prod
+

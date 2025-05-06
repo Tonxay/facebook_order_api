@@ -1,23 +1,31 @@
-# Start with the official Golang base image
-FROM golang:1.20
+# build executable binary
+FROM golang:1.22.2-alpine as builder
 
-# Set the working directory inside the container
-WORKDIR /app
+ENV CGO_ENABLED 0
+ENV GOOS "linux"
+ENV GOARCH "amd64"
 
-# Copy go.mod and go.sum files
-COPY go.mod go.sum ./
+WORKDIR /build
 
-# Download dependencies
-RUN go mod download
+COPY go.mod .
+COPY go.sum .
+RUN apk add --no-cache ca-certificates git tzdata && go mod tidy
 
-# Copy the rest of the application code
 COPY . .
 
-# Build the Go app
-RUN go build -o main .
+RUN go build -ldflags "-s -w -extldflags '-static'" -installsuffix cgo -o /bin/api-app main.go
 
-# Expose the port the app runs on
-EXPOSE 8080
+# Use alpine image as runtime
+FROM alpine:3.16 as release
 
-# Run the binary
-CMD ["./main"]
+COPY --from=builder /usr/share/zoneinfo /usr/share/zoneinfo
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+COPY --from=builder /bin/api-app /bin/api-app
+
+ARG API_VERSION
+ARG BUILD_DATE
+ENV API_VERSION ${API_VERSION}
+ENV BUILD_DATE ${BUILD_DATE}
+
+# Command to run 
+ENTRYPOINT ["/bin/api-app"]
