@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -58,15 +59,9 @@ func handleWebhook(c *fiber.Ctx) error {
 
 	return c.SendStatus(fiber.StatusOK)
 }
+func sendMessage(recipientID, messageText, pageAccessToken string) error {
+	url := "https://graph.facebook.com/v21.0/me/messages?access_token=" + pageAccessToken
 
-func sendMessage(recipientID, messageText string) {
-	pageToken := os.Getenv("PAGE_ACCESS_TOKEN")
-	url := "https://graph.facebook.com/v22.0/me/messages?access_token=" + pageToken
-
-	// message := map[string]interface{}{
-	// 	"recipient": map[string]string{"id": recipientID},
-	// 	"message":   map[string]string{"text": messageText},
-	// }
 	message := map[string]interface{}{
 		"recipient": map[string]string{
 			"id": recipientID,
@@ -77,12 +72,56 @@ func sendMessage(recipientID, messageText string) {
 		},
 	}
 
-	body, _ := json.Marshal(message)
-	_, err := http.Post(url, "application/json", bytes.NewBuffer(body))
+	jsonData, err := json.Marshal(message)
 	if err != nil {
-		log.Println("Error sending message:", err)
+		return fmt.Errorf("failed to marshal message: %w", err)
 	}
+
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
+	if err != nil {
+		return fmt.Errorf("failed to create request: %w", err)
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return fmt.Errorf("failed to send request: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("received non-OK response: %s", resp.Status)
+	}
+
+	return nil
 }
+
+// func sendMessage(recipientID, messageText string) {
+// 	pageToken := os.Getenv("PAGE_ACCESS_TOKEN")
+// 	url := "https://graph.facebook.com/v22.0/me/messages?access_token=" + pageToken
+
+// 	// message := map[string]interface{}{
+// 	// 	"recipient": map[string]string{"id": recipientID},
+// 	// 	"message":   map[string]string{"text": messageText},
+// 	// }
+// 	message := map[string]interface{}{
+// 		"recipient": map[string]string{
+// 			"id": recipientID,
+// 		},
+// 		"messaging_type": "RESPONSE",
+// 		"message": map[string]string{
+// 			"text": messageText,
+// 		},
+// 	}
+
+// 	body, _ := json.Marshal(message)
+// 	_, err := http.Post(url, "application/json", bytes.NewBuffer(body))
+// 	if err != nil {
+// 		log.Println("Error sending message:", err)
+// 	}
+// }
 
 func main() {
 	app := fiber.New()
