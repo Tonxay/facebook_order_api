@@ -42,6 +42,7 @@ func HandleWebhook(c *fiber.Ctx) error {
 	if err := c.BodyParser(&event); err != nil {
 		return c.SendStatus(fiber.StatusBadRequest)
 	}
+	log.Println("sending message:", event)
 
 	for _, entry := range event.Entry {
 		for _, msg := range entry.Messaging {
