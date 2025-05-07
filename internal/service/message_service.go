@@ -38,6 +38,7 @@ func VerifyWebhook(c *fiber.Ctx) error {
 }
 
 func HandleWebhook(c *fiber.Ctx) error {
+	log.Println("sending message:", c.Body())
 	var event WebhookEvent
 	if err := c.BodyParser(&event); err != nil {
 		return c.SendStatus(fiber.StatusBadRequest)
