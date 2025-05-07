@@ -59,7 +59,8 @@ func handleWebhook(c *fiber.Ctx) error {
 
 	return c.SendStatus(fiber.StatusOK)
 }
-func sendMessage(recipientID, messageText, pageAccessToken string) error {
+func sendMessage(recipientID, messageText string) error {
+	pageAccessToken := os.Getenv("PAGE_ACCESS_TOKEN")
 	url := "https://graph.facebook.com/v21.0/me/messages?access_token=" + pageAccessToken
 
 	message := map[string]interface{}{
