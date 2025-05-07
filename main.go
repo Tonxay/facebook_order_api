@@ -48,10 +48,11 @@ func handleWebhook(c *fiber.Ctx) error {
 			senderID := msg.Sender.ID
 			if msg.Message.Text != "" {
 				log.Println("sending message:", senderID, " ", msg.Message.Text)
-				sendMessage(senderID, "You said: "+msg.Message.Text)
+				// sendMessage(senderID, "You said: "+msg.Message.Text)
 			}
 
 			if msg.Postback.Payload == "SEND_BACK" {
+				log.Println("sending message:", senderID, " ", msg.Postback.Payload)
 				sendMessage(senderID, msg.Message.Text)
 			}
 		}
