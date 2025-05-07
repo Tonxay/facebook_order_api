@@ -38,7 +38,13 @@ func VerifyWebhook(c *fiber.Ctx) error {
 }
 
 func HandleWebhook(c *fiber.Ctx) error {
-	log.Println("sending message:", c.Body())
+	var raw map[string]interface{}
+	if err := json.Unmarshal(c.Body(), &raw); err != nil {
+		log.Println("Invalid JSON:", err)
+		return c.SendStatus(fiber.StatusBadRequest)
+	}
+
+	log.Println("Raw Event:", raw)
 	var event WebhookEvent
 	if err := c.BodyParser(&event); err != nil {
 		return c.SendStatus(fiber.StatusBadRequest)
