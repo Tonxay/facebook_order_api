@@ -48,8 +48,8 @@ func handleWebhook(c *fiber.Ctx) error {
 			if msg.Message.Text != "" {
 				log.Println("sending message:", senderID, " ", msg.Message.Text)
 				// sendMessage(senderID, "You said: "+msg.Message.Text)
-			} else if msg.Postback.Payload != "" {
-				sendMessage(senderID, "You clicked: "+msg.Postback.Payload)
+			} else if msg.Postback.Payload == "SEND_BACK" {
+				sendMessage(senderID, msg.Message.Text)
 			}
 		}
 	}
@@ -59,11 +59,20 @@ func handleWebhook(c *fiber.Ctx) error {
 
 func sendMessage(recipientID, messageText string) {
 	pageToken := os.Getenv("PAGE_ACCESS_TOKEN")
-	url := "https://graph.facebook.com/v17.0/me/messages?access_token=" + pageToken
+	url := "https://graph.facebook.com/v22.0/me/messages?access_token=" + pageToken
 
+	// message := map[string]interface{}{
+	// 	"recipient": map[string]string{"id": recipientID},
+	// 	"message":   map[string]string{"text": messageText},
+	// }
 	message := map[string]interface{}{
-		"recipient": map[string]string{"id": recipientID},
-		"message":   map[string]string{"text": messageText},
+		"recipient": map[string]string{
+			"id": recipientID,
+		},
+		"messaging_type": "RESPONSE",
+		"message": map[string]string{
+			"text": messageText,
+		},
 	}
 
 	body, _ := json.Marshal(message)
