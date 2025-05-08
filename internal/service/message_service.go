@@ -37,6 +37,15 @@ func VerifyWebhook(c *fiber.Ctx) error {
 	return c.SendStatus(fiber.StatusForbidden)
 }
 
+// Raw Event: map[entry:[map[changes:[map[field:inbox_labels
+// value:map[action:add label:map[id:899202008975144 page_label_name:Intake]
+// user:map[id:9979875342055434]]]]
+// id:105519898626814 time:1.746604694e+09]] object:page]
+
+//map[entry:[map[changes:[map[field:inbox_labels
+// value:map[action:add label:map[id:1023522739876559 page_label_name:ad_id.120227047914070029]
+// user:map[id:9392341827487393]]]] id:105519898626814 time:1.746605584e+09]] object:page]
+
 func HandleWebhook(c *fiber.Ctx) error {
 	var raw map[string]interface{}
 	if err := json.Unmarshal(c.Body(), &raw); err != nil {
@@ -103,17 +112,17 @@ func SendMessage(recipientID, messageText string) error {
 	// Set headers
 	req.Header.Set("Content-Type", "application/json")
 
-	// Send the request
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return fmt.Errorf("request failed: %w", err)
-	}
-	defer resp.Body.Close()
+	// // Send the request
+	// client := &http.Client{}
+	// resp, err := client.Do(req)
+	// if err != nil {
+	// 	return fmt.Errorf("request failed: %w", err)
+	// }
+	// defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("Facebook API error: %s", resp.Status)
-	}
+	// if resp.StatusCode != http.StatusOK {
+	// 	return fmt.Errorf("Facebook API error: %s", resp.Status)
+	// }
 
 	return nil
 }
