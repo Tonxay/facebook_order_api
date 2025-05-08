@@ -17,22 +17,25 @@ import (
 
 	"gorm.io/plugin/dbresolver"
 
-	"github.com/yourusername/go-api/models/gormmodels"
+	"github.com/yourusername/go-api/internal/pkg/models"
 )
 
 func newChat(db *gorm.DB, opts ...gen.DOOption) chat {
 	_chat := chat{}
 
 	_chat.chatDo.UseDB(db, opts...)
-	_chat.chatDo.UseModel(&gormmodels.Chat{})
+	_chat.chatDo.UseModel(&models.Chat{})
 
 	tableName := _chat.chatDo.TableName()
 	_chat.ALL = field.NewAsterisk(tableName)
-	_chat.ID = field.NewInt32(tableName, "id")
 	_chat.SenderID = field.NewString(tableName, "sender_id")
 	_chat.RecipientID = field.NewString(tableName, "recipient_id")
 	_chat.Message = field.NewString(tableName, "message")
 	_chat.CreatedAt = field.NewTime(tableName, "created_at")
+	_chat.JSONMesseng = field.NewString(tableName, "json_messeng")
+	_chat.UpdatedAt = field.NewTime(tableName, "updated_at")
+	_chat.ID = field.NewString(tableName, "id")
+	_chat.UserID = field.NewString(tableName, "user_id")
 
 	_chat.fillFieldMap()
 
@@ -43,11 +46,14 @@ type chat struct {
 	chatDo
 
 	ALL         field.Asterisk
-	ID          field.Int32
 	SenderID    field.String
 	RecipientID field.String
 	Message     field.String
 	CreatedAt   field.Time
+	JSONMesseng field.String
+	UpdatedAt   field.Time
+	ID          field.String
+	UserID      field.String
 
 	fieldMap map[string]field.Expr
 }
@@ -64,11 +70,14 @@ func (c chat) As(alias string) *chat {
 
 func (c *chat) updateTableName(table string) *chat {
 	c.ALL = field.NewAsterisk(table)
-	c.ID = field.NewInt32(table, "id")
 	c.SenderID = field.NewString(table, "sender_id")
 	c.RecipientID = field.NewString(table, "recipient_id")
 	c.Message = field.NewString(table, "message")
 	c.CreatedAt = field.NewTime(table, "created_at")
+	c.JSONMesseng = field.NewString(table, "json_messeng")
+	c.UpdatedAt = field.NewTime(table, "updated_at")
+	c.ID = field.NewString(table, "id")
+	c.UserID = field.NewString(table, "user_id")
 
 	c.fillFieldMap()
 
@@ -85,12 +94,15 @@ func (c *chat) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (c *chat) fillFieldMap() {
-	c.fieldMap = make(map[string]field.Expr, 5)
-	c.fieldMap["id"] = c.ID
+	c.fieldMap = make(map[string]field.Expr, 8)
 	c.fieldMap["sender_id"] = c.SenderID
 	c.fieldMap["recipient_id"] = c.RecipientID
 	c.fieldMap["message"] = c.Message
 	c.fieldMap["created_at"] = c.CreatedAt
+	c.fieldMap["json_messeng"] = c.JSONMesseng
+	c.fieldMap["updated_at"] = c.UpdatedAt
+	c.fieldMap["id"] = c.ID
+	c.fieldMap["user_id"] = c.UserID
 }
 
 func (c chat) clone(db *gorm.DB) chat {
@@ -134,17 +146,17 @@ type IChatDo interface {
 	Count() (count int64, err error)
 	Scopes(funcs ...func(gen.Dao) gen.Dao) IChatDo
 	Unscoped() IChatDo
-	Create(values ...*gormmodels.Chat) error
-	CreateInBatches(values []*gormmodels.Chat, batchSize int) error
-	Save(values ...*gormmodels.Chat) error
-	First() (*gormmodels.Chat, error)
-	Take() (*gormmodels.Chat, error)
-	Last() (*gormmodels.Chat, error)
-	Find() ([]*gormmodels.Chat, error)
-	FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*gormmodels.Chat, err error)
-	FindInBatches(result *[]*gormmodels.Chat, batchSize int, fc func(tx gen.Dao, batch int) error) error
+	Create(values ...*models.Chat) error
+	CreateInBatches(values []*models.Chat, batchSize int) error
+	Save(values ...*models.Chat) error
+	First() (*models.Chat, error)
+	Take() (*models.Chat, error)
+	Last() (*models.Chat, error)
+	Find() ([]*models.Chat, error)
+	FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*models.Chat, err error)
+	FindInBatches(result *[]*models.Chat, batchSize int, fc func(tx gen.Dao, batch int) error) error
 	Pluck(column field.Expr, dest interface{}) error
-	Delete(...*gormmodels.Chat) (info gen.ResultInfo, err error)
+	Delete(...*models.Chat) (info gen.ResultInfo, err error)
 	Update(column field.Expr, value interface{}) (info gen.ResultInfo, err error)
 	UpdateSimple(columns ...field.AssignExpr) (info gen.ResultInfo, err error)
 	Updates(value interface{}) (info gen.ResultInfo, err error)
@@ -156,9 +168,9 @@ type IChatDo interface {
 	Assign(attrs ...field.AssignExpr) IChatDo
 	Joins(fields ...field.RelationField) IChatDo
 	Preload(fields ...field.RelationField) IChatDo
-	FirstOrInit() (*gormmodels.Chat, error)
-	FirstOrCreate() (*gormmodels.Chat, error)
-	FindByPage(offset int, limit int) (result []*gormmodels.Chat, count int64, err error)
+	FirstOrInit() (*models.Chat, error)
+	FirstOrCreate() (*models.Chat, error)
+	FindByPage(offset int, limit int) (result []*models.Chat, count int64, err error)
 	ScanByPage(result interface{}, offset int, limit int) (count int64, err error)
 	Rows() (*sql.Rows, error)
 	Row() *sql.Row
@@ -260,57 +272,57 @@ func (c chatDo) Unscoped() IChatDo {
 	return c.withDO(c.DO.Unscoped())
 }
 
-func (c chatDo) Create(values ...*gormmodels.Chat) error {
+func (c chatDo) Create(values ...*models.Chat) error {
 	if len(values) == 0 {
 		return nil
 	}
 	return c.DO.Create(values)
 }
 
-func (c chatDo) CreateInBatches(values []*gormmodels.Chat, batchSize int) error {
+func (c chatDo) CreateInBatches(values []*models.Chat, batchSize int) error {
 	return c.DO.CreateInBatches(values, batchSize)
 }
 
 // Save : !!! underlying implementation is different with GORM
 // The method is equivalent to executing the statement: db.Clauses(clause.OnConflict{UpdateAll: true}).Create(values)
-func (c chatDo) Save(values ...*gormmodels.Chat) error {
+func (c chatDo) Save(values ...*models.Chat) error {
 	if len(values) == 0 {
 		return nil
 	}
 	return c.DO.Save(values)
 }
 
-func (c chatDo) First() (*gormmodels.Chat, error) {
+func (c chatDo) First() (*models.Chat, error) {
 	if result, err := c.DO.First(); err != nil {
 		return nil, err
 	} else {
-		return result.(*gormmodels.Chat), nil
+		return result.(*models.Chat), nil
 	}
 }
 
-func (c chatDo) Take() (*gormmodels.Chat, error) {
+func (c chatDo) Take() (*models.Chat, error) {
 	if result, err := c.DO.Take(); err != nil {
 		return nil, err
 	} else {
-		return result.(*gormmodels.Chat), nil
+		return result.(*models.Chat), nil
 	}
 }
 
-func (c chatDo) Last() (*gormmodels.Chat, error) {
+func (c chatDo) Last() (*models.Chat, error) {
 	if result, err := c.DO.Last(); err != nil {
 		return nil, err
 	} else {
-		return result.(*gormmodels.Chat), nil
+		return result.(*models.Chat), nil
 	}
 }
 
-func (c chatDo) Find() ([]*gormmodels.Chat, error) {
+func (c chatDo) Find() ([]*models.Chat, error) {
 	result, err := c.DO.Find()
-	return result.([]*gormmodels.Chat), err
+	return result.([]*models.Chat), err
 }
 
-func (c chatDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*gormmodels.Chat, err error) {
-	buf := make([]*gormmodels.Chat, 0, batchSize)
+func (c chatDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*models.Chat, err error) {
+	buf := make([]*models.Chat, 0, batchSize)
 	err = c.DO.FindInBatches(&buf, batchSize, func(tx gen.Dao, batch int) error {
 		defer func() { results = append(results, buf...) }()
 		return fc(tx, batch)
@@ -318,7 +330,7 @@ func (c chatDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error)
 	return results, err
 }
 
-func (c chatDo) FindInBatches(result *[]*gormmodels.Chat, batchSize int, fc func(tx gen.Dao, batch int) error) error {
+func (c chatDo) FindInBatches(result *[]*models.Chat, batchSize int, fc func(tx gen.Dao, batch int) error) error {
 	return c.DO.FindInBatches(result, batchSize, fc)
 }
 
@@ -344,23 +356,23 @@ func (c chatDo) Preload(fields ...field.RelationField) IChatDo {
 	return &c
 }
 
-func (c chatDo) FirstOrInit() (*gormmodels.Chat, error) {
+func (c chatDo) FirstOrInit() (*models.Chat, error) {
 	if result, err := c.DO.FirstOrInit(); err != nil {
 		return nil, err
 	} else {
-		return result.(*gormmodels.Chat), nil
+		return result.(*models.Chat), nil
 	}
 }
 
-func (c chatDo) FirstOrCreate() (*gormmodels.Chat, error) {
+func (c chatDo) FirstOrCreate() (*models.Chat, error) {
 	if result, err := c.DO.FirstOrCreate(); err != nil {
 		return nil, err
 	} else {
-		return result.(*gormmodels.Chat), nil
+		return result.(*models.Chat), nil
 	}
 }
 
-func (c chatDo) FindByPage(offset int, limit int) (result []*gormmodels.Chat, count int64, err error) {
+func (c chatDo) FindByPage(offset int, limit int) (result []*models.Chat, count int64, err error) {
 	result, err = c.Offset(offset).Limit(limit).Find()
 	if err != nil {
 		return
@@ -389,7 +401,7 @@ func (c chatDo) Scan(result interface{}) (err error) {
 	return c.DO.Scan(result)
 }
 
-func (c chatDo) Delete(models ...*gormmodels.Chat) (result gen.ResultInfo, err error) {
+func (c chatDo) Delete(models ...*models.Chat) (result gen.ResultInfo, err error) {
 	return c.DO.Delete(models)
 }
 

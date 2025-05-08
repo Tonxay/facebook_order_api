@@ -9,7 +9,39 @@ import (
 	"os"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/yourusername/go-api/internal/pkg/models"
+	dbservice "github.com/yourusername/go-api/internal/service/db_service"
 )
+
+type WebhookDeliveryEvent struct {
+	Object string `json:"object"`
+	Entry  []struct {
+		ID        string `json:"id"`
+		Time      int64  `json:"time"`
+		Messaging []struct {
+			Sender struct {
+				ID string `json:"id"`
+			} `json:"sender"`
+			Message struct {
+				Text string `json:"text"`
+			} `json:"message,omitempty"`
+			Recipient struct {
+				ID string `json:"id"`
+			} `json:"recipient"`
+
+			Timestamp float64 `json:"timestamp"`
+
+			Delivery *struct {
+				Mids      []string `json:"mids"`
+				Watermark float64  `json:"watermark"`
+			} `json:"delivery,omitempty"`
+
+			Postback *struct {
+				Payload string `json:"payload"`
+			} `json:"postback,omitempty"`
+		} `json:"messaging"`
+	} `json:"entry"`
+}
 
 type WebhookEvent struct {
 	Object string `json:"object"`
@@ -54,7 +86,7 @@ func HandleWebhook(c *fiber.Ctx) error {
 	}
 
 	log.Println("Raw Event:", raw)
-	var event WebhookEvent
+	var event WebhookDeliveryEvent
 	if err := c.BodyParser(&event); err != nil {
 		return c.SendStatus(fiber.StatusBadRequest)
 	}
@@ -63,17 +95,56 @@ func HandleWebhook(c *fiber.Ctx) error {
 	for _, entry := range event.Entry {
 		for _, msg := range entry.Messaging {
 			senderID := msg.Sender.ID
+
+			// Handle message text
 			if msg.Message.Text != "" {
-				log.Println("sending message:", senderID, " ", msg.Message.Text)
-				// sendMessage(senderID, "You said: "+msg.Message.Text)
+				log.Printf("Received message from %s: %s\n", senderID, msg.Message.Text)
+
+				// Save to DB (example)
+				dbservice.CreateMesseng(models.Chat{
+
+					SenderID:    senderID,
+					Message:     msg.Message.Text,
+					RecipientID: msg.Recipient.ID,
+					JSONMesseng: string(c.BodyRaw()),
+				})
+
+				// Optional reply
+				// SendMessage(senderID, "You said: "+msg.Message.Text)
 			}
 
-			if msg.Postback.Payload == "SEND_BACK" {
-				log.Println("sending message:", senderID, " ", msg.Postback.Payload)
-				SendMessage(senderID, msg.Message.Text)
+			// Handle postbacks
+			if msg.Postback != nil && msg.Postback.Payload != "" {
+				log.Printf("Received postback from %s: %s\n", senderID, msg.Postback.Payload)
+
+				// Example response
+				SendMessage(senderID, "You clicked: "+msg.Postback.Payload)
+			}
+
+			// Handle delivery confirmations
+			if msg.Delivery != nil {
+				log.Printf("Delivery confirmed for %d message(s): %v\n",
+					len(msg.Delivery.Mids), msg.Delivery.Mids)
 			}
 		}
 	}
+
+	// // Handle text messages
+	// if msg.Message != nil && msg.Message.Text != "" {
+	// 	log.Println("Received message:", senderID, msg.Message.Text)
+	// 	dbservice.CreateMesseng(models.Chat{
+	// 		SenderID: senderID,
+	// 		Message:  msg.Message.Text,
+	// 	})
+	// 	// Optionally send a reply
+	// 	// SendMessage(senderID, "You said: "+msg.Message.Text)
+	// }
+
+	// // Handle postback payloads
+	// if msg.Postback != nil && msg.Postback.Payload == "SEND_BACK" {
+	// 	log.Println("Received postback:", senderID, msg.Postback.Payload)
+	// 	SendMessage(senderID, "Thanks for clicking!")
+	// }
 
 	return c.SendStatus(fiber.StatusOK)
 }

@@ -28,7 +28,7 @@ func main() {
 
 	generator := gen.NewGenerator(gen.Config{
 		OutPath:      "internal/pkg/query",
-		ModelPkgPath: "models/gormmodels",
+		ModelPkgPath: "models",
 		Mode:         gen.WithoutContext | gen.WithDefaultQuery | gen.WithQueryInterface, // generate mode
 	})
 	generator.UseDB(gormdb)
@@ -36,8 +36,6 @@ func main() {
 		// Generate structs from all tables of current database
 		generator.GenerateAllTable()...,
 	)
-	// Generate the code
-	generator.Execute()
 
 	// Execute the generator
 	generator.Execute()
