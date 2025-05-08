@@ -4,3 +4,4 @@ docker build -t go-fiber-docker-api .
 docker tag go-fiber-docker-api:latest your-dockerhub-username/go-fiber-docker-api:latest
 docker login
 docker push your-dockerhub-username/go-fiber-docker-api:latest
+GOOS=linux GOARCH=amd64 go build -o server ./cmd/heroku

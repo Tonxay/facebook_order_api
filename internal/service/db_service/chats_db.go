@@ -1,11 +1,12 @@
 package dbservice
 
 import (
+	gormpkg "github.com/yourusername/go-api/internal/pkg"
 	"github.com/yourusername/go-api/internal/pkg/models"
-	"github.com/yourusername/go-api/internal/pkg/query"
 )
 
 func CreateMesseng(messeng models.Chat) error {
-	err := query.Chat.Create(&messeng)
+
+	err := gormpkg.GetDB().Table(models.TableNameChat).Create(&messeng).Error
 	return err
 }

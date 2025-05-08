@@ -9,6 +9,8 @@ import (
 	"os"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/yourusername/go-api/internal/pkg/models"
+	dbservice "github.com/yourusername/go-api/internal/service/db_service"
 )
 
 type WebhookDeliveryEvent struct {
@@ -99,13 +101,19 @@ func HandleWebhook(c *fiber.Ctx) error {
 				log.Printf("Received message from %s: %s\n", senderID, msg.Message.Text)
 
 				// Save to DB (example)
-				// dbservice.CreateMesseng(models.Chat{
-				// 	SenderID:    senderID,
-				// 	Message:     msg.Message.Text,
-				// 	RecipientID: msg.Recipient.ID,
-				// 	JSONMesseng: string(c.BodyRaw()),
-				// })
+				err := dbservice.CreateMesseng(models.Chat{
+					SenderID:    senderID,
+					Message:     msg.Message.Text,
+					UserID:      "1e55b100-8a4e-4372-a9e9-7d3c5f4a2a77",
+					RecipientID: msg.Recipient.ID,
+					JSONMesseng: string(c.BodyRaw()),
+				})
 
+				if err != nil {
+					return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+						"error": "create messeng",
+					})
+				}
 				// Optional reply
 				// SendMessage(senderID, "You said: "+msg.Message.Text)
 			}
