@@ -102,7 +102,6 @@ func HandleWebhook(c *fiber.Ctx) error {
 
 				// Save to DB (example)
 				dbservice.CreateMesseng(models.Chat{
-
 					SenderID:    senderID,
 					Message:     msg.Message.Text,
 					RecipientID: msg.Recipient.ID,
