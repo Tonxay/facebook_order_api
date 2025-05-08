@@ -17,12 +17,15 @@ import (
 var gormdb *gorm.DB
 
 // Init initializes gormdb
-func Init() error {
+func Init(webhook string) error {
 	var err error
-	// Load .env file if exists
-	if err := godotenv.Load(); err != nil {
-		log.Println("No .env file found, reading from system environment")
+	if webhook != "webhook" {
+		// Load .env file if exists
+		if err := godotenv.Load(); err != nil {
+			log.Println("No .env file found, reading from system environment")
+		}
 	}
+
 	DBURL := os.Getenv("PSQL_DB_URL")
 	pool, err := pgxpool.New(context.Background(), DBURL)
 
@@ -48,7 +51,7 @@ func Init() error {
 // GetDB returns gormdb
 func GetDB() *gorm.DB {
 	if gormdb == nil {
-		Init()
+		Init("")
 	}
 	return gormdb
 }

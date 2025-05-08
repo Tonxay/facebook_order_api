@@ -76,7 +76,7 @@ import (
 
 func main() {
 
-	if err := gormpkg.Init(); err != nil {
+	if err := gormpkg.Init(""); err != nil {
 		log.Fatalf("❌ Failed to connect to DB: %v", err)
 	}
 
