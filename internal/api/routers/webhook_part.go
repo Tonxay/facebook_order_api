@@ -5,7 +5,7 @@ import (
 	"github.com/yourusername/go-api/internal/service"
 )
 
-func SetupRoutesPart(route fiber.Router) {
+func SetupWebhookRoutesPart(route fiber.Router) {
 	route.Get("/", service.VerifyWebhook)
 	route.Post("/", service.HandleWebhook)
 

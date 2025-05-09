@@ -184,6 +184,11 @@ func HandleWebhook(c *fiber.Ctx) error {
 				RecipientID: recipientID,
 				JSONMesseng: string(c.BodyRaw()),
 			})
+
+			PushToUser(senderID, fiber.Map{
+				"customer_id": fbID,
+				"message":     c.BodyRaw(),
+			})
 			if err != nil {
 				log.Println("Failed to create message:", err)
 				return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{

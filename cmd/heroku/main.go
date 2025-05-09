@@ -84,6 +84,9 @@ func main() {
 	// API Routes
 	// api := app.Group(os.Getenv("API_PREFIX"))
 	api.SetupRoutes(app)
+
+	api.SetupWebsocketRoutes(app)
+
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"

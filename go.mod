@@ -12,12 +12,17 @@ require (
 
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect
+	github.com/fasthttp/websocket v1.5.3 // indirect
 	github.com/go-sql-driver/mysql v1.8.1 // indirect
+	github.com/gofiber/fiber v1.13.3 // indirect
+	github.com/gofiber/utils v0.0.9 // indirect
+	github.com/gorilla/schema v1.1.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
 	github.com/jackc/puddle/v2 v2.2.2 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
+	github.com/savsgio/gotils v0.0.0-20230208104028-c358bd845dee // indirect
 	github.com/stretchr/testify v1.10.0 // indirect
 	golang.org/x/crypto v0.38.0 // indirect
 	golang.org/x/mod v0.17.0 // indirect
@@ -32,6 +37,8 @@ require (
 
 require (
 	github.com/andybalholm/brotli v1.0.6 // indirect
+	github.com/gofiber/websocket v0.5.1
+	github.com/gofiber/websocket/v2 v2.2.1
 	github.com/google/uuid v1.5.0 // indirect
 	github.com/joho/godotenv v1.5.1
 	github.com/klauspost/compress v1.17.0 // indirect
