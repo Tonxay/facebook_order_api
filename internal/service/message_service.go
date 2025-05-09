@@ -22,14 +22,22 @@ type WebhookDeliveryEvent struct {
 			Sender struct {
 				ID string `json:"id"`
 			} `json:"sender"`
-			Message struct {
-				Text string `json:"text"`
-			} `json:"message,omitempty"`
 			Recipient struct {
 				ID string `json:"id"`
 			} `json:"recipient"`
 
 			Timestamp float64 `json:"timestamp"`
+
+			Message *struct {
+				Mid         string `json:"mid"`
+				Text        string `json:"text,omitempty"`
+				Attachments []struct {
+					Type    string `json:"type"`
+					Payload struct {
+						URL string `json:"url"`
+					} `json:"payload"`
+				} `json:"attachments,omitempty"`
+			} `json:"message,omitempty"`
 
 			Delivery *struct {
 				Mids      []string `json:"mids"`
@@ -96,24 +104,23 @@ func HandleWebhook(c *fiber.Ctx) error {
 		for _, msg := range entry.Messaging {
 			senderID := msg.Sender.ID
 			log.Printf("Received message from %s: %s\n", senderID, msg.Message.Text)
-			// Handle message text
-			if msg.Message.Text != "" {
-				log.Printf("Received message from %s: %s\n", senderID, msg.Message.Text)
+			// if msg.Message.Text != "" || len(msg.Message.Attachments) != 0 {
+			// }
 
-				// Save to DB (example)
-				err := dbservice.CreateMesseng(models.Chat{
-					SenderID:    senderID,
-					Message:     msg.Message.Text,
-					UserID:      "1e55b100-8a4e-4372-a9e9-7d3c5f4a2a77",
-					RecipientID: msg.Recipient.ID,
-					JSONMesseng: string(c.BodyRaw()),
+			// Save to DB (example)
+			err := dbservice.CreateMesseng(models.Chat{
+				SenderID:    senderID,
+				Message:     msg.Message.Text,
+				UserID:      "1e55b100-8a4e-4372-a9e9-7d3c5f4a2a77",
+				RecipientID: msg.Recipient.ID,
+				JSONMesseng: string(c.BodyRaw()),
+			})
+
+			if err != nil {
+				return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+					"error": "create messeng",
 				})
 
-				if err != nil {
-					return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-						"error": "create messeng",
-					})
-				}
 				// Optional reply
 				// SendMessage(senderID, "You said: "+msg.Message.Text)
 			}
