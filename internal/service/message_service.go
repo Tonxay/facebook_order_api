@@ -7,8 +7,10 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 
 	"github.com/gofiber/fiber/v2"
+	gormpkg "github.com/yourusername/go-api/internal/pkg"
 	"github.com/yourusername/go-api/internal/pkg/models"
 	dbservice "github.com/yourusername/go-api/internal/service/db_service"
 )
@@ -113,6 +115,22 @@ func HandleWebhook(c *fiber.Ctx) error {
 				RecipientID: msg.Recipient.ID,
 				JSONMesseng: string(c.BodyRaw()),
 			})
+			db := gormpkg.GetDB()
+			//  query.SetDefault(gormpkg.GetDB())
+			//  user := query.Q.User
+			// Convert string to int64 first
+
+			if senderID != os.Getenv("PAGE_ID") {
+				id, _ := strconv.ParseInt(senderID, 10, 64)
+				db.Table(models.TableNameUser).Create(models.User{
+					FacebookID: int32(id),
+				})
+			} else {
+				id, _ := strconv.ParseInt(msg.Recipient.ID, 10, 64)
+				db.Table(models.TableNameUser).Create(models.User{
+					FacebookID: int32(id),
+				})
+			}
 
 			if err != nil {
 				return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
