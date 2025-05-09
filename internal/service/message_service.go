@@ -128,7 +128,6 @@ func HandleWebhook(c *fiber.Ctx) error {
 			} else {
 				fbID = recipientID
 			}
-
 			// Check if user already exists
 			var existing models.User
 			result := db.Table(models.TableNameUser).Where("facebook_id = ?", fbID).First(&existing)
