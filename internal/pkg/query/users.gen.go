@@ -28,11 +28,6 @@ func newUser(db *gorm.DB, opts ...gen.DOOption) user {
 
 	tableName := _user.userDo.TableName()
 	_user.ALL = field.NewAsterisk(tableName)
-	_user.FacebookID = field.NewString(tableName, "facebook_id")
-	_user.LastName = field.NewString(tableName, "last_name")
-	_user.Image = field.NewString(tableName, "image")
-	_user.PhoneNumber = field.NewInt32(tableName, "phone_number")
-	_user.FirstName = field.NewString(tableName, "first_name")
 	_user.ID = field.NewString(tableName, "id")
 
 	_user.fillFieldMap()
@@ -43,13 +38,8 @@ func newUser(db *gorm.DB, opts ...gen.DOOption) user {
 type user struct {
 	userDo
 
-	ALL         field.Asterisk
-	FacebookID  field.String
-	LastName    field.String
-	Image       field.String
-	PhoneNumber field.Int32
-	FirstName   field.String
-	ID          field.String
+	ALL field.Asterisk
+	ID  field.String
 
 	fieldMap map[string]field.Expr
 }
@@ -66,11 +56,6 @@ func (u user) As(alias string) *user {
 
 func (u *user) updateTableName(table string) *user {
 	u.ALL = field.NewAsterisk(table)
-	u.FacebookID = field.NewString(table, "facebook_id")
-	u.LastName = field.NewString(table, "last_name")
-	u.Image = field.NewString(table, "image")
-	u.PhoneNumber = field.NewInt32(table, "phone_number")
-	u.FirstName = field.NewString(table, "first_name")
 	u.ID = field.NewString(table, "id")
 
 	u.fillFieldMap()
@@ -88,12 +73,7 @@ func (u *user) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (u *user) fillFieldMap() {
-	u.fieldMap = make(map[string]field.Expr, 6)
-	u.fieldMap["facebook_id"] = u.FacebookID
-	u.fieldMap["last_name"] = u.LastName
-	u.fieldMap["image"] = u.Image
-	u.fieldMap["phone_number"] = u.PhoneNumber
-	u.fieldMap["first_name"] = u.FirstName
+	u.fieldMap = make(map[string]field.Expr, 1)
 	u.fieldMap["id"] = u.ID
 }
 

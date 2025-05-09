@@ -34,8 +34,8 @@ func newChat(db *gorm.DB, opts ...gen.DOOption) chat {
 	_chat.JSONMesseng = field.NewString(tableName, "json_messeng")
 	_chat.UpdatedAt = field.NewTime(tableName, "updated_at")
 	_chat.ID = field.NewString(tableName, "id")
-	_chat.UserID = field.NewString(tableName, "user_id")
 	_chat.Status = field.NewInt32(tableName, "status")
+	_chat.UserID = field.NewString(tableName, "user_id")
 
 	_chat.fillFieldMap()
 
@@ -52,8 +52,8 @@ type chat struct {
 	JSONMesseng field.String
 	UpdatedAt   field.Time
 	ID          field.String
-	UserID      field.String
 	Status      field.Int32
+	UserID      field.String
 
 	fieldMap map[string]field.Expr
 }
@@ -76,8 +76,8 @@ func (c *chat) updateTableName(table string) *chat {
 	c.JSONMesseng = field.NewString(table, "json_messeng")
 	c.UpdatedAt = field.NewTime(table, "updated_at")
 	c.ID = field.NewString(table, "id")
-	c.UserID = field.NewString(table, "user_id")
 	c.Status = field.NewInt32(table, "status")
+	c.UserID = field.NewString(table, "user_id")
 
 	c.fillFieldMap()
 
@@ -101,8 +101,8 @@ func (c *chat) fillFieldMap() {
 	c.fieldMap["json_messeng"] = c.JSONMesseng
 	c.fieldMap["updated_at"] = c.UpdatedAt
 	c.fieldMap["id"] = c.ID
-	c.fieldMap["user_id"] = c.UserID
 	c.fieldMap["status"] = c.Status
+	c.fieldMap["user_id"] = c.UserID
 }
 
 func (c chat) clone(db *gorm.DB) chat {

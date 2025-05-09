@@ -18,8 +18,8 @@ type Chat struct {
 	JSONMesseng string    `gorm:"column:json_messeng" json:"json_messeng"`
 	UpdatedAt   time.Time `gorm:"column:updated_at;default:now()" json:"updated_at"`
 	ID          string    `gorm:"column:id;primaryKey;default:gen_random_uuid()" json:"id"`
-	UserID      string    `gorm:"column:user_id" json:"user_id"`
 	Status      int32     `gorm:"column:status;default:1" json:"status"`
+	UserID      string    `gorm:"column:user_id;not null" json:"user_id"`
 }
 
 // TableName Chat's table name
