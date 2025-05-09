@@ -76,7 +76,7 @@ import (
 
 func main() {
 
-	if err := gormpkg.Init(""); err != nil {
+	if err := gormpkg.Init("api"); err != nil {
 		log.Fatalf("❌ Failed to connect to DB: %v", err)
 	}
 
@@ -84,6 +84,7 @@ func main() {
 	// API Routes
 	// api := app.Group(os.Getenv("API_PREFIX"))
 	api.SetupRoutes(app)
+	api.SetupWebsocketRoutes(app)
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
