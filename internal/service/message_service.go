@@ -122,12 +122,12 @@ func HandleWebhook(c *fiber.Ctx) error {
 
 			if senderID != os.Getenv("PAGE_ID") {
 				id, _ := strconv.ParseInt(senderID, 10, 64)
-				db.Table(models.TableNameUser).Create(models.User{
+				db.Table(models.TableNameUser).Create(&models.User{
 					FacebookID: int32(id),
 				})
 			} else {
 				id, _ := strconv.ParseInt(msg.Recipient.ID, 10, 64)
-				db.Table(models.TableNameUser).Create(models.User{
+				db.Table(models.TableNameUser).Create(&models.User{
 					FacebookID: int32(id),
 				})
 			}
