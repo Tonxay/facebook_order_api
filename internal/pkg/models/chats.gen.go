@@ -14,12 +14,12 @@ const TableNameChat = "chats"
 type Chat struct {
 	SenderID    string    `gorm:"column:sender_id;not null" json:"sender_id"`
 	RecipientID string    `gorm:"column:recipient_id;not null" json:"recipient_id"`
-	Message     string    `gorm:"column:message;not null" json:"message"`
 	CreatedAt   time.Time `gorm:"column:created_at;default:now()" json:"created_at"`
 	JSONMesseng string    `gorm:"column:json_messeng" json:"json_messeng"`
 	UpdatedAt   time.Time `gorm:"column:updated_at;default:now()" json:"updated_at"`
 	ID          string    `gorm:"column:id;primaryKey;default:gen_random_uuid()" json:"id"`
 	UserID      string    `gorm:"column:user_id" json:"user_id"`
+	Status      int32     `gorm:"column:status;default:1" json:"status"`
 }
 
 // TableName Chat's table name

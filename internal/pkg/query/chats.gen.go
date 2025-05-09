@@ -30,12 +30,12 @@ func newChat(db *gorm.DB, opts ...gen.DOOption) chat {
 	_chat.ALL = field.NewAsterisk(tableName)
 	_chat.SenderID = field.NewString(tableName, "sender_id")
 	_chat.RecipientID = field.NewString(tableName, "recipient_id")
-	_chat.Message = field.NewString(tableName, "message")
 	_chat.CreatedAt = field.NewTime(tableName, "created_at")
 	_chat.JSONMesseng = field.NewString(tableName, "json_messeng")
 	_chat.UpdatedAt = field.NewTime(tableName, "updated_at")
 	_chat.ID = field.NewString(tableName, "id")
 	_chat.UserID = field.NewString(tableName, "user_id")
+	_chat.Status = field.NewInt32(tableName, "status")
 
 	_chat.fillFieldMap()
 
@@ -48,12 +48,12 @@ type chat struct {
 	ALL         field.Asterisk
 	SenderID    field.String
 	RecipientID field.String
-	Message     field.String
 	CreatedAt   field.Time
 	JSONMesseng field.String
 	UpdatedAt   field.Time
 	ID          field.String
 	UserID      field.String
+	Status      field.Int32
 
 	fieldMap map[string]field.Expr
 }
@@ -72,12 +72,12 @@ func (c *chat) updateTableName(table string) *chat {
 	c.ALL = field.NewAsterisk(table)
 	c.SenderID = field.NewString(table, "sender_id")
 	c.RecipientID = field.NewString(table, "recipient_id")
-	c.Message = field.NewString(table, "message")
 	c.CreatedAt = field.NewTime(table, "created_at")
 	c.JSONMesseng = field.NewString(table, "json_messeng")
 	c.UpdatedAt = field.NewTime(table, "updated_at")
 	c.ID = field.NewString(table, "id")
 	c.UserID = field.NewString(table, "user_id")
+	c.Status = field.NewInt32(table, "status")
 
 	c.fillFieldMap()
 
@@ -97,12 +97,12 @@ func (c *chat) fillFieldMap() {
 	c.fieldMap = make(map[string]field.Expr, 8)
 	c.fieldMap["sender_id"] = c.SenderID
 	c.fieldMap["recipient_id"] = c.RecipientID
-	c.fieldMap["message"] = c.Message
 	c.fieldMap["created_at"] = c.CreatedAt
 	c.fieldMap["json_messeng"] = c.JSONMesseng
 	c.fieldMap["updated_at"] = c.UpdatedAt
 	c.fieldMap["id"] = c.ID
 	c.fieldMap["user_id"] = c.UserID
+	c.fieldMap["status"] = c.Status
 }
 
 func (c chat) clone(db *gorm.DB) chat {
