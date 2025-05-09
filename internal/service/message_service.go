@@ -7,12 +7,12 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 	gormpkg "github.com/yourusername/go-api/internal/pkg"
 	"github.com/yourusername/go-api/internal/pkg/models"
 	dbservice "github.com/yourusername/go-api/internal/service/db_service"
+	"gorm.io/gorm"
 )
 
 type WebhookDeliveryEvent struct {
@@ -120,15 +120,24 @@ func HandleWebhook(c *fiber.Ctx) error {
 			//  user := query.Q.User
 			// Convert string to int64 first
 
+			recipientID := msg.Recipient.ID
+
+			var fbID string
 			if senderID != os.Getenv("PAGE_ID") {
-				id, _ := strconv.ParseInt(senderID, 10, 64)
-				db.Table(models.TableNameUser).Create(&models.User{
-					FacebookID: int32(id),
-				})
+				fbID = senderID
 			} else {
-				id, _ := strconv.ParseInt(msg.Recipient.ID, 10, 64)
+				fbID = recipientID
+			}
+
+			// Check if user already exists
+			var existing models.User
+			result := db.Table(models.TableNameUser).Where("facebook_id = ?", fbID).First(&existing)
+
+			if result.Error != nil && result.Error == gorm.ErrRecordNotFound {
+
+				// User not found, create new one
 				db.Table(models.TableNameUser).Create(&models.User{
-					FacebookID: int32(id),
+					FacebookID: fbID,
 				})
 			}
 

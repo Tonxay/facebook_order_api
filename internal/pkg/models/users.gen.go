@@ -8,7 +8,7 @@ const TableNameUser = "users"
 
 // User mapped from table <users>
 type User struct {
-	FacebookID  int32  `gorm:"column:facebook_id;primaryKey" json:"facebook_id"`
+	FacebookID  string `gorm:"column:facebook_id;primaryKey" json:"facebook_id"`
 	LastName    string `gorm:"column:last_name" json:"last_name"`
 	Image       string `gorm:"column:image" json:"image"`
 	PhoneNumber int32  `gorm:"column:phone_number" json:"phone_number"`

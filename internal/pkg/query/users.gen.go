@@ -28,7 +28,7 @@ func newUser(db *gorm.DB, opts ...gen.DOOption) user {
 
 	tableName := _user.userDo.TableName()
 	_user.ALL = field.NewAsterisk(tableName)
-	_user.FacebookID = field.NewInt32(tableName, "facebook_id")
+	_user.FacebookID = field.NewString(tableName, "facebook_id")
 	_user.LastName = field.NewString(tableName, "last_name")
 	_user.Image = field.NewString(tableName, "image")
 	_user.PhoneNumber = field.NewInt32(tableName, "phone_number")
@@ -44,7 +44,7 @@ type user struct {
 	userDo
 
 	ALL         field.Asterisk
-	FacebookID  field.Int32
+	FacebookID  field.String
 	LastName    field.String
 	Image       field.String
 	PhoneNumber field.Int32
@@ -66,7 +66,7 @@ func (u user) As(alias string) *user {
 
 func (u *user) updateTableName(table string) *user {
 	u.ALL = field.NewAsterisk(table)
-	u.FacebookID = field.NewInt32(table, "facebook_id")
+	u.FacebookID = field.NewString(table, "facebook_id")
 	u.LastName = field.NewString(table, "last_name")
 	u.Image = field.NewString(table, "image")
 	u.PhoneNumber = field.NewInt32(table, "phone_number")
