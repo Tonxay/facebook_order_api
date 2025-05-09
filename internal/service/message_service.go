@@ -13,6 +13,7 @@ import (
 	"github.com/yourusername/go-api/internal/pkg/models"
 	"github.com/yourusername/go-api/internal/pkg/models/customs"
 	dbservice "github.com/yourusername/go-api/internal/service/db_service"
+	"gorm.io/gorm"
 )
 
 type WebhookDeliveryEvent struct {
@@ -115,7 +116,7 @@ func HandleWebhook(c *fiber.Ctx) error {
 				RecipientID: msg.Recipient.ID,
 				JSONMesseng: string(c.BodyRaw()),
 			})
-			db := gormpkg.GetDB()
+			db := *gormpkg.GetDB()
 			//  query.SetDefault(gormpkg.GetDB())
 			//  user := query.Q.User
 			// Convert string to int64 first
@@ -126,11 +127,18 @@ func HandleWebhook(c *fiber.Ctx) error {
 			} else {
 				fbID = &msg.Recipient.ID
 			}
+			// Check if user already exists
+			var existing models.User
+			result := db.Table(models.TableNameUser).Where("facebook_id = ?", fbID).First(&existing)
 
-			// User not found, create new one
-			db.Table(models.TableNameUser).Create(&customs.UserCustom{
-				FacebookID: fbID,
-			})
+			if result.Error != nil && result.Error == gorm.ErrRecordNotFound {
+
+				// User not found, create new one
+				db.Table(models.TableNameUser).Create(&customs.UserCustom{
+					FacebookID: fbID,
+				})
+
+			}
 
 			if err != nil {
 				return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
