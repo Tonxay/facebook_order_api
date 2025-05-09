@@ -95,7 +95,7 @@ func HandleWebhook(c *fiber.Ctx) error {
 	for _, entry := range event.Entry {
 		for _, msg := range entry.Messaging {
 			senderID := msg.Sender.ID
-
+			log.Printf("Received message from %s: %s\n", senderID, msg.Message.Text)
 			// Handle message text
 			if msg.Message.Text != "" {
 				log.Printf("Received message from %s: %s\n", senderID, msg.Message.Text)

@@ -25,7 +25,6 @@ type ConversationsResponse struct {
 func GetConversations(c *fiber.Ctx) error {
 	pageAccessToken := os.Getenv("PAGE_ACCESS_TOKEN")
 	pageID := os.Getenv("PAGE_ID")
-	apiVersion := "v21.0"
 
 	if pageAccessToken == "" || pageID == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -33,7 +32,9 @@ func GetConversations(c *fiber.Ctx) error {
 		})
 	}
 
-	url := fmt.Sprintf("https://graph.facebook.com/%s/%s/conversations?platform=messenger&access_token=%s", apiVersion, pageID, pageAccessToken)
+	url := fmt.Sprintf(
+		"https://graph.facebook.com/v21.0/%s/conversations?fields=participants&access_token=%s",
+		pageID, pageAccessToken)
 
 	resp, err := http.Get(url)
 	if err != nil {
