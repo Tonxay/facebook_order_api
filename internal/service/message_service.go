@@ -107,7 +107,7 @@ func HandleWebhook(c *fiber.Ctx) error {
 			// if msg.Message.Text != "" || len(msg.Message.Attachments) != 0 {
 			// }
 			// Save to DB (example)
-			err := dbservice.CreateMesseng(models.Chat{
+			err := dbservice.CreateMesseng(&models.Chat{
 				SenderID:    senderID,
 				UserID:      "1e55b100-8a4e-4372-a9e9-7d3c5f4a2a77",
 				RecipientID: msg.Recipient.ID,
