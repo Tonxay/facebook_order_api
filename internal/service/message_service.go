@@ -137,7 +137,6 @@ func HandleWebhook(c *fiber.Ctx) error {
 				db.Table(models.TableNameUser).Create(&customs.UserCustom{
 					FacebookID: fbID,
 				})
-
 			}
 
 			if err != nil {
