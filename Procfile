@@ -1,1 +1,1 @@
-web: ./cmd/heroku/main.go
+web: ./server
