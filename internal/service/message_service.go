@@ -106,7 +106,6 @@ func HandleWebhook(c *fiber.Ctx) error {
 			log.Printf("Received message from %s: %s\n", senderID, msg.Message.Text)
 			// if msg.Message.Text != "" || len(msg.Message.Attachments) != 0 {
 			// }
-
 			// Save to DB (example)
 			err := dbservice.CreateMesseng(models.Chat{
 				SenderID:    senderID,
