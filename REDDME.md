@@ -5,3 +5,4 @@ docker tag go-fiber-docker-api:latest your-dockerhub-username/go-fiber-docker-ap
 docker login
 docker push your-dockerhub-username/go-fiber-docker-api:latest
 GOOS=linux GOARCH=amd64 go build -o server ./cmd/heroku
+docker build -t tonxay/gowebhook:latest .

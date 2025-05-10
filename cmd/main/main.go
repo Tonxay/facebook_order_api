@@ -6,7 +6,6 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/yourusername/go-api/internal/api"
-	gormpkg "github.com/yourusername/go-api/internal/pkg"
 )
 
 // func sendMessage(recipientID, messageText string) error {
@@ -75,10 +74,6 @@ import (
 // }
 
 func main() {
-
-	if err := gormpkg.Init("api"); err != nil {
-		log.Fatalf("❌ Failed to connect to DB: %v", err)
-	}
 
 	app := fiber.New()
 	// API Routes
