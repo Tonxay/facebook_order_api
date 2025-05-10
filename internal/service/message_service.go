@@ -11,7 +11,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 	gormpkg "github.com/yourusername/go-api/internal/pkg"
 	"github.com/yourusername/go-api/internal/pkg/models"
-	"github.com/yourusername/go-api/internal/pkg/models/customs"
 	dbservice "github.com/yourusername/go-api/internal/service/db_service"
 )
 
@@ -156,14 +155,14 @@ func HandleWebhook(c *fiber.Ctx) error {
 			senderID := msg.Sender.ID
 			recipientID := msg.Recipient.ID
 			// Store user if not from PAGE_ID
-			var fbID *string
+			var fbID string
 			if senderID != os.Getenv("PAGE_ID") {
-				fbID = &senderID
+				fbID = senderID
 			} else {
-				fbID = &recipientID
+				fbID = recipientID
 			}
 
-			gormpkg.GetDB().Table(models.TableNameUser).Create(&customs.UserCustom{
+			gormpkg.GetDB().Table(models.TableNameCustomer).Create(&models.Customer{
 				FacebookID: fbID,
 			})
 
