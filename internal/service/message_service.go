@@ -155,16 +155,6 @@ func HandleWebhook(c *fiber.Ctx) error {
 
 			senderID := msg.Sender.ID
 			recipientID := msg.Recipient.ID
-
-			if senderID == "" || recipientID == "" {
-				log.Println("Skipping message with empty sender or recipient ID")
-				continue
-			}
-
-			if msg.Message != nil && msg.Message.Text != "" {
-				log.Printf("Received message from %s: %s\n", senderID, msg.Message.Text)
-			}
-
 			// Store user if not from PAGE_ID
 			var fbID *string
 			if senderID != os.Getenv("PAGE_ID") {
@@ -176,6 +166,15 @@ func HandleWebhook(c *fiber.Ctx) error {
 			gormpkg.GetDB().Table(models.TableNameUser).Create(&customs.UserCustom{
 				FacebookID: fbID,
 			})
+
+			if senderID == "" || recipientID == "" {
+				log.Println("Skipping message with empty sender or recipient ID")
+				continue
+			}
+
+			if msg.Message != nil && msg.Message.Text != "" {
+				log.Printf("Received message from %s: %s\n", senderID, msg.Message.Text)
+			}
 
 			// Save message to DB
 			err := dbservice.CreateMesseng(&models.Chat{

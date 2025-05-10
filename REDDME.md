@@ -6,3 +6,4 @@ docker login
 docker push your-dockerhub-username/go-fiber-docker-api:latest
 GOOS=linux GOARCH=amd64 go build -o server ./cmd/heroku
 docker build -t tonxay/gowebhook:latest .
+docker build --no-cache -t tonxay/gowebhook:latest .

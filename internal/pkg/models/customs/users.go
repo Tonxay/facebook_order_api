@@ -4,7 +4,7 @@
 
 package customs
 
-const TableNameUser = "users"
+const TableNameUser = "customers"
 
 // User mapped from table <users>
 type UserCustom struct {
