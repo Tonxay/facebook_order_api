@@ -5,8 +5,6 @@ import (
 	"os"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/yourusername/go-api/internal/api"
-	routers_part "github.com/yourusername/go-api/internal/api/routers"
 	gormpkg "github.com/yourusername/go-api/internal/pkg"
 )
 
@@ -82,6 +80,10 @@ func main() {
 	}
 
 	app := fiber.New()
+
+	app.Get("/", func(c *fiber.Ctx) error {
+		return c.SendString("Product API Running")
+	})
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
@@ -89,10 +91,8 @@ func main() {
 	log.Fatal(app.Listen(":" + port))
 	// API Routes
 	// api := app.Group(os.Getenv("API_PREFIX"))
-	api.SetupRoutes(app)
-	api.SetupWebsocketRoutes(app)
+	// api.SetupRoutes(app)
 
-	webhook := app.Group("/webhook")
-	routers_part.SetupWebhookRoutesPart(webhook)
+	// api.SetupWebsocketRoutes(app)
 
 }
