@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/gofiber/fiber/v2"
+	gormpkg "github.com/yourusername/go-api/internal/pkg"
 )
 
 // func sendMessage(recipientID, messageText string) error {
@@ -74,9 +75,9 @@ import (
 
 func main() {
 
-	// if err := gormpkg.Init("webhook"); err != nil {
-	// 	log.Fatalf("❌ Failed to connect to DB: %v", err)
-	// }
+	if err := gormpkg.Init("webhook"); err != nil {
+		log.Fatalf("❌ Failed to connect to DB: %v", err)
+	}
 
 	// app := fiber.New()
 
