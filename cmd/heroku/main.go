@@ -6,6 +6,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/yourusername/go-api/internal/api"
+	routers_part "github.com/yourusername/go-api/internal/api/routers"
 	gormpkg "github.com/yourusername/go-api/internal/pkg"
 )
 
@@ -89,7 +90,9 @@ func main() {
 	// API Routes
 	// api := app.Group(os.Getenv("API_PREFIX"))
 	api.SetupRoutes(app)
-
 	api.SetupWebsocketRoutes(app)
+
+	webhook := app.Group("/webhook")
+	routers_part.SetupWebhookRoutesPart(webhook)
 
 }
