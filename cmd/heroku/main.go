@@ -81,15 +81,15 @@ func main() {
 	}
 
 	app := fiber.New()
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+	log.Fatal(app.Listen(":" + port))
 	// API Routes
 	// api := app.Group(os.Getenv("API_PREFIX"))
 	api.SetupRoutes(app)
 
 	api.SetupWebsocketRoutes(app)
 
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080"
-	}
-	log.Fatal(app.Listen(":" + port))
 }
