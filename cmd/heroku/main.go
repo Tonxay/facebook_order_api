@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/yourusername/go-api/internal/api"
 	gormpkg "github.com/yourusername/go-api/internal/pkg"
 )
 
@@ -79,59 +80,17 @@ func main() {
 		log.Fatalf("❌ Failed to connect to DB: %v", err)
 	}
 
-	// app := fiber.New()
-
-	// // API Routes
-	// // api := app.Group(os.Getenv("API_PREFIX"))
-	// api.SetupRoutes(app)
-
-	// api.SetupWebsocketRoutes(app)
-	// port := os.Getenv("PORT")
-	// if port == "" {
-	// 	port = "8080"
-	// }
-	// log.Fatal(app.Listen(":" + port))
-
 	app := fiber.New()
 
-	// Facebook webhook verify (GET)
-	app.Get("/webhook", func(c *fiber.Ctx) error {
-		mode := c.Query("hub.mode")
-		token := c.Query("hub.verify_token")
-		challenge := c.Query("hub.challenge")
+	// API Routes
+	// api := app.Group(os.Getenv("API_PREFIX"))
+	api.SetupRoutes(app)
 
-		verifyToken := os.Getenv("VERIFY_TOKEN") // set in Heroku config
-
-		if mode == "subscribe" && token == verifyToken {
-			return c.SendString(challenge)
-		}
-		return c.SendStatus(fiber.StatusForbidden)
-	})
-
-	// Facebook webhook POST
-	app.Post("/webhook", func(c *fiber.Ctx) error {
-		var body map[string]interface{}
-		if err := c.BodyParser(&body); err != nil {
-			return c.Status(400).SendString("Invalid JSON")
-		}
-		// Just log or return back for now
-		return c.JSON(body)
-	})
-
-	// Sample custom API endpoint
-	app.Get("/products", func(c *fiber.Ctx) error {
-		products := []map[string]interface{}{
-			{"id": 1, "name": "Product A"},
-			{"id": 2, "name": "Product B"},
-		}
-		return c.JSON(products)
-	})
-
+	api.SetupWebsocketRoutes(app)
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "3000"
+		port = "8080"
 	}
-	log.Println("port run: ", port)
-	app.Listen(":" + port)
+	log.Fatal(app.Listen(":" + port))
 
 }
