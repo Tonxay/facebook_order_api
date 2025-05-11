@@ -1,9 +1,10 @@
 package routers_part
 
 import (
+	"go-api/internal/service"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/websocket/v2"
-	"github.com/yourusername/go-api/internal/service"
 )
 
 func SetupWebSocketRoutesPart(app *fiber.App) {

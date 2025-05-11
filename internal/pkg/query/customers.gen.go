@@ -7,6 +7,7 @@ package query
 import (
 	"context"
 	"database/sql"
+	"go-api/internal/pkg/models"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -16,8 +17,6 @@ import (
 	"gorm.io/gen/field"
 
 	"gorm.io/plugin/dbresolver"
-
-	"github.com/yourusername/go-api/internal/pkg/models"
 )
 
 func newCustomer(db *gorm.DB, opts ...gen.DOOption) customer {

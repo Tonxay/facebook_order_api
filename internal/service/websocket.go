@@ -3,12 +3,12 @@ package service
 import (
 	"encoding/json"
 	"fmt"
+	gormpkg "go-api/internal/pkg"
+	dbservice "go-api/internal/service/db_service"
 	"sync"
 	"time"
 
 	"github.com/gofiber/websocket/v2"
-	gormpkg "github.com/yourusername/go-api/internal/pkg"
-	dbservice "github.com/yourusername/go-api/internal/service/db_service"
 )
 
 var Clients = make(map[string]*websocket.Conn)

@@ -1,7 +1,8 @@
 package dbservice
 
 import (
-	"github.com/yourusername/go-api/internal/pkg/models"
+	"go-api/internal/pkg/models"
+
 	"gorm.io/gorm"
 )
 

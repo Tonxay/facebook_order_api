@@ -1,8 +1,8 @@
 package dbservice
 
 import (
-	gormpkg "github.com/yourusername/go-api/internal/pkg"
-	"github.com/yourusername/go-api/internal/pkg/models"
+	gormpkg "go-api/internal/pkg"
+	"go-api/internal/pkg/models"
 )
 
 func CreateMesseng(messeng *models.Chat) error {

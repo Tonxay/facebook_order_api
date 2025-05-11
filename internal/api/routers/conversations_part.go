@@ -1,8 +1,9 @@
 package routers_part
 
 import (
+	"go-api/internal/service"
+
 	"github.com/gofiber/fiber/v2"
-	"github.com/yourusername/go-api/internal/service"
 )
 
 func SetupConversationsRoutesPart(route fiber.Router) {

@@ -4,14 +4,14 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	gormpkg "go-api/internal/pkg"
+	"go-api/internal/pkg/models"
+	dbservice "go-api/internal/service/db_service"
 	"log"
 	"net/http"
 	"os"
 
 	"github.com/gofiber/fiber/v2"
-	gormpkg "github.com/yourusername/go-api/internal/pkg"
-	"github.com/yourusername/go-api/internal/pkg/models"
-	dbservice "github.com/yourusername/go-api/internal/service/db_service"
 )
 
 type WebhookDeliveryEvent struct {

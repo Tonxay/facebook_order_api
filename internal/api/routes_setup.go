@@ -1,8 +1,9 @@
 package api
 
 import (
+	routers_part "go-api/internal/api/routers"
+
 	"github.com/gofiber/fiber/v2"
-	routers_part "github.com/yourusername/go-api/internal/api/routers"
 )
 
 func SetupRoutes(app *fiber.App) {

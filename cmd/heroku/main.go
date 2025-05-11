@@ -1,12 +1,12 @@
 package main
 
 import (
+	"go-api/internal/api"
+	gormpkg "go-api/internal/pkg"
 	"log"
 	"os"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/yourusername/go-api/internal/api"
-	gormpkg "github.com/yourusername/go-api/internal/pkg"
 )
 
 // func sendMessage(recipientID, messageText string) error {
