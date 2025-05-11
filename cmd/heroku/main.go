@@ -88,7 +88,7 @@ func main() {
 	if port == "" {
 		port = "8080"
 	}
-	log.Fatal(app.Listen(":" + port))
+	log.Fatal(app.Listen(":8080"))
 	// API Routes
 	// api := app.Group(os.Getenv("API_PREFIX"))
 	// api.SetupRoutes(app)
