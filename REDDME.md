@@ -8,6 +8,8 @@ GOOS=linux GOARCH=amd64 go build -o server ./cmd/heroku
 docker build -t tonxay/gowebhook:latest .
 docker build --no-cache -t tonxay/gowebhook:latest .
 
+heroku buildpacks:clear
+
 Full Guide: Nginx + WebSocket + HTTPS on DigitalOcean
 
 Full Guide: Nginx + WebSocket + HTTPS on DigitalOcean
