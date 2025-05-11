@@ -4,8 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"sync"
+	"time"
 
 	"github.com/gofiber/websocket/v2"
+	gormpkg "github.com/yourusername/go-api/internal/pkg"
 	dbservice "github.com/yourusername/go-api/internal/service/db_service"
 )
 
@@ -37,35 +39,50 @@ func PushToUser(userID string, payload interface{}) {
 }
 
 func PurchaseWebSocketCheckPayment() func(*websocket.Conn) {
+
 	return func(c *websocket.Conn) {
 		defer c.Close()
+		db := gormpkg.GetDB()
+		// Optional: Set a Pong handler to keep connection alive
+		c.SetPongHandler(func(appData string) error {
+			fmt.Println("Pong received")
+			return nil
+		})
 
-		// db := gormpkg.GetDB()
+		// Read loop (optional but helps keep connection alive)
+		go func() {
+			for {
+				_, _, err := c.ReadMessage()
+				if err != nil {
+					fmt.Println("WebSocket read error:", err)
+					c.Close()
+					break
+				}
+			}
+		}()
 
+		// Write loop
 		for {
-			// _, msg, err := c.ReadMessage()
-			// if err != nil {
-			// 	fmt.Println("WebSocket Read error:", err)
-			// 	return
-			// }
-
-			// Validate UUID
-			// if err := validators.ValidateUuId(qrPaymentId); err != nil {
-			// 	writeAndClose(c, "Invalid UUID")
-			// 	return
-			// }
-
-			data, err := dbservice.Getcustomers()
+			data, err := dbservice.Getcustomers(db)
 			if err != nil {
-				// writeAndClose(c, data)
+				fmt.Println("DB error:", err)
 				return
 			}
-			resulf, _ := json.Marshal(data)
-			// Successful response
-			if err := c.WriteMessage(websocket.TextMessage, []byte(resulf)); err != nil {
-				fmt.Println("WebSocket Write error:", err)
+
+			result, err := json.Marshal(data)
+			if err != nil {
+				fmt.Println("JSON marshal error:", err)
 				return
 			}
+
+			err = c.WriteMessage(websocket.TextMessage, result)
+			if err != nil {
+				fmt.Println("WebSocket write error:", err)
+				return
+			}
+
+			// Wait 3 seconds before sending again to avoid spamming
+			time.Sleep(3 * time.Second)
 		}
 	}
 }

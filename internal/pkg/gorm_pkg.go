@@ -51,7 +51,7 @@ func Init(webhook string) error {
 // GetDB returns gormdb
 func GetDB() *gorm.DB {
 	if gormdb == nil {
-		Init("")
+		Init("webhook")
 	}
 	return gormdb
 }

@@ -1,12 +1,12 @@
 package dbservice
 
 import (
-	gormpkg "github.com/yourusername/go-api/internal/pkg"
 	"github.com/yourusername/go-api/internal/pkg/models"
+	"gorm.io/gorm"
 )
 
-func Getcustomers() (*[]models.Customer, error) {
+func Getcustomers(db *gorm.DB) (*[]models.Customer, error) {
 	var customers *[]models.Customer
-	err := gormpkg.GetDB().Table(models.TableNameCustomer).Find(&customers).Error
+	err := db.Table(models.TableNameCustomer).Find(&customers).Error
 	return customers, err
 }
