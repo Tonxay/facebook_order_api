@@ -129,6 +129,6 @@ func main() {
 	if port == "" {
 		port = "3000"
 	}
-	app.Listen(":" + port)
+	app.Listen(":8082")
 
 }
