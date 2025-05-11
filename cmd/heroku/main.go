@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"os"
 
 	"github.com/gofiber/fiber/v2"
@@ -129,6 +130,7 @@ func main() {
 	if port == "" {
 		port = "3000"
 	}
-	app.Listen(":8888" + port)
+	log.Println("port run: ", port)
+	app.Listen(":" + port)
 
 }
