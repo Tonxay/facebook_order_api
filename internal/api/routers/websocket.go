@@ -26,4 +26,8 @@ func SetupWebSocketRoutesPart(app *fiber.App) {
 	// }))
 	app.Get("/ws/customers", websocket.New(service.PurchaseWebSocketCheckPayment()))
 
+	app.Get("/ws/messages-per-user", websocket.New(service.WebSocketMessageHandler()))
+
+	app.Get("/ws/messages", websocket.New(service.WebSocketMessageAllUserHandler()))
+
 }

@@ -75,3 +75,26 @@ Make sure UFW allows HTTP/HTTPS:
 sudo ufw allow 'Nginx Full'
 sudo ufw enable
 Would you like me to generate a working Nginx config file or Docker-compatible setup for this?
+
+set Domain
+
+sudo mkdir -p /var/www/api.chat-dd.uk
+echo '{"status":"ok"}' | sudo tee /var/www/api.chat-dd.uk/index.json
+sudo nano /etc/nginx/sites-available/api.chat-dd.uk
+sudo apt install certbot python3-certbot-nginx -y
+sudo certbot --nginx -d api.chat-dd.uk
+
+server {
+listen 80;
+server_name api.chat-dd.uk;
+
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+}

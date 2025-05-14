@@ -5,6 +5,7 @@ import (
 	"fmt"
 	gormpkg "go-api/internal/pkg"
 	dbservice "go-api/internal/service/db_service"
+	"log"
 	"sync"
 	"time"
 
@@ -36,6 +37,155 @@ func PushToUser(userID string, payload interface{}) {
 
 	data, _ := json.Marshal(payload)
 	conn.WriteMessage(websocket.TextMessage, data)
+}
+
+// /
+var ClientALLs = make(map[*websocket.Conn]bool)
+var LockALLs sync.Mutex
+
+func RegisterClientAll(conn *websocket.Conn) {
+	LockALLs.Lock()
+	ClientALLs[conn] = true
+	LockALLs.Unlock()
+}
+
+func RemoveClientAll(conn *websocket.Conn) {
+	LockALLs.Lock()
+	delete(ClientALLs, conn)
+	LockALLs.Unlock()
+}
+
+func PushToAll(payload interface{}) {
+	data, err := json.Marshal(payload)
+	if err != nil {
+		log.Println("JSON marshal error:", err)
+		return
+	}
+
+	LockALLs.Lock()
+	defer LockALLs.Unlock()
+
+	for conn := range ClientALLs {
+		if conn == nil {
+			delete(ClientALLs, conn)
+			continue
+		}
+
+		// Set write deadline to avoid hanging
+		conn.SetWriteDeadline(time.Now().Add(5 * time.Second))
+
+		err := conn.WriteMessage(websocket.TextMessage, data)
+		if err != nil {
+			log.Println("Error sending to client, removing connection:", err)
+			conn.Close()
+			delete(ClientALLs, conn)
+		}
+	}
+}
+
+// func PushToAll(payload interface{}) {
+// 	data, err := json.Marshal(payload)
+
+// 	if err != nil {
+// 		log.Println("JSON marshal error:", err)
+// 		return
+// 	}
+// 	LockALLs.Lock()
+// 	defer LockALLs.Unlock()
+
+//		for conn := range ClientALLs {
+//			err := conn.WriteMessage(websocket.TextMessage, data)
+//			if err != nil {
+//				log.Println("Error sending to client:", err)
+//				conn.Close()
+//				delete(ClientALLs, conn)
+//			}
+//		}
+//	}
+// func WebSocketMessageAllUserHandler() func(*websocket.Conn) {
+// 	return func(c *websocket.Conn) {
+// 		// Register connection
+// 		RegisterClientAll(c)
+// 		defer func() {
+// 			RemoveClientAll(c)
+// 			c.Close()
+// 		}()
+
+// 		// Set pong handler
+// 		c.SetPongHandler(func(appData string) error {
+// 			log.Println("Pong received")
+// 			return nil
+// 		})
+
+// 		// Heartbeat: send pings every 30 seconds
+// 		go func(conn *websocket.Conn) {
+// 			ticker := time.NewTicker(30 * time.Second)
+// 			defer ticker.Stop()
+
+// 			for {
+// 				<-ticker.C
+// 				if err := conn.WriteMessage(websocket.PingMessage, []byte{}); err != nil {
+// 					log.Println("Ping failed:", err)
+// 					conn.Close()
+// 					RemoveClientAll(conn)
+// 					break
+// 				}
+// 			}
+// 		}(c)
+
+// 		// Read loop (to keep connection alive)
+// 		for {
+// 			if _, _, err := c.ReadMessage(); err != nil {
+// 				log.Println("Read error:", err)
+// 				break
+// 			}
+// 		}
+// 	}
+// }
+
+func WebSocketMessageAllUserHandler() func(*websocket.Conn) {
+	return func(c *websocket.Conn) {
+		// userID := c.Query("user_id")
+		// if userID == "" {
+		// 	log.Println("Missing user_id query")
+		// 	c.Close()
+		// 	return
+		// }
+
+		RegisterClientAll(c)
+
+		for {
+			if _, _, err := c.ReadMessage(); err != nil {
+				break
+			}
+		}
+
+		RemoveClientAll(c)
+
+	}
+}
+
+func WebSocketMessageHandler() func(*websocket.Conn) {
+	return func(c *websocket.Conn) {
+		userID := c.Query("user_id")
+		if userID == "" {
+			log.Println("Missing user_id query")
+			c.Close()
+			return
+		}
+
+		RegisterClient(userID, c)
+		log.Printf("Connected WebSocket for user: %s", userID)
+
+		for {
+			if _, _, err := c.ReadMessage(); err != nil {
+				break
+			}
+		}
+
+		RemoveClient(userID)
+		log.Printf("Disconnected WebSocket for user: %s", userID)
+	}
 }
 
 func PurchaseWebSocketCheckPayment() func(*websocket.Conn) {

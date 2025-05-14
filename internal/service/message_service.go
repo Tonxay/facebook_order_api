@@ -29,7 +29,7 @@ type WebhookDeliveryEvent struct {
 
 			Timestamp float64 `json:"timestamp"`
 
-			Message *struct {
+			Message struct {
 				Mid         string `json:"mid"`
 				Text        string `json:"text,omitempty"`
 				Attachments []struct {
@@ -151,59 +151,62 @@ func HandleWebhook(c *fiber.Ctx) error {
 			// 	log.Println("Skipping message with nil sender or recipient")
 			// 	continue
 			// }
+			if msg.Message.Text != "" || len(msg.Message.Attachments) >= 1 {
 
-			senderID := msg.Sender.ID
-			recipientID := msg.Recipient.ID
-			// Store user if not from PAGE_ID
-			var fbID string
-			if senderID != os.Getenv("PAGE_ID") {
-				fbID = senderID
-			} else {
-				fbID = recipientID
-			}
+				senderID := msg.Sender.ID
+				recipientID := msg.Recipient.ID
+				// Store user if not from PAGE_ID
+				var fbID string
+				if senderID != os.Getenv("PAGE_ID") {
+					fbID = senderID
+				} else {
+					fbID = recipientID
+				}
 
-			gormpkg.GetDB().Table(models.TableNameCustomer).Create(&models.Customer{
-				FacebookID: fbID,
-			})
-
-			if senderID == "" || recipientID == "" {
-				log.Println("Skipping message with empty sender or recipient ID")
-				continue
-			}
-
-			if msg.Message != nil && msg.Message.Text != "" {
-				log.Printf("Received message from %s: %s\n", senderID, msg.Message.Text)
-			}
-
-			// Save message to DB
-			err := dbservice.CreateMesseng(&models.Chat{
-				SenderID:    senderID,
-				UserID:      "1e55b100-8a4e-4372-a9e9-7d3c5f4a2a77", // You might want to dynamically look up user ID
-				RecipientID: recipientID,
-				JSONMesseng: string(c.BodyRaw()),
-			})
-
-			PushToUser(senderID, fiber.Map{
-				"customer_id": fbID,
-				"message":     c.BodyRaw(),
-			})
-			if err != nil {
-				log.Println("Failed to create message:", err)
-				return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-					"error": "create messeng",
+				gormpkg.GetDB().Table(models.TableNameCustomer).Create(&models.Customer{
+					FacebookID: fbID,
 				})
-			}
 
-			// Handle postbacks
-			if msg.Postback != nil && msg.Postback.Payload != "" {
-				log.Printf("Received postback from %s: %s\n", senderID, msg.Postback.Payload)
-				SendMessage(senderID, "You clicked: "+msg.Postback.Payload)
-			}
+				if senderID == "" || recipientID == "" {
+					log.Println("Skipping message with empty sender or recipient ID")
+					continue
+				}
 
-			// Handle delivery confirmations
-			if msg.Delivery != nil {
-				log.Printf("Delivery confirmed for %d message(s): %v\n",
-					len(msg.Delivery.Mids), msg.Delivery.Mids)
+				// Save message to DB
+				err := dbservice.CreateMesseng(&models.Chat{
+					SenderID:    senderID,
+					UserID:      "1e55b100-8a4e-4372-a9e9-7d3c5f4a2a77", // You might want to dynamically look up user ID
+					RecipientID: recipientID,
+					JSONMesseng: string(c.BodyRaw()),
+				})
+
+				var payload interface{}
+				json.Unmarshal(c.BodyRaw(), &payload)
+
+				PushToUser(senderID, fiber.Map{
+					"customer_id": fbID,
+					"message":     payload,
+				})
+				PushToAll(payload)
+
+				if err != nil {
+					log.Println("Failed to create message:", err)
+					return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+						"error": "create messeng",
+					})
+				}
+
+				// Handle postbacks
+				if msg.Postback != nil && msg.Postback.Payload != "" {
+					log.Printf("Received postback from %s: %s\n", senderID, msg.Postback.Payload)
+					SendMessage(senderID, "You clicked: "+msg.Postback.Payload)
+				}
+
+				// Handle delivery confirmations
+				if msg.Delivery != nil {
+					log.Printf("Delivery confirmed for %d message(s): %v\n",
+						len(msg.Delivery.Mids), msg.Delivery.Mids)
+				}
 			}
 		}
 	}
