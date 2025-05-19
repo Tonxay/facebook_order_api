@@ -3,6 +3,7 @@ package service
 import (
 	"encoding/json"
 	"fmt"
+	custommodel "go-api/internal/pkg/models/custom_model"
 	"io"
 	"log"
 	"net/http"
@@ -154,16 +155,28 @@ func GetMessagesInConversation(c *fiber.Ctx) error {
 }
 
 func GetMessageDetails(c *fiber.Ctx) error {
-	apiVersion := "v21.0"
 	messageID := c.Params("message_id")
-	pageAccessToken := os.Getenv("PAGE_ACCESS_TOKEN")
-
-	if messageID == "" || pageAccessToken == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Missing message_id or access token",
+	result, err := GetMessageDetailsFormid(messageID)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Failed to read response",
 		})
 	}
 
+	return c.JSON(result)
+}
+
+// GetMessageDetailsFormid retrieves message details from the Facebook Graph API
+func GetMessageDetailsFormid(messageID string) (custommodel.Message, error) {
+	apiVersion := "v21.0"
+	var result custommodel.Message
+	pageAccessToken := os.Getenv("PAGE_ACCESS_TOKEN")
+
+	if messageID == "" || pageAccessToken == "" {
+		return result, fmt.Errorf("messageID or PAGE_ACCESS_TOKEN is missing")
+	}
+
+	// Build URL with messageID and access token
 	url := fmt.Sprintf(
 		"https://graph.facebook.com/%s/%s?fields=id,created_time,from,to,message&access_token=%s",
 		apiVersion,
@@ -171,27 +184,30 @@ func GetMessageDetails(c *fiber.Ctx) error {
 		pageAccessToken,
 	)
 
+	// Send HTTP request
 	resp, err := http.Get(url)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "Failed to request message details",
-		})
+		return result, fmt.Errorf("failed to send request to Facebook Graph API: %v", err)
 	}
 	defer resp.Body.Close()
 
+	// Check if response status is OK
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body) // Read the response body to get more information
+		return result, fmt.Errorf("received non-200 response from Facebook API: %d, %s", resp.StatusCode, string(body))
+	}
+
+	// Read the response body
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "Failed to read response",
-		})
+		return result, fmt.Errorf("failed to read response body: %v", err)
 	}
 
-	var result map[string]interface{}
+	// Attempt to unmarshal the JSON into the result struct
 	if err := json.Unmarshal(body, &result); err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "Failed to parse JSON",
-		})
+		return result, fmt.Errorf("failed to parse JSON response: %v, response: %s", err, string(body))
 	}
 
-	return c.JSON(result)
+	// Return the message details and no error
+	return result, nil
 }

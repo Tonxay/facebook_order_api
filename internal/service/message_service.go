@@ -7,6 +7,7 @@ import (
 	gormpkg "go-api/internal/pkg"
 	"go-api/internal/pkg/models"
 	dbservice "go-api/internal/service/db_service"
+
 	"log"
 	"net/http"
 	"os"
@@ -163,9 +164,31 @@ func HandleWebhook(c *fiber.Ctx) error {
 					fbID = recipientID
 				}
 
-				gormpkg.GetDB().Table(models.TableNameCustomer).Create(&models.Customer{
+				err1 := gormpkg.GetDB().Table(models.TableNameCustomer).Create(&models.Customer{
 					FacebookID: fbID,
-				})
+				}).Error
+
+				if err1 == nil {
+					message, _ := GetMessageDetailsFormid(msg.Message.Mid)
+					gormpkg.GetDB().Table(models.TableNameCustomer).Where("facebook_id = ?", fbID).UpdateColumns(&models.Customer{
+						FirstName: message.From.Name,
+					})
+				}
+				// user, _ := GetFacebookProfile(fbID)
+
+				// if err != nil {
+
+				// 	// if err != nil {
+				// 	// 	log.Println("get user error", err)
+				// 	// 	continue
+				// 	// }
+				// 	gormpkg.GetDB().Table(models.TableNameCustomer).Where("facebook_id = ?", fbID).UpdateColumns(&models.Customer{
+				// 		Image:     user.ProfilePic,
+				// 		FirstName: user.FirstName,
+				// 		LastName:  user.LastName,
+				// 	})
+
+				// }
 
 				if senderID == "" || recipientID == "" {
 					log.Println("Skipping message with empty sender or recipient ID")

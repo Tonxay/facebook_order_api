@@ -12,6 +12,10 @@ func SetupRoutes(app *fiber.App) {
 
 	conversation := app.Group("/conversations")
 	routers_part.SetupConversationsRoutesPart(conversation)
+
+	customer := app.Group("/customers")
+	routers_part.SetupCustomersRoutesPart(customer)
+
 }
 
 func SetupWebsocketRoutes(app *fiber.App) {
