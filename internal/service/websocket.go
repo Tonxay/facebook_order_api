@@ -173,7 +173,6 @@ func WebSocketMessageHandler() func(*websocket.Conn) {
 			c.Close()
 			return
 		}
-
 		RegisterClient(userID, c)
 		log.Printf("Connected WebSocket for user: %s", userID)
 

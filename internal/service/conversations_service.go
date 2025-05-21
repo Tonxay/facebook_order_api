@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	custommodel "go-api/internal/pkg/models/custom_model"
+	dbservice "go-api/internal/service/db_service"
 	"io"
 	"log"
 	"net/http"
@@ -210,4 +211,17 @@ func GetMessageDetailsFormid(messageID string) (custommodel.Message, error) {
 
 	// Return the message details and no error
 	return result, nil
+}
+
+func GetMessageDetailsPerUser(c *fiber.Ctx) error {
+	uerId := c.Params("user_id")
+	pageId := os.Getenv("PAGE_ID")
+	result, err := dbservice.GetMessengerPerUser(uerId, pageId)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Failed to read response",
+		})
+	}
+
+	return c.JSON(result)
 }

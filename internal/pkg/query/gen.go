@@ -16,44 +16,94 @@ import (
 )
 
 var (
-	Q        = new(Query)
-	Chat     *chat
-	Customer *customer
-	User     *user
+	Q                  = new(Query)
+	Category           *category
+	Chat               *chat
+	Customer           *customer
+	District           *district
+	Order              *order
+	OrderDetail        *orderDetail
+	Product            *product
+	ProductDetail      *productDetail
+	Province           *province
+	StockDetail        *stockDetail
+	StockProductDetail *stockProductDetail
+	User               *user
+	Village            *village
 )
 
 func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
 	*Q = *Use(db, opts...)
+	Category = &Q.Category
 	Chat = &Q.Chat
 	Customer = &Q.Customer
+	District = &Q.District
+	Order = &Q.Order
+	OrderDetail = &Q.OrderDetail
+	Product = &Q.Product
+	ProductDetail = &Q.ProductDetail
+	Province = &Q.Province
+	StockDetail = &Q.StockDetail
+	StockProductDetail = &Q.StockProductDetail
 	User = &Q.User
+	Village = &Q.Village
 }
 
 func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 	return &Query{
-		db:       db,
-		Chat:     newChat(db, opts...),
-		Customer: newCustomer(db, opts...),
-		User:     newUser(db, opts...),
+		db:                 db,
+		Category:           newCategory(db, opts...),
+		Chat:               newChat(db, opts...),
+		Customer:           newCustomer(db, opts...),
+		District:           newDistrict(db, opts...),
+		Order:              newOrder(db, opts...),
+		OrderDetail:        newOrderDetail(db, opts...),
+		Product:            newProduct(db, opts...),
+		ProductDetail:      newProductDetail(db, opts...),
+		Province:           newProvince(db, opts...),
+		StockDetail:        newStockDetail(db, opts...),
+		StockProductDetail: newStockProductDetail(db, opts...),
+		User:               newUser(db, opts...),
+		Village:            newVillage(db, opts...),
 	}
 }
 
 type Query struct {
 	db *gorm.DB
 
-	Chat     chat
-	Customer customer
-	User     user
+	Category           category
+	Chat               chat
+	Customer           customer
+	District           district
+	Order              order
+	OrderDetail        orderDetail
+	Product            product
+	ProductDetail      productDetail
+	Province           province
+	StockDetail        stockDetail
+	StockProductDetail stockProductDetail
+	User               user
+	Village            village
 }
 
 func (q *Query) Available() bool { return q.db != nil }
 
 func (q *Query) clone(db *gorm.DB) *Query {
 	return &Query{
-		db:       db,
-		Chat:     q.Chat.clone(db),
-		Customer: q.Customer.clone(db),
-		User:     q.User.clone(db),
+		db:                 db,
+		Category:           q.Category.clone(db),
+		Chat:               q.Chat.clone(db),
+		Customer:           q.Customer.clone(db),
+		District:           q.District.clone(db),
+		Order:              q.Order.clone(db),
+		OrderDetail:        q.OrderDetail.clone(db),
+		Product:            q.Product.clone(db),
+		ProductDetail:      q.ProductDetail.clone(db),
+		Province:           q.Province.clone(db),
+		StockDetail:        q.StockDetail.clone(db),
+		StockProductDetail: q.StockProductDetail.clone(db),
+		User:               q.User.clone(db),
+		Village:            q.Village.clone(db),
 	}
 }
 
@@ -67,24 +117,54 @@ func (q *Query) WriteDB() *Query {
 
 func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 	return &Query{
-		db:       db,
-		Chat:     q.Chat.replaceDB(db),
-		Customer: q.Customer.replaceDB(db),
-		User:     q.User.replaceDB(db),
+		db:                 db,
+		Category:           q.Category.replaceDB(db),
+		Chat:               q.Chat.replaceDB(db),
+		Customer:           q.Customer.replaceDB(db),
+		District:           q.District.replaceDB(db),
+		Order:              q.Order.replaceDB(db),
+		OrderDetail:        q.OrderDetail.replaceDB(db),
+		Product:            q.Product.replaceDB(db),
+		ProductDetail:      q.ProductDetail.replaceDB(db),
+		Province:           q.Province.replaceDB(db),
+		StockDetail:        q.StockDetail.replaceDB(db),
+		StockProductDetail: q.StockProductDetail.replaceDB(db),
+		User:               q.User.replaceDB(db),
+		Village:            q.Village.replaceDB(db),
 	}
 }
 
 type queryCtx struct {
-	Chat     IChatDo
-	Customer ICustomerDo
-	User     IUserDo
+	Category           ICategoryDo
+	Chat               IChatDo
+	Customer           ICustomerDo
+	District           IDistrictDo
+	Order              IOrderDo
+	OrderDetail        IOrderDetailDo
+	Product            IProductDo
+	ProductDetail      IProductDetailDo
+	Province           IProvinceDo
+	StockDetail        IStockDetailDo
+	StockProductDetail IStockProductDetailDo
+	User               IUserDo
+	Village            IVillageDo
 }
 
 func (q *Query) WithContext(ctx context.Context) *queryCtx {
 	return &queryCtx{
-		Chat:     q.Chat.WithContext(ctx),
-		Customer: q.Customer.WithContext(ctx),
-		User:     q.User.WithContext(ctx),
+		Category:           q.Category.WithContext(ctx),
+		Chat:               q.Chat.WithContext(ctx),
+		Customer:           q.Customer.WithContext(ctx),
+		District:           q.District.WithContext(ctx),
+		Order:              q.Order.WithContext(ctx),
+		OrderDetail:        q.OrderDetail.WithContext(ctx),
+		Product:            q.Product.WithContext(ctx),
+		ProductDetail:      q.ProductDetail.WithContext(ctx),
+		Province:           q.Province.WithContext(ctx),
+		StockDetail:        q.StockDetail.WithContext(ctx),
+		StockProductDetail: q.StockProductDetail.WithContext(ctx),
+		User:               q.User.WithContext(ctx),
+		Village:            q.Village.WithContext(ctx),
 	}
 }
 

@@ -53,21 +53,6 @@ type WebhookDeliveryEvent struct {
 	} `json:"entry"`
 }
 
-type WebhookEvent struct {
-	Object string `json:"object"`
-	Entry  []struct {
-		Messaging []struct {
-			Sender  struct{ ID string } `json:"sender"`
-			Message struct {
-				Text string `json:"text"`
-			} `json:"message,omitempty"`
-			Postback struct {
-				Payload string `json:"payload"`
-			} `json:"postback,omitempty"`
-		} `json:"messaging"`
-	} `json:"entry"`
-}
-
 func VerifyWebhook(c *fiber.Ctx) error {
 	mode := c.Query("hub.mode")
 	token := c.Query("hub.verify_token")
@@ -145,6 +130,7 @@ func HandleWebhook(c *fiber.Ctx) error {
 	}
 
 	log.Println("Parsed Event:", event)
+	var user *models.Customer
 
 	for _, entry := range event.Entry {
 		for _, msg := range entry.Messaging {
@@ -169,9 +155,15 @@ func HandleWebhook(c *fiber.Ctx) error {
 				}).Error
 
 				if err1 == nil {
+					var fullnam string
 					message, _ := GetMessageDetailsFormid(msg.Message.Mid)
+					if message.From.ID == fbID {
+						fullnam = message.From.Name
+					} else {
+						fullnam = message.To.Data[0].Name
+					}
 					gormpkg.GetDB().Table(models.TableNameCustomer).Where("facebook_id = ?", fbID).UpdateColumns(&models.Customer{
-						FirstName: message.From.Name,
+						FirstName: fullnam,
 					})
 				}
 				// user, _ := GetFacebookProfile(fbID)
@@ -195,7 +187,6 @@ func HandleWebhook(c *fiber.Ctx) error {
 					continue
 				}
 
-				// Save message to DB
 				err := dbservice.CreateMesseng(&models.Chat{
 					SenderID:    senderID,
 					UserID:      "1e55b100-8a4e-4372-a9e9-7d3c5f4a2a77", // You might want to dynamically look up user ID
@@ -203,14 +194,25 @@ func HandleWebhook(c *fiber.Ctx) error {
 					JSONMesseng: string(c.BodyRaw()),
 				})
 
+				gormpkg.GetDB().Table(models.TableNameCustomer).Where("facebook_id = ?", fbID).First(&user)
+
 				var payload interface{}
 				json.Unmarshal(c.BodyRaw(), &payload)
 
-				PushToUser(senderID, fiber.Map{
-					"customer_id": fbID,
-					"message":     payload,
+				//  UpdateColumns(&models.Customer{
+				// 		FirstName: fullnam,
+				// 	})
+				PushToUser(fbID, fiber.Map{
+					// "customer_id": fbID,
+					"user":    user,
+					"message": payload,
 				})
-				PushToAll(payload)
+
+				PushToAll(fiber.Map{
+					// "customer_id": fbID,
+					"user":    user,
+					"message": payload,
+				})
 
 				if err != nil {
 					log.Println("Failed to create message:", err)
