@@ -28,7 +28,7 @@ func newProduct(db *gorm.DB, opts ...gen.DOOption) product {
 
 	tableName := _product.productDo.TableName()
 	_product.ALL = field.NewAsterisk(tableName)
-	_product.ProductID = field.NewString(tableName, "product_id")
+	_product.ID = field.NewString(tableName, "id")
 	_product.Name = field.NewString(tableName, "name")
 	_product.Brand = field.NewString(tableName, "brand")
 	_product.CategoryID = field.NewString(tableName, "category_id")
@@ -46,7 +46,7 @@ type product struct {
 	productDo
 
 	ALL        field.Asterisk
-	ProductID  field.String
+	ID         field.String
 	Name       field.String
 	Brand      field.String
 	CategoryID field.String
@@ -70,7 +70,7 @@ func (p product) As(alias string) *product {
 
 func (p *product) updateTableName(table string) *product {
 	p.ALL = field.NewAsterisk(table)
-	p.ProductID = field.NewString(table, "product_id")
+	p.ID = field.NewString(table, "id")
 	p.Name = field.NewString(table, "name")
 	p.Brand = field.NewString(table, "brand")
 	p.CategoryID = field.NewString(table, "category_id")
@@ -95,7 +95,7 @@ func (p *product) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 
 func (p *product) fillFieldMap() {
 	p.fieldMap = make(map[string]field.Expr, 8)
-	p.fieldMap["product_id"] = p.ProductID
+	p.fieldMap["id"] = p.ID
 	p.fieldMap["name"] = p.Name
 	p.fieldMap["brand"] = p.Brand
 	p.fieldMap["category_id"] = p.CategoryID

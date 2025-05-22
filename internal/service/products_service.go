@@ -1,7 +1,9 @@
 package service
 
 import (
+	gormpkg "go-api/internal/pkg"
 	"go-api/internal/pkg/models"
+	"go-api/internal/pkg/models/custom_model/request"
 	dbservice "go-api/internal/service/db_service"
 
 	"github.com/gofiber/fiber/v2"
@@ -76,7 +78,7 @@ func CreateProductDetail(c *fiber.Ctx) error {
 	})
 }
 func CreateStockProductDetail(c *fiber.Ctx) error {
-	var requestData models.StockProductDetail
+	var requestData request.StockProductDetail
 
 	// Parse JSON request body
 	if err := c.BodyParser(&requestData); err != nil {
@@ -85,7 +87,14 @@ func CreateStockProductDetail(c *fiber.Ctx) error {
 		})
 	}
 
-	err := dbservice.CreateStockProductDetail(&requestData, c.Context())
+	data := models.StockProductDetail{
+		UserID:          "1e55b100-8a4e-4372-a9e9-7d3c5f4a2a77",
+		ProductDetailID: requestData.ProductDetailID,
+		Quantity:        requestData.Quantity,
+		Remaining:       requestData.Quantity,
+	}
+
+	err := dbservice.CreateStockProductDetail(&data, c.Context())
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "failed to create sock",
@@ -96,4 +105,17 @@ func CreateStockProductDetail(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
 		"message": requestData,
 	})
+}
+
+func CreateStockProductDetailForID(c *fiber.Ctx) error {
+	id := c.Params("id")
+	data, err := dbservice.GetProductDetailsForID(gormpkg.GetDB(), id)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "failed to get stock",
+		})
+	}
+	// Return the created category
+
+	return c.Status(fiber.StatusCreated).JSON(data)
 }

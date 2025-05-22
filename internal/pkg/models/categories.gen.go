@@ -12,7 +12,7 @@ const TableNameCategory = "categories"
 
 // Category mapped from table <categories>
 type Category struct {
-	CategoryID  string    `gorm:"column:category_id;primaryKey;default:gen_random_uuid()" json:"category_id"`
+	ID          string    `gorm:"column:id;primaryKey;default:gen_random_uuid()" json:"id"`
 	Name        string    `gorm:"column:name;not null" json:"name"`
 	Description string    `gorm:"column:description" json:"description"`
 	Status      string    `gorm:"column:status;default:active" json:"status"`

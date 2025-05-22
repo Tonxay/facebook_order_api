@@ -28,7 +28,7 @@ func newProductDetail(db *gorm.DB, opts ...gen.DOOption) productDetail {
 
 	tableName := _productDetail.productDetailDo.TableName()
 	_productDetail.ALL = field.NewAsterisk(tableName)
-	_productDetail.ProductDetailID = field.NewString(tableName, "product_detail_id")
+	_productDetail.ID = field.NewString(tableName, "id")
 	_productDetail.ProductID = field.NewString(tableName, "product_id")
 	_productDetail.Size = field.NewString(tableName, "size")
 	_productDetail.Color = field.NewString(tableName, "color")
@@ -38,6 +38,7 @@ func newProductDetail(db *gorm.DB, opts ...gen.DOOption) productDetail {
 	_productDetail.CreatedAt = field.NewTime(tableName, "created_at")
 	_productDetail.UpdatedAt = field.NewTime(tableName, "updated_at")
 	_productDetail.ImageURL = field.NewString(tableName, "image_url")
+	_productDetail.Price = field.NewInt32(tableName, "price")
 
 	_productDetail.fillFieldMap()
 
@@ -47,17 +48,18 @@ func newProductDetail(db *gorm.DB, opts ...gen.DOOption) productDetail {
 type productDetail struct {
 	productDetailDo
 
-	ALL             field.Asterisk
-	ProductDetailID field.String
-	ProductID       field.String
-	Size            field.String
-	Color           field.String
-	FitType         field.String
-	Material        field.String
-	Status          field.String
-	CreatedAt       field.Time
-	UpdatedAt       field.Time
-	ImageURL        field.String
+	ALL       field.Asterisk
+	ID        field.String
+	ProductID field.String
+	Size      field.String
+	Color     field.String
+	FitType   field.String
+	Material  field.String
+	Status    field.String
+	CreatedAt field.Time
+	UpdatedAt field.Time
+	ImageURL  field.String
+	Price     field.Int32
 
 	fieldMap map[string]field.Expr
 }
@@ -74,7 +76,7 @@ func (p productDetail) As(alias string) *productDetail {
 
 func (p *productDetail) updateTableName(table string) *productDetail {
 	p.ALL = field.NewAsterisk(table)
-	p.ProductDetailID = field.NewString(table, "product_detail_id")
+	p.ID = field.NewString(table, "id")
 	p.ProductID = field.NewString(table, "product_id")
 	p.Size = field.NewString(table, "size")
 	p.Color = field.NewString(table, "color")
@@ -84,6 +86,7 @@ func (p *productDetail) updateTableName(table string) *productDetail {
 	p.CreatedAt = field.NewTime(table, "created_at")
 	p.UpdatedAt = field.NewTime(table, "updated_at")
 	p.ImageURL = field.NewString(table, "image_url")
+	p.Price = field.NewInt32(table, "price")
 
 	p.fillFieldMap()
 
@@ -100,8 +103,8 @@ func (p *productDetail) GetFieldByName(fieldName string) (field.OrderExpr, bool)
 }
 
 func (p *productDetail) fillFieldMap() {
-	p.fieldMap = make(map[string]field.Expr, 10)
-	p.fieldMap["product_detail_id"] = p.ProductDetailID
+	p.fieldMap = make(map[string]field.Expr, 11)
+	p.fieldMap["id"] = p.ID
 	p.fieldMap["product_id"] = p.ProductID
 	p.fieldMap["size"] = p.Size
 	p.fieldMap["color"] = p.Color
@@ -111,6 +114,7 @@ func (p *productDetail) fillFieldMap() {
 	p.fieldMap["created_at"] = p.CreatedAt
 	p.fieldMap["updated_at"] = p.UpdatedAt
 	p.fieldMap["image_url"] = p.ImageURL
+	p.fieldMap["price"] = p.Price
 }
 
 func (p productDetail) clone(db *gorm.DB) productDetail {

@@ -12,16 +12,17 @@ const TableNameProductDetail = "product_details"
 
 // ProductDetail mapped from table <product_details>
 type ProductDetail struct {
-	ProductDetailID string    `gorm:"column:product_detail_id;primaryKey;default:gen_random_uuid()" json:"product_detail_id"`
-	ProductID       string    `gorm:"column:product_id;not null" json:"product_id"`
-	Size            string    `gorm:"column:size" json:"size"`
-	Color           string    `gorm:"column:color" json:"color"`
-	FitType         string    `gorm:"column:fit_type" json:"fit_type"`
-	Material        string    `gorm:"column:material" json:"material"`
-	Status          string    `gorm:"column:status;default:active" json:"status"`
-	CreatedAt       time.Time `gorm:"column:created_at;default:CURRENT_TIMESTAMP" json:"created_at"`
-	UpdatedAt       time.Time `gorm:"column:updated_at;default:CURRENT_TIMESTAMP" json:"updated_at"`
-	ImageURL        string    `gorm:"column:image_url;default:N/A" json:"image_url"`
+	ID        string    `gorm:"column:id;primaryKey;default:gen_random_uuid()" json:"id"`
+	ProductID string    `gorm:"column:product_id;not null" json:"product_id"`
+	Size      string    `gorm:"column:size" json:"size"`
+	Color     string    `gorm:"column:color" json:"color"`
+	FitType   string    `gorm:"column:fit_type" json:"fit_type"`
+	Material  string    `gorm:"column:material" json:"material"`
+	Status    string    `gorm:"column:status;default:active" json:"status"`
+	CreatedAt time.Time `gorm:"column:created_at;default:CURRENT_TIMESTAMP" json:"created_at"`
+	UpdatedAt time.Time `gorm:"column:updated_at;default:CURRENT_TIMESTAMP" json:"updated_at"`
+	ImageURL  string    `gorm:"column:image_url;default:N/A" json:"image_url"`
+	Price     int32     `gorm:"column:price;not null" json:"price"`
 }
 
 // TableName ProductDetail's table name

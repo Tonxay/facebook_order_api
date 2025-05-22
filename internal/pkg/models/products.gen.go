@@ -12,7 +12,7 @@ const TableNameProduct = "products"
 
 // Product mapped from table <products>
 type Product struct {
-	ProductID  string    `gorm:"column:product_id;primaryKey;default:gen_random_uuid()" json:"product_id"`
+	ID         string    `gorm:"column:id;primaryKey;default:gen_random_uuid()" json:"id"`
 	Name       string    `gorm:"column:name;not null" json:"name"`
 	Brand      string    `gorm:"column:brand" json:"brand"`
 	CategoryID string    `gorm:"column:category_id;not null" json:"category_id"`

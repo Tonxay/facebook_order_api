@@ -19,6 +19,9 @@ func SetupRoutes(app *fiber.App) {
 	products := app.Group("/products")
 	routers_part.SetupProductRoutesPart(products)
 
+	orders := app.Group("/orders")
+	routers_part.SetupOrdersRoutesPart(orders)
+
 }
 
 func SetupWebsocketRoutes(app *fiber.App) {

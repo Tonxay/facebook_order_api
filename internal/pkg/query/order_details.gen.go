@@ -28,7 +28,7 @@ func newOrderDetail(db *gorm.DB, opts ...gen.DOOption) orderDetail {
 
 	tableName := _orderDetail.orderDetailDo.TableName()
 	_orderDetail.ALL = field.NewAsterisk(tableName)
-	_orderDetail.OrderDetailID = field.NewString(tableName, "order_detail_id")
+	_orderDetail.ID = field.NewString(tableName, "id")
 	_orderDetail.OrderID = field.NewString(tableName, "order_id")
 	_orderDetail.ProductDetailID = field.NewString(tableName, "product_detail_id")
 	_orderDetail.Quantity = field.NewInt32(tableName, "quantity")
@@ -46,7 +46,7 @@ type orderDetail struct {
 	orderDetailDo
 
 	ALL             field.Asterisk
-	OrderDetailID   field.String
+	ID              field.String
 	OrderID         field.String
 	ProductDetailID field.String
 	Quantity        field.Int32
@@ -70,7 +70,7 @@ func (o orderDetail) As(alias string) *orderDetail {
 
 func (o *orderDetail) updateTableName(table string) *orderDetail {
 	o.ALL = field.NewAsterisk(table)
-	o.OrderDetailID = field.NewString(table, "order_detail_id")
+	o.ID = field.NewString(table, "id")
 	o.OrderID = field.NewString(table, "order_id")
 	o.ProductDetailID = field.NewString(table, "product_detail_id")
 	o.Quantity = field.NewInt32(table, "quantity")
@@ -95,7 +95,7 @@ func (o *orderDetail) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 
 func (o *orderDetail) fillFieldMap() {
 	o.fieldMap = make(map[string]field.Expr, 8)
-	o.fieldMap["order_detail_id"] = o.OrderDetailID
+	o.fieldMap["id"] = o.ID
 	o.fieldMap["order_id"] = o.OrderID
 	o.fieldMap["product_detail_id"] = o.ProductDetailID
 	o.fieldMap["quantity"] = o.Quantity

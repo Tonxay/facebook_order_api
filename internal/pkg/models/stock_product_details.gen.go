@@ -12,14 +12,14 @@ const TableNameStockProductDetail = "stock_product_details"
 
 // StockProductDetail mapped from table <stock_product_details>
 type StockProductDetail struct {
-	StockID   string    `gorm:"column:stock_id;primaryKey;default:gen_random_uuid()" json:"stock_id"`
-	DetailID  string    `gorm:"column:detail_id;not null" json:"detail_id"`
-	Quantity  int32     `gorm:"column:quantity;not null" json:"quantity"`
-	Status    string    `gorm:"column:status;default:active" json:"status"`
-	CreatedAt time.Time `gorm:"column:created_at;default:CURRENT_TIMESTAMP" json:"created_at"`
-	UpdatedAt time.Time `gorm:"column:updated_at;default:CURRENT_TIMESTAMP" json:"updated_at"`
-	UserID    string    `gorm:"column:user_id" json:"user_id"`
-	Remaining int32     `gorm:"column:remaining" json:"remaining"`
+	ID              string    `gorm:"column:id;primaryKey;default:gen_random_uuid()" json:"id"`
+	ProductDetailID string    `gorm:"column:product_detail_id;not null" json:"product_detail_id"`
+	Quantity        int32     `gorm:"column:quantity;not null" json:"quantity"`
+	Status          string    `gorm:"column:status;default:active" json:"status"`
+	CreatedAt       time.Time `gorm:"column:created_at;default:CURRENT_TIMESTAMP" json:"created_at"`
+	UpdatedAt       time.Time `gorm:"column:updated_at;default:CURRENT_TIMESTAMP" json:"updated_at"`
+	UserID          string    `gorm:"column:user_id;not null" json:"user_id"`
+	Remaining       int32     `gorm:"column:remaining" json:"remaining"`
 }
 
 // TableName StockProductDetail's table name

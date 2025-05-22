@@ -12,7 +12,7 @@ const TableNameOrder = "orders"
 
 // Order mapped from table <orders>
 type Order struct {
-	OrderID       string    `gorm:"column:order_id;primaryKey;default:gen_random_uuid()" json:"order_id"`
+	ID            string    `gorm:"column:id;primaryKey;default:gen_random_uuid()" json:"id"`
 	Status        string    `gorm:"column:status;default:pending" json:"status"`
 	CustomerID    string    `gorm:"column:customer_id" json:"customer_id"`
 	Tel           int32     `gorm:"column:tel" json:"tel"`

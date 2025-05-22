@@ -28,8 +28,8 @@ func newStockProductDetail(db *gorm.DB, opts ...gen.DOOption) stockProductDetail
 
 	tableName := _stockProductDetail.stockProductDetailDo.TableName()
 	_stockProductDetail.ALL = field.NewAsterisk(tableName)
-	_stockProductDetail.StockID = field.NewString(tableName, "stock_id")
-	_stockProductDetail.DetailID = field.NewString(tableName, "detail_id")
+	_stockProductDetail.ID = field.NewString(tableName, "id")
+	_stockProductDetail.ProductDetailID = field.NewString(tableName, "product_detail_id")
 	_stockProductDetail.Quantity = field.NewInt32(tableName, "quantity")
 	_stockProductDetail.Status = field.NewString(tableName, "status")
 	_stockProductDetail.CreatedAt = field.NewTime(tableName, "created_at")
@@ -45,15 +45,15 @@ func newStockProductDetail(db *gorm.DB, opts ...gen.DOOption) stockProductDetail
 type stockProductDetail struct {
 	stockProductDetailDo
 
-	ALL       field.Asterisk
-	StockID   field.String
-	DetailID  field.String
-	Quantity  field.Int32
-	Status    field.String
-	CreatedAt field.Time
-	UpdatedAt field.Time
-	UserID    field.String
-	Remaining field.Int32
+	ALL             field.Asterisk
+	ID              field.String
+	ProductDetailID field.String
+	Quantity        field.Int32
+	Status          field.String
+	CreatedAt       field.Time
+	UpdatedAt       field.Time
+	UserID          field.String
+	Remaining       field.Int32
 
 	fieldMap map[string]field.Expr
 }
@@ -70,8 +70,8 @@ func (s stockProductDetail) As(alias string) *stockProductDetail {
 
 func (s *stockProductDetail) updateTableName(table string) *stockProductDetail {
 	s.ALL = field.NewAsterisk(table)
-	s.StockID = field.NewString(table, "stock_id")
-	s.DetailID = field.NewString(table, "detail_id")
+	s.ID = field.NewString(table, "id")
+	s.ProductDetailID = field.NewString(table, "product_detail_id")
 	s.Quantity = field.NewInt32(table, "quantity")
 	s.Status = field.NewString(table, "status")
 	s.CreatedAt = field.NewTime(table, "created_at")
@@ -95,8 +95,8 @@ func (s *stockProductDetail) GetFieldByName(fieldName string) (field.OrderExpr, 
 
 func (s *stockProductDetail) fillFieldMap() {
 	s.fieldMap = make(map[string]field.Expr, 8)
-	s.fieldMap["stock_id"] = s.StockID
-	s.fieldMap["detail_id"] = s.DetailID
+	s.fieldMap["id"] = s.ID
+	s.fieldMap["product_detail_id"] = s.ProductDetailID
 	s.fieldMap["quantity"] = s.Quantity
 	s.fieldMap["status"] = s.Status
 	s.fieldMap["created_at"] = s.CreatedAt

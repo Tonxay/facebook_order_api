@@ -12,7 +12,7 @@ const TableNameOrderDetail = "order_details"
 
 // OrderDetail mapped from table <order_details>
 type OrderDetail struct {
-	OrderDetailID   string    `gorm:"column:order_detail_id;primaryKey;default:gen_random_uuid()" json:"order_detail_id"`
+	ID              string    `gorm:"column:id;primaryKey;default:gen_random_uuid()" json:"id"`
 	OrderID         string    `gorm:"column:order_id;not null" json:"order_id"`
 	ProductDetailID string    `gorm:"column:product_detail_id;not null" json:"product_detail_id"`
 	Quantity        int32     `gorm:"column:quantity;not null" json:"quantity"`
