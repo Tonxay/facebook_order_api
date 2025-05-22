@@ -91,25 +91,27 @@ func CreateStockProductDetail(c *fiber.Ctx) error {
 		UserID:          "1e55b100-8a4e-4372-a9e9-7d3c5f4a2a77",
 		ProductDetailID: requestData.ProductDetailID,
 		Quantity:        requestData.Quantity,
+		SizeID:          requestData.SizeID,
 		Remaining:       requestData.Quantity,
 	}
 
 	err := dbservice.CreateStockProductDetail(&data, c.Context())
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "failed to create sock",
+			"error": "failed to create stock",
 		})
 	}
 	// Return the created category
 
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
-		"message": requestData,
+		"message": data,
 	})
 }
 
-func CreateStockProductDetailForID(c *fiber.Ctx) error {
-	id := c.Params("id")
-	data, err := dbservice.GetProductDetailsForID(gormpkg.GetDB(), id)
+func GetStockProductDetailForID(c *fiber.Ctx) error {
+	id := c.Query("product_item_detail_id")
+	size_id := c.Query("size_id")
+	data, err := dbservice.GetProductDetailsForID(gormpkg.GetDB(), id, size_id)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "failed to get stock",
@@ -118,4 +120,25 @@ func CreateStockProductDetailForID(c *fiber.Ctx) error {
 	// Return the created category
 
 	return c.Status(fiber.StatusCreated).JSON(data)
+}
+
+func CreateProductSize(c *fiber.Ctx) error {
+
+	var requestData models.Size
+
+	// Parse JSON request body
+	if err := c.BodyParser(&requestData); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "invalid request payload",
+		})
+	}
+	err := dbservice.CreateProductSize(&requestData, c.Context())
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "failed to create size",
+		})
+	}
+	// Return the created category
+
+	return c.Status(fiber.StatusCreated).JSON(requestData)
 }

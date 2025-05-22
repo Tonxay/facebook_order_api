@@ -22,6 +22,7 @@ type Order struct {
 	DistrictID    int32     `gorm:"column:district_id" json:"district_id"`
 	OrderedAt     time.Time `gorm:"column:ordered_at;default:CURRENT_TIMESTAMP" json:"ordered_at"`
 	UpdatedAt     time.Time `gorm:"column:updated_at;default:CURRENT_TIMESTAMP" json:"updated_at"`
+	PackagePrice  int32     `gorm:"column:package_price" json:"package_price"`
 }
 
 // TableName Order's table name

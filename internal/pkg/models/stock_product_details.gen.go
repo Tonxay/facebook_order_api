@@ -20,6 +20,7 @@ type StockProductDetail struct {
 	UpdatedAt       time.Time `gorm:"column:updated_at;default:CURRENT_TIMESTAMP" json:"updated_at"`
 	UserID          string    `gorm:"column:user_id;not null" json:"user_id"`
 	Remaining       int32     `gorm:"column:remaining" json:"remaining"`
+	SizeID          string    `gorm:"column:size_id;not null" json:"size_id"`
 }
 
 // TableName StockProductDetail's table name

@@ -38,6 +38,7 @@ func newOrder(db *gorm.DB, opts ...gen.DOOption) order {
 	_order.DistrictID = field.NewInt32(tableName, "district_id")
 	_order.OrderedAt = field.NewTime(tableName, "ordered_at")
 	_order.UpdatedAt = field.NewTime(tableName, "updated_at")
+	_order.PackagePrice = field.NewInt32(tableName, "package_price")
 
 	_order.fillFieldMap()
 
@@ -58,6 +59,7 @@ type order struct {
 	DistrictID    field.Int32
 	OrderedAt     field.Time
 	UpdatedAt     field.Time
+	PackagePrice  field.Int32
 
 	fieldMap map[string]field.Expr
 }
@@ -84,6 +86,7 @@ func (o *order) updateTableName(table string) *order {
 	o.DistrictID = field.NewInt32(table, "district_id")
 	o.OrderedAt = field.NewTime(table, "ordered_at")
 	o.UpdatedAt = field.NewTime(table, "updated_at")
+	o.PackagePrice = field.NewInt32(table, "package_price")
 
 	o.fillFieldMap()
 
@@ -100,7 +103,7 @@ func (o *order) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (o *order) fillFieldMap() {
-	o.fieldMap = make(map[string]field.Expr, 10)
+	o.fieldMap = make(map[string]field.Expr, 11)
 	o.fieldMap["id"] = o.ID
 	o.fieldMap["status"] = o.Status
 	o.fieldMap["customer_id"] = o.CustomerID
@@ -111,6 +114,7 @@ func (o *order) fillFieldMap() {
 	o.fieldMap["district_id"] = o.DistrictID
 	o.fieldMap["ordered_at"] = o.OrderedAt
 	o.fieldMap["updated_at"] = o.UpdatedAt
+	o.fieldMap["package_price"] = o.PackagePrice
 }
 
 func (o order) clone(db *gorm.DB) order {

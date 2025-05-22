@@ -36,6 +36,7 @@ func newStockProductDetail(db *gorm.DB, opts ...gen.DOOption) stockProductDetail
 	_stockProductDetail.UpdatedAt = field.NewTime(tableName, "updated_at")
 	_stockProductDetail.UserID = field.NewString(tableName, "user_id")
 	_stockProductDetail.Remaining = field.NewInt32(tableName, "remaining")
+	_stockProductDetail.SizeID = field.NewString(tableName, "size_id")
 
 	_stockProductDetail.fillFieldMap()
 
@@ -54,6 +55,7 @@ type stockProductDetail struct {
 	UpdatedAt       field.Time
 	UserID          field.String
 	Remaining       field.Int32
+	SizeID          field.String
 
 	fieldMap map[string]field.Expr
 }
@@ -78,6 +80,7 @@ func (s *stockProductDetail) updateTableName(table string) *stockProductDetail {
 	s.UpdatedAt = field.NewTime(table, "updated_at")
 	s.UserID = field.NewString(table, "user_id")
 	s.Remaining = field.NewInt32(table, "remaining")
+	s.SizeID = field.NewString(table, "size_id")
 
 	s.fillFieldMap()
 
@@ -94,7 +97,7 @@ func (s *stockProductDetail) GetFieldByName(fieldName string) (field.OrderExpr, 
 }
 
 func (s *stockProductDetail) fillFieldMap() {
-	s.fieldMap = make(map[string]field.Expr, 8)
+	s.fieldMap = make(map[string]field.Expr, 9)
 	s.fieldMap["id"] = s.ID
 	s.fieldMap["product_detail_id"] = s.ProductDetailID
 	s.fieldMap["quantity"] = s.Quantity
@@ -103,6 +106,7 @@ func (s *stockProductDetail) fillFieldMap() {
 	s.fieldMap["updated_at"] = s.UpdatedAt
 	s.fieldMap["user_id"] = s.UserID
 	s.fieldMap["remaining"] = s.Remaining
+	s.fieldMap["size_id"] = s.SizeID
 }
 
 func (s stockProductDetail) clone(db *gorm.DB) stockProductDetail {

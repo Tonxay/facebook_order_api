@@ -26,6 +26,7 @@ var (
 	Product            *product
 	ProductDetail      *productDetail
 	Province           *province
+	Size               *size
 	StockDetail        *stockDetail
 	StockProductDetail *stockProductDetail
 	User               *user
@@ -43,6 +44,7 @@ func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
 	Product = &Q.Product
 	ProductDetail = &Q.ProductDetail
 	Province = &Q.Province
+	Size = &Q.Size
 	StockDetail = &Q.StockDetail
 	StockProductDetail = &Q.StockProductDetail
 	User = &Q.User
@@ -61,6 +63,7 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		Product:            newProduct(db, opts...),
 		ProductDetail:      newProductDetail(db, opts...),
 		Province:           newProvince(db, opts...),
+		Size:               newSize(db, opts...),
 		StockDetail:        newStockDetail(db, opts...),
 		StockProductDetail: newStockProductDetail(db, opts...),
 		User:               newUser(db, opts...),
@@ -80,6 +83,7 @@ type Query struct {
 	Product            product
 	ProductDetail      productDetail
 	Province           province
+	Size               size
 	StockDetail        stockDetail
 	StockProductDetail stockProductDetail
 	User               user
@@ -100,6 +104,7 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		Product:            q.Product.clone(db),
 		ProductDetail:      q.ProductDetail.clone(db),
 		Province:           q.Province.clone(db),
+		Size:               q.Size.clone(db),
 		StockDetail:        q.StockDetail.clone(db),
 		StockProductDetail: q.StockProductDetail.clone(db),
 		User:               q.User.clone(db),
@@ -127,6 +132,7 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		Product:            q.Product.replaceDB(db),
 		ProductDetail:      q.ProductDetail.replaceDB(db),
 		Province:           q.Province.replaceDB(db),
+		Size:               q.Size.replaceDB(db),
 		StockDetail:        q.StockDetail.replaceDB(db),
 		StockProductDetail: q.StockProductDetail.replaceDB(db),
 		User:               q.User.replaceDB(db),
@@ -144,6 +150,7 @@ type queryCtx struct {
 	Product            IProductDo
 	ProductDetail      IProductDetailDo
 	Province           IProvinceDo
+	Size               ISizeDo
 	StockDetail        IStockDetailDo
 	StockProductDetail IStockProductDetailDo
 	User               IUserDo
@@ -161,6 +168,7 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		Product:            q.Product.WithContext(ctx),
 		ProductDetail:      q.ProductDetail.WithContext(ctx),
 		Province:           q.Province.WithContext(ctx),
+		Size:               q.Size.WithContext(ctx),
 		StockDetail:        q.StockDetail.WithContext(ctx),
 		StockProductDetail: q.StockProductDetail.WithContext(ctx),
 		User:               q.User.WithContext(ctx),

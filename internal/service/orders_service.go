@@ -31,10 +31,10 @@ func CreateOrder(c *fiber.Ctx) error {
 	var orderDetail []*models.OrderDetail
 
 	orderID := uuid.New().String()
+	var totalPrice int32
+
 	for _, item := range req.OrderDetails {
-
-		product, err := dbservice.GetProductDetailsForID(db, item.ProductDetailID)
-
+		product, err := dbservice.GetProductDetailsForID(db, item.ProductDetailID, item.SizeID)
 		if err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 				"error": "not found product",
@@ -47,8 +47,8 @@ func CreateOrder(c *fiber.Ctx) error {
 				"error": "quantity than product",
 			})
 		}
-		productQuantity := item.Quantity
 
+		productQuantity := item.Quantity
 		for _, stock := range product.StockProducts {
 			if productQuantity <= 0 {
 				break
@@ -60,9 +60,23 @@ func CreateOrder(c *fiber.Ctx) error {
 			if stock.Remaining >= productQuantity {
 				stock.Remaining -= productQuantity
 				productQuantity = 0
+				err = dbservice.UpdateStockProductDetail(stock.ID, stock.Remaining, "active", c.Context())
+				if err != nil {
+					return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+						"error": "server error",
+					})
+
+				}
 			} else {
 				productQuantity -= stock.Remaining
 				stock.Remaining = 0
+				err = dbservice.UpdateStockProductDetail(stock.ID, stock.Remaining, "out_stock", c.Context())
+				if err != nil {
+					return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+						"error": "server error",
+					})
+
+				}
 			}
 		}
 
@@ -73,6 +87,7 @@ func CreateOrder(c *fiber.Ctx) error {
 			UnitPrice:       float64(product.Price),
 			TotalPrice:      float64(item.Quantity * product.Price),
 		})
+		totalPrice = (item.Quantity * product.Price) + totalPrice
 
 	}
 
@@ -80,11 +95,12 @@ func CreateOrder(c *fiber.Ctx) error {
 		ID:            orderID,
 		Status:        "pending",
 		CustomerID:    req.CustomerID,
+		PackagePrice:  0,
 		Tel:           req.Tel,
 		CustomAddress: req.CustomAddress,
 		UserID:        "1e55b100-8a4e-4372-a9e9-7d3c5f4a2a77",
 		DistrictID:    req.DistrictID,
-		TotalPrice:    200,
+		TotalPrice:    totalPrice,
 	}
 
 	err = dbservice.CreateOrder(db, &order, c.Context())

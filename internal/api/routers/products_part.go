@@ -11,7 +11,8 @@ func SetupProductRoutesPart(route fiber.Router) {
 	route.Post("/create/product", service.CreateProduct)
 	route.Post("/create/product-detail", service.CreateProductDetail)
 	route.Post("/create/product-stock", service.CreateStockProductDetail)
+	route.Post("/create/size", service.CreateProductSize)
 
-	route.Get("/product-detail-id/:id", service.CreateStockProductDetailForID)
+	route.Get("/product-detail-size", service.GetStockProductDetailForID)
 
 }

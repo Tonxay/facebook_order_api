@@ -28,16 +28,9 @@ func CreateProductDetail(productDetail *models.ProductDetail, ctx context.Contex
 	return err
 }
 
-func CreateStockProductDetail(stockProductDetail *models.StockProductDetail, ctx context.Context) error {
+func CreateProductSize(size *models.Size, ctx context.Context) error {
 	query.SetDefault(gormpkg.GetDB())
-	daq := query.Q.StockProductDetail
-	err := daq.WithContext(ctx).Create(stockProductDetail)
-	return err
-}
-
-func CreateStockDetails(stockDetail *models.StockDetail, ctx context.Context) error {
-	query.SetDefault(gormpkg.GetDB())
-	daq := query.Q.StockDetail
-	err := daq.WithContext(ctx).Create(stockDetail)
+	daq := query.Q.Size
+	err := daq.WithContext(ctx).Create(size)
 	return err
 }

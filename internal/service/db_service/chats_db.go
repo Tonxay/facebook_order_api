@@ -6,9 +6,7 @@ import (
 )
 
 func CreateMesseng(messeng *models.Chat) error {
-
 	err := gormpkg.GetDB().Table(models.TableNameChat).Create(&messeng).Error
-
 	return err
 }
 

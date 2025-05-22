@@ -13,4 +13,5 @@ type OrderRequest struct {
 type OrderDetails struct {
 	ProductDetailID string `gorm:"column:product_detail_id;not null" json:"product_detail_id"`
 	Quantity        int32  `gorm:"column:quantity;not null" json:"quantity"`
+	SizeID          string `gorm:"column:size_id;not null" json:"size_id"`
 }
