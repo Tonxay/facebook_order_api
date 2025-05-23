@@ -50,34 +50,35 @@ func CreateOrder(c *fiber.Ctx) error {
 
 		productQuantity := item.Quantity
 		for _, stock := range product.StockProducts {
-			if productQuantity <= 0 {
-				break
-			}
+
 			if stock.Remaining <= 0 {
 				continue
 			}
+			if productQuantity >= 1 {
 
-			if stock.Remaining >= productQuantity {
-				stock.Remaining -= productQuantity
-				productQuantity = 0
-				err = dbservice.UpdateStockProductDetail(stock.ID, stock.Remaining, "active", c.Context())
-				if err != nil {
-					return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-						"error": "server error",
-					})
+				if stock.Remaining >= productQuantity {
+					stock.Remaining -= productQuantity
+					productQuantity = 0
+					err = dbservice.UpdateStockProductDetail(stock.ID, stock.Remaining, "active", c.Context())
+					if err != nil {
+						return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+							"error": "server error",
+						})
+					}
+				} else {
+					productQuantity -= stock.Remaining
+					stock.Remaining = 0
+					err = dbservice.UpdateStockProductDetail(stock.ID, stock.Remaining, "out_stock", c.Context())
+					if err != nil {
+						return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+							"error": "server error",
+						})
 
+					}
 				}
-			} else {
-				productQuantity -= stock.Remaining
-				stock.Remaining = 0
-				err = dbservice.UpdateStockProductDetail(stock.ID, stock.Remaining, "out_stock", c.Context())
-				if err != nil {
-					return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-						"error": "server error",
-					})
 
-				}
 			}
+
 		}
 
 		orderDetail = append(orderDetail, &models.OrderDetail{
@@ -87,6 +88,7 @@ func CreateOrder(c *fiber.Ctx) error {
 			UnitPrice:       float64(product.Price),
 			TotalPrice:      float64(item.Quantity * product.Price),
 		})
+
 		totalPrice = (item.Quantity * product.Price) + totalPrice
 
 	}

@@ -1,0 +1,47 @@
+package custommodel
+
+import (
+	"go-api/internal/pkg/models"
+)
+
+// Product mapped from table <products>
+type Products struct {
+	ID             string           `gorm:"column:id;primaryKey;default:gen_random_uuid()" json:"id"`
+	Name           string           `gorm:"column:name;not null" json:"name"`
+	ProductDetails []ProductDetails `gorm:"foreignKey:ProductID;references:ID" json:"product_details"`
+}
+
+// TableName Product's table name
+func (*Products) TableName() string {
+	return models.TableNameProduct
+}
+
+type ProductDetails struct {
+	ID        string `gorm:"column:id" json:"id"`
+	ProductID string `gorm:"column:product_id;not null" json:"product_id"`
+	Color     string `gorm:"column:color" json:"color"`
+	FitType   string `gorm:"column:fit_type" json:"fit_type"`
+	Material  string `gorm:"column:material" json:"material"`
+	Status    string `gorm:"column:status;default:active" json:"status"`
+	ImageURL  string `gorm:"column:image_url;default:N/A" json:"image_url"`
+	Price     int32  `gorm:"column:price;not null" json:"price"`
+	ColorName string `gorm:"column:color_name" json:"color_name"`
+	Sizes     []Size `gorm:"foreignKey:product_detail_id;references:ID" json:"sizes"`
+}
+
+// TableName ProductDetail's table name
+func (*ProductDetails) TableName() string {
+	return models.TableNameProductDetail
+}
+
+type Size struct {
+	ID              string `gorm:"column:id;primaryKey;default:gen_random_uuid()" json:"id"`
+	Size            string `gorm:"column:size" json:"size"`
+	TotalRemaining  int32  `gorm:"column:total_remaining" json:"total_remaining"`
+	ProductDetailID string `gorm:"column:product_detail_id;not null" json:"product_detail_id"`
+}
+
+// TableName Size's table name
+func (*Size) TableName() string {
+	return models.TableNameSize
+}

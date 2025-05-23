@@ -1,12 +1,17 @@
 package api
 
 import (
+	"go-api/internal/api/auth"
 	routers_part "go-api/internal/api/routers"
 
 	"github.com/gofiber/fiber/v2"
 )
 
 func SetupRoutes(app *fiber.App) {
+
+	authen := app.Group("/authen")
+	auth.SetupAuthenRoutesPart(authen)
+
 	webhook := app.Group("/webhook")
 	routers_part.SetupWebhookRoutesPart(webhook)
 

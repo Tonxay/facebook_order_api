@@ -3,7 +3,7 @@ package service
 import (
 	gormpkg "go-api/internal/pkg"
 	"go-api/internal/pkg/models"
-	"go-api/internal/pkg/models/custom_model/request"
+	"go-api/internal/pkg/models/request"
 	dbservice "go-api/internal/service/db_service"
 
 	"github.com/gofiber/fiber/v2"
@@ -141,4 +141,15 @@ func CreateProductSize(c *fiber.Ctx) error {
 	// Return the created category
 
 	return c.Status(fiber.StatusCreated).JSON(requestData)
+}
+
+func GetProductInStcok(c *fiber.Ctx) error {
+	data, err := dbservice.GetProducts(gormpkg.GetDB())
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "failed to get products",
+		})
+	}
+	// Return the created category
+	return c.Status(fiber.StatusCreated).JSON(data)
 }

@@ -30,6 +30,7 @@ func GetProductDetailsForID(db *gorm.DB, productItemDetailId string, size_id str
 	tx = tx.Group("pd.id,p.name, s.size, pd.color,pd.price")
 
 	err := tx.Find(&products).Error
+
 	return products, err
 }
 

@@ -23,6 +23,7 @@ type ProductDetail struct {
 	UpdatedAt time.Time `gorm:"column:updated_at;default:CURRENT_TIMESTAMP" json:"updated_at"`
 	ImageURL  string    `gorm:"column:image_url;default:N/A" json:"image_url"`
 	Price     int32     `gorm:"column:price;not null" json:"price"`
+	ColorName string    `gorm:"column:color_name" json:"color_name"`
 }
 
 // TableName ProductDetail's table name
