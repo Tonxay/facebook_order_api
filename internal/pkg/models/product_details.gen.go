@@ -14,7 +14,6 @@ const TableNameProductDetail = "product_details"
 type ProductDetail struct {
 	ID        string    `gorm:"column:id;primaryKey;default:gen_random_uuid()" json:"id"`
 	ProductID string    `gorm:"column:product_id;not null" json:"product_id"`
-	Size      string    `gorm:"column:size" json:"size"`
 	Color     string    `gorm:"column:color" json:"color"`
 	FitType   string    `gorm:"column:fit_type" json:"fit_type"`
 	Material  string    `gorm:"column:material" json:"material"`

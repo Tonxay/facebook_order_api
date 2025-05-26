@@ -32,3 +32,9 @@ func GetUserNamePassword(db *gorm.DB, userName string) (models.User, error) {
 	err := db.Table(models.TableNameUser).Where("user_name = ?", userName).First(&user).Error
 	return user, err
 }
+
+func GetUserBayID(db *gorm.DB, id string) (custommodel.User, error) {
+	var user custommodel.User
+	err := db.Table(models.TableNameUser).Where("id = ?", id).First(&user).Error
+	return user, err
+}

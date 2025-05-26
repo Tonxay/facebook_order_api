@@ -30,7 +30,6 @@ func newProductDetail(db *gorm.DB, opts ...gen.DOOption) productDetail {
 	_productDetail.ALL = field.NewAsterisk(tableName)
 	_productDetail.ID = field.NewString(tableName, "id")
 	_productDetail.ProductID = field.NewString(tableName, "product_id")
-	_productDetail.Size = field.NewString(tableName, "size")
 	_productDetail.Color = field.NewString(tableName, "color")
 	_productDetail.FitType = field.NewString(tableName, "fit_type")
 	_productDetail.Material = field.NewString(tableName, "material")
@@ -52,7 +51,6 @@ type productDetail struct {
 	ALL       field.Asterisk
 	ID        field.String
 	ProductID field.String
-	Size      field.String
 	Color     field.String
 	FitType   field.String
 	Material  field.String
@@ -80,7 +78,6 @@ func (p *productDetail) updateTableName(table string) *productDetail {
 	p.ALL = field.NewAsterisk(table)
 	p.ID = field.NewString(table, "id")
 	p.ProductID = field.NewString(table, "product_id")
-	p.Size = field.NewString(table, "size")
 	p.Color = field.NewString(table, "color")
 	p.FitType = field.NewString(table, "fit_type")
 	p.Material = field.NewString(table, "material")
@@ -106,10 +103,9 @@ func (p *productDetail) GetFieldByName(fieldName string) (field.OrderExpr, bool)
 }
 
 func (p *productDetail) fillFieldMap() {
-	p.fieldMap = make(map[string]field.Expr, 12)
+	p.fieldMap = make(map[string]field.Expr, 11)
 	p.fieldMap["id"] = p.ID
 	p.fieldMap["product_id"] = p.ProductID
-	p.fieldMap["size"] = p.Size
 	p.fieldMap["color"] = p.Color
 	p.fieldMap["fit_type"] = p.FitType
 	p.fieldMap["material"] = p.Material

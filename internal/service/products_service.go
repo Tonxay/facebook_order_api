@@ -1,6 +1,7 @@
 package service
 
 import (
+	"go-api/internal/config/presenters"
 	gormpkg "go-api/internal/pkg"
 	"go-api/internal/pkg/models"
 	"go-api/internal/pkg/models/request"
@@ -27,9 +28,7 @@ func CreateCategorie(c *fiber.Ctx) error {
 	}
 	// Return the created category
 
-	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
-		"message": requestData,
-	})
+	return c.Status(fiber.StatusCreated).JSON(presenters.ResponseSuccess(requestData))
 }
 
 func CreateProduct(c *fiber.Ctx) error {
@@ -50,9 +49,7 @@ func CreateProduct(c *fiber.Ctx) error {
 	}
 	// Return the created category
 
-	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
-		"message": requestData,
-	})
+	return c.Status(fiber.StatusCreated).JSON(presenters.ResponseSuccess(requestData))
 }
 
 func CreateProductDetail(c *fiber.Ctx) error {
@@ -73,9 +70,7 @@ func CreateProductDetail(c *fiber.Ctx) error {
 	}
 	// Return the created category
 
-	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
-		"message": requestData,
-	})
+	return c.Status(fiber.StatusCreated).JSON(presenters.ResponseSuccess(requestData))
 }
 func CreateStockProductDetail(c *fiber.Ctx) error {
 	var requestData request.StockProductDetail
@@ -103,9 +98,7 @@ func CreateStockProductDetail(c *fiber.Ctx) error {
 	}
 	// Return the created category
 
-	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
-		"message": data,
-	})
+	return c.Status(fiber.StatusCreated).JSON(presenters.ResponseSuccess(data))
 }
 
 func GetStockProductDetailForID(c *fiber.Ctx) error {
@@ -151,5 +144,5 @@ func GetProductInStcok(c *fiber.Ctx) error {
 		})
 	}
 	// Return the created category
-	return c.Status(fiber.StatusCreated).JSON(data)
+	return c.Status(fiber.StatusCreated).JSON(presenters.ResponseSuccess(data))
 }

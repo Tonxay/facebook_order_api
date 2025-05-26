@@ -18,7 +18,8 @@ func Register(c *fiber.Ctx) error {
 	var requestData request.User
 
 	if err := c.BodyParser(&requestData); err != nil {
-		return c.Status(400).JSON(fiber.Map{"error": "Invalid input"})
+		return fiber.NewError(400, "Invalid input")
+
 	}
 
 	db := gormpkg.GetDB()
@@ -40,7 +41,7 @@ func Register(c *fiber.Ctx) error {
 	err := dbservice.CreateUser(db, &user, c.Context())
 
 	if err != nil {
-		return c.Status(500).JSON(fiber.Map{"error": "Server error"})
+		return fiber.NewError(500, "Server error")
 	}
 
 	return c.JSON(fiber.Map{"message": "User registered", "user_id": user.ID})
@@ -48,19 +49,20 @@ func Register(c *fiber.Ctx) error {
 
 func Login(c *fiber.Ctx) error {
 	var requestData request.User
-	if err := c.BodyParser(&requestData); err != nil {
-		return c.Status(400).JSON(fiber.Map{"error": "Invalid input"})
+
+	if err := middleware.ParseAndValidateBody(c, &requestData); err != nil {
+		return fiber.NewError(400, err.Error())
 	}
 
 	user, err := dbservice.GetUserNamePassword(gormpkg.GetDB(), requestData.UserName)
 	if err != nil {
-		return c.Status(401).JSON(fiber.Map{"error": "Invalid credentials"})
+		return fiber.NewError(401, "Invalid credentials")
 	}
 
 	err1 := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(requestData.Password))
 
 	if err1 != nil {
-		return c.Status(401).JSON(fiber.Map{"error": "Invalid credentials"})
+		return fiber.NewError(401, "Invalid credentials")
 	}
 
 	accessToken, _ := middleware.GenerateToken(user.ID, user.Rolo, time.Minute*15)
@@ -78,7 +80,7 @@ func Refresh(c *fiber.Ctx) error {
 		RefreshToken string `json:"refresh_token"`
 	}
 
-	if err := c.BodyParser(&body); err != nil {
+	if err := middleware.ValidateReqBody(body); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request"})
 	}
 

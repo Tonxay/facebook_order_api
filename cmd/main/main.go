@@ -1,87 +1,58 @@
 package main
 
 import (
+	"errors"
 	"go-api/internal/api"
+	"go-api/internal/config/middleware"
 	gormpkg "go-api/internal/pkg"
 	"log"
 	"os"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 )
 
-// func sendMessage(recipientID, messageText string) error {
-// 	pageAccessToken := os.Getenv("PAGE_ACCESS_TOKEN")
-// 	url := "https://graph.facebook.com/v21.0/me/messages?access_token=" + pageAccessToken
-
-// 	message := map[string]interface{}{
-// 		"recipient": map[string]string{
-// 			"id": recipientID,
-// 		},
-// 		"messaging_type": "RESPONSE",
-// 		"message": map[string]string{
-// 			"text": messageText,
-// 		},
-// 	}
-
-// 	jsonData, err := json.Marshal(message)
-// 	if err != nil {
-// 		return fmt.Errorf("failed to marshal message: %w", err)
-// 	}
-
-// 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
-// 	if err != nil {
-// 		return fmt.Errorf("failed to create request: %w", err)
-// 	}
-
-// 	req.Header.Set("Content-Type", "application/json")
-
-// 	client := &http.Client{}
-// 	resp, err := client.Do(req)
-// 	if err != nil {
-// 		return fmt.Errorf("failed to send request: %w", err)
-// 	}
-// 	defer resp.Body.Close()
-
-// 	if resp.StatusCode != http.StatusOK {
-// 		return fmt.Errorf("received non-OK response: %s", resp.Status)
-// 	}
-
-// 	return nil
-// }
-
-// func sendMessage(recipientID, messageText string) {
-// 	pageToken := os.Getenv("PAGE_ACCESS_TOKEN")
-// 	url := "https://graph.facebook.com/v22.0/me/messages?access_token=" + pageToken
-
-// 	// message := map[string]interface{}{
-// 	// 	"recipient": map[string]string{"id": recipientID},
-// 	// 	"message":   map[string]string{"text": messageText},
-// 	// }
-// 	message := map[string]interface{}{
-// 		"recipient": map[string]string{
-// 			"id": recipientID,
-// 		},
-// 		"messaging_type": "RESPONSE",
-// 		"message": map[string]string{
-// 			"text": messageText,
-// 		},
-// 	}
-
-// 	body, _ := json.Marshal(message)
-// 	_, err := http.Post(url, "application/json", bytes.NewBuffer(body))
-// 	if err != nil {
-// 		log.Println("Error sending message:", err)
-// 	}
-// }
-
 func main() {
+
+	// API Routes
+	// api := app.Group(os.Getenv("API_PREFIX"))
+
+	myConfig := fiber.Config{
+		// DisableStartupMessage: true,
+		// AppName: apiName,
+		// Override default body limit to 50MB
+		BodyLimit: 50 * 1024 * 1024,
+		// Override default error handler
+		ErrorHandler: func(ctx *fiber.Ctx, err error) error {
+			// Status code defaults to 500
+			code := fiber.StatusInternalServerError
+
+			// Retrieve the custom status code if it's a *fiber.Error
+			var e *fiber.Error
+			if errors.As(err, &e) {
+				code = e.Code
+			}
+
+			// Send custom error response
+			err = ctx.Status(code).JSON(fiber.Map{
+				"timestamp": time.Now().Format("2006-01-02-15-04-05"),
+				"status":    0,
+				"items":     nil,
+				"error":     err.Error(),
+			})
+
+			// Return from handler
+			return err
+		},
+	}
+
+	app := fiber.New(myConfig)
+	middleware.Init()
+	api.SetupRoutes(app)
 	if err := gormpkg.Init("webhook"); err != nil {
 		log.Fatalf("❌ Failed to connect to DB: %v", err)
 	}
-	app := fiber.New()
-	// API Routes
-	// api := app.Group(os.Getenv("API_PREFIX"))
-	api.SetupRoutes(app)
+
 	api.SetupWebsocketRoutes(app)
 	port := os.Getenv("PORT")
 	if port == "" {

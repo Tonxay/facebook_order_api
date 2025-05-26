@@ -1,10 +1,13 @@
 package service
 
 import (
+	"go-api/internal/config/middleware"
+	"go-api/internal/config/presenters"
 	gormpkg "go-api/internal/pkg"
 	"go-api/internal/pkg/models"
 	custommodel "go-api/internal/pkg/models/custom_model"
 	dbservice "go-api/internal/service/db_service"
+	"net/http"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
@@ -36,16 +39,13 @@ func CreateOrder(c *fiber.Ctx) error {
 	for _, item := range req.OrderDetails {
 		product, err := dbservice.GetProductDetailsForID(db, item.ProductDetailID, item.SizeID)
 		if err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"error": "not found product",
-			})
+			return fiber.NewError(http.StatusBadRequest, "not found product")
 
 		}
 
 		if item.Quantity > product.Quantity {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"error": "quantity than product",
-			})
+			return fiber.NewError(http.StatusBadRequest, "quantity than product")
+
 		}
 
 		productQuantity := item.Quantity
@@ -61,18 +61,14 @@ func CreateOrder(c *fiber.Ctx) error {
 					productQuantity = 0
 					err = dbservice.UpdateStockProductDetail(stock.ID, stock.Remaining, "active", c.Context())
 					if err != nil {
-						return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-							"error": "server error",
-						})
+						return fiber.NewError(http.StatusInternalServerError, "server create order details error")
 					}
 				} else {
 					productQuantity -= stock.Remaining
 					stock.Remaining = 0
 					err = dbservice.UpdateStockProductDetail(stock.ID, stock.Remaining, "out_stock", c.Context())
 					if err != nil {
-						return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-							"error": "server error",
-						})
+						return fiber.NewError(http.StatusInternalServerError, "server create order details error")
 
 					}
 				}
@@ -85,6 +81,7 @@ func CreateOrder(c *fiber.Ctx) error {
 			OrderID:         orderID,
 			ProductDetailID: item.ProductDetailID,
 			Quantity:        item.Quantity,
+			SizeID:          item.SizeID,
 			UnitPrice:       float64(product.Price),
 			TotalPrice:      float64(item.Quantity * product.Price),
 		})
@@ -98,6 +95,7 @@ func CreateOrder(c *fiber.Ctx) error {
 		Status:        "pending",
 		CustomerID:    req.CustomerID,
 		PackagePrice:  0,
+		OrderNo:       middleware.GenerateOrderNumber(),
 		Tel:           req.Tel,
 		CustomAddress: req.CustomAddress,
 		UserID:        "1e55b100-8a4e-4372-a9e9-7d3c5f4a2a77",
@@ -108,22 +106,20 @@ func CreateOrder(c *fiber.Ctx) error {
 	err = dbservice.CreateOrder(db, &order, c.Context())
 	if err != nil {
 
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "server create order error ",
-		})
+		return fiber.NewError(http.StatusInternalServerError, "server create order details error")
 
 	}
 
 	err = dbservice.CreateOrderDetails(db, orderDetail, c.Context())
 	if err != nil {
 
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "server create order details error",
-		})
-
+		return fiber.NewError(http.StatusInternalServerError, "server create order details error")
 	}
 	db.Commit()
 
-	return c.Status(200).JSON("successfully")
+	return c.Status(200).JSON(presenters.ResponseSuccess(fiber.Map{
+		"order": order,
+		"items": orderDetail,
+	}))
 
 }

@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"fmt"
 	"os"
 	"strings"
 	"time"
@@ -52,4 +53,9 @@ func JWTProtected(c *fiber.Ctx) error {
 
 func GetJwtSecret() []byte {
 	return jwtSecret
+}
+
+func GenerateOrderNumber() string {
+	now := time.Now()
+	return fmt.Sprintf("ORD-%s-%d", now.Format("20060102"), now.UnixNano()%100000)
 }
