@@ -36,7 +36,7 @@ jobs:
       - name: Build and push Docker image to Docker Hub
         uses: docker/build-push-action@v3
         with:
-          push: true
+          push: false
           tags: |
             ${{secrets.DOCKER_USERNAME}}/tonxay/gowebhook:${{ github.sha }}
             ${{secrets.DOCKER_USERNAME}}/tonxay/gowebhook:latest
