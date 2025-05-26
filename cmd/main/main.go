@@ -52,7 +52,6 @@ func main() {
 	if err := gormpkg.Init("webhook"); err != nil {
 		log.Fatalf("❌ Failed to connect to DB: %v", err)
 	}
-
 	api.SetupWebsocketRoutes(app)
 	port := os.Getenv("PORT")
 	if port == "" {
