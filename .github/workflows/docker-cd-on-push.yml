@@ -22,7 +22,7 @@ jobs:
       - name: Set date env
         run: echo "DATE=$(date +'%Y-%m-%d %H:%M:%S')" >> $GITHUB_ENV
       - name: Set date env
-        run: echo ${{secrets.DOCKER_USERNAME}}
+        run: echo ${{vars.DOCKER_USERNAME}}
 
       # - name: Set app to build MODE env
       #   run: echo "MODE=build" >> $GITHUB_ENV
