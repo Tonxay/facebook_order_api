@@ -36,16 +36,18 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/gowebhook:latest
+          tags: |
+            ${{ secrets.DOCKER_USERNAME }}/gowebhook:${{ github.sha }}
+            ${{ secrets.DOCKER_USERNAME }}/gowebhook:latest
           file: ./Dockerfile
 
-      # - name: SSH to server to pull and re-run Docker container
-      #   uses: appleboy/ssh-action@master
-      #   with:
-      #     host: ${{ secrets.DEV_VM_SSH_HOST }}
-      #     username: ${{ secrets.DEV_VM_SSH_USERNAME }}
-      #     password: ${{ secrets.DEV_VM_SSH_PASSWORD }}
-      #     script: |
-      #       docker compose pull duty-free-api
-      #       docker compose up -d duty-free-api
-      #       docker image prune -f
+      - name: SSH to server to pull and re-run Docker container
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.DEV_VM_SSH_HOST }}
+          username: ${{ secrets.DEV_VM_SSH_USERNAME }}
+          password: ${{ secrets.DEV_VM_SSH_PASSWORD }}
+          script: |
+            docker compose pull gowebhook
+            docker compose up -d gowebhook
+            docker image prune -f
