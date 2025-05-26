@@ -28,16 +28,16 @@ jobs:
       - name: Login to DockerHub
         uses: docker/login-action@v3
         with:
-          username: ${{ env.DOCKER_USERNAME }}
-          password: ${{ env.DOCKER_ACCESS_TOKEN }}
+          username: ${{ vars.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_ACCESS_TOKEN }}
 
       - name: Build and push Docker image to Docker Hub
         uses: docker/build-push-action@v3
         with:
           push: true
           tags: |
-            ${{ env.DOCKER_USERNAME }}/tonxay/gowebhook:${{ github.sha }}
-            ${{ env.DOCKER_USERNAME }}/tonxay/gowebhook:latest
+            ${{ vars.DOCKER_USERNAME }}/tonxay/gowebhook:${{ github.sha }}
+            ${{ secrets.DOCKER_USERNAME }}/tonxay/gowebhook:latest
           build-args: |
             COMMIT_SHA=${{ github.sha }}
             BRANCH=${{ github.ref }}
