@@ -17,7 +17,7 @@ jobs:
 
       - name: Set up Docker Buildx
         id: buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v2
 
       - name: Set date env
         run: echo "DATE=$(date +'%Y-%m-%d %H:%M:%S')" >> $GITHUB_ENV
@@ -50,5 +50,4 @@ jobs:
           script: |
             docker-compose pull 
             docker-compose down
-            docker-compose up -d 
-            docker image prune -f
+            docker-compose up -d
