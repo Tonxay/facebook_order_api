@@ -28,7 +28,6 @@ jobs:
       - name: Login to DockerHub
         uses: docker/login-action@v2
         with:
-          registry: ghcr.io
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_ACCESS_TOKEN }}
 
@@ -37,7 +36,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/${{ secrets.DOCKER_USERNAME }}/gowebhook:latest
+          tags: ${{ secrets.DOCKER_USERNAME }}/gowebhook:latest
           file: ./Dockerfile
 
       # - name: SSH to server to pull and re-run Docker container
