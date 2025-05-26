@@ -1,0 +1,58 @@
+name: Go app build and run CI test
+
+on:
+  push:
+    branches: ["main"]
+  # pull_request:
+  #   branches: [ "main" ]
+  #   types: [ "closed" ]
+
+jobs:
+  build-and-push-dev-docker:
+    name: Build and push Docker container - DEV
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Set date env
+        run: echo "DATE=$(date +'%Y-%m-%d %H:%M:%S')" >> $GITHUB_ENV
+
+      # - name: Set app to build MODE env
+      #   run: echo "MODE=build" >> $GITHUB_ENV
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_ACCESS_TOKEN }}
+
+      - name: Build and push Docker image to Docker Hub
+        uses: docker/build-push-action@v3
+        with:
+          push: true
+          tags: |
+            ${{ secrets.DOCKER_USERNAME }}/tonxay/gowebhook:${{ github.sha }}
+            ${{ secrets.DOCKER_USERNAME }}/tonxay/gowebhook:latest
+          build-args: |
+            COMMIT_SHA=${{ github.sha }}
+            BRANCH=${{ github.ref }}
+            BUILD_DATE=${{ env.DATE }}
+            API_VERSION=${{ github.sha }}
+          context: .
+          file: ./Dockerfile
+
+      # - name: SSH to server to pull and re-run Docker container
+      #   uses: appleboy/ssh-action@master
+      #   with:
+      #     host: ${{ secrets.DEV_VM_SSH_HOST }}
+      #     username: ${{ secrets.DEV_VM_SSH_USERNAME }}
+      #     password: ${{ secrets.DEV_VM_SSH_PASSWORD }}
+      #     script: |
+      #       docker compose pull duty-free-api
+      #       docker compose up -d duty-free-api
+      #       docker image prune -f

@@ -23,8 +23,11 @@ COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=builder /bin/api-app /bin/api-app
 
 # Runtime environment variables (can be overwritten when running `docker run`)
+
+ARG API_VERSION
 ARG BUILD_DATE
-ENV BUILD_DATE=${BUILD_DATE}
+ENV API_VERSION ${API_VERSION}
+ENV BUILD_DATE ${BUILD_DATE}
 
 
 
