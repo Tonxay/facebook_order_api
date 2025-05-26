@@ -50,5 +50,5 @@ jobs:
           script: |
             docker-compose pull 
             docker-compose down
-            docker-compose up
+            docker-compose up -d 
             docker image prune -f
