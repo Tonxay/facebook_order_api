@@ -85,7 +85,7 @@ func main() {
 	// API Routes
 	// api := app.Group(os.Getenv("API_PREFIX"))
 	api.SetupRoutes(app)
-
+	log.Panicln("connect to DB")
 	api.SetupWebsocketRoutes(app)
 	port := os.Getenv("PORT")
 	if port == "" {
