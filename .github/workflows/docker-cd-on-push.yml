@@ -37,7 +37,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/${{ secrets.DOCKER_USERNAME }}/tonxay/gowebhook:latest
+          tags: ghcr.io/${{ secrets.DOCKER_USERNAME }}/gowebhook:latest
           file: ./Dockerfile
 
       # - name: SSH to server to pull and re-run Docker container
