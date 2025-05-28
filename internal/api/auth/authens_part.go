@@ -8,7 +8,6 @@ import (
 )
 
 func SetupAuthenRoutesPart(route fiber.Router) {
-
 	route.Post("/login", service.Login)
 	route.Post("/refresh", service.Refresh)
 	route.Post("/register", middleware.JWTProtected, service.Register)
