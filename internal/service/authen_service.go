@@ -80,7 +80,7 @@ func Refresh(c *fiber.Ctx) error {
 		RefreshToken string `json:"refresh_token"`
 	}
 
-	if err := c.BodyParser(body); err != nil {
+	if err := c.BodyParser(&body); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request"})
 	}
 
