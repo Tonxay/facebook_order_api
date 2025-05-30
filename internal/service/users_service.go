@@ -32,31 +32,7 @@ func GetFacebookAllCustomers(c *fiber.Ctx) error {
 }
 
 func getFacebookProfile(facebookID string) (*models.Customer, error) {
-	// pageAccessToken := os.Getenv("PAGE_ACCESS_TOKEN")
-	// if pageAccessToken == "" {
-	// 	return nil, fmt.Errorf("missing PAGE_ACCESS_TOKEN")
-	// }
 
-	// url := fmt.Sprintf(
-	// 	"https://graph.facebook.com/v21.0/%s?fields=first_name,last_name,name,email,gender,locale,timezone,profile_pic&access_token=%s",
-	// 	facebookID,
-	// 	pageAccessToken,
-	// )
-
-	// resp, err := http.Get(url)
-	// if err != nil {
-	// 	return nil, fmt.Errorf("error making request to Facebook Graph API: %w", err)
-	// }
-	// defer resp.Body.Close()
-
-	// if resp.StatusCode != http.StatusOK {
-	// 	return nil, fmt.Errorf("facebook API error: %s", resp.Status)
-	// }
-
-	// var profile custommodel.FacebookUserProfile
-	// if err := json.NewDecoder(resp.Body).Decode(&profile); err != nil {
-	// 	return nil, fmt.Errorf("error decoding Facebook response: %w", err)
-	// }
 	var customer models.Customer
 	gormpkg.GetDB().Table(models.TableNameCustomer).Where("facebook_id = ?", facebookID).First(&customer)
 

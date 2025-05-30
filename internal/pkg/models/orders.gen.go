@@ -24,6 +24,9 @@ type Order struct {
 	UpdatedAt     time.Time `gorm:"column:updated_at;default:CURRENT_TIMESTAMP" json:"updated_at"`
 	PackagePrice  int32     `gorm:"column:package_price" json:"package_price"`
 	OrderNo       string    `gorm:"column:order_no;not null" json:"order_no"`
+	PayType       bool      `gorm:"column:pay_type;not null" json:"pay_type"`
+	OrderName     int32     `gorm:"column:order_name" json:"order_name"`
+	ShippingID    string    `gorm:"column:shipping_id;not null" json:"shipping_id"`
 }
 
 // TableName Order's table name
