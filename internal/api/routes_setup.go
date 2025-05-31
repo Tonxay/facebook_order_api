@@ -26,6 +26,7 @@ func SetupRoutes(app *fiber.App) {
 
 	orders := app.Group("/orders")
 	routers_part.SetupOrdersRoutesPart(orders)
+
 	ship := app.Group("/shipping")
 	routers_part.SetupShippingRoutesPart(ship)
 

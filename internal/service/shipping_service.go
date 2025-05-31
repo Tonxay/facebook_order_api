@@ -18,3 +18,25 @@ func GetShipping(c *fiber.Ctx) error {
 	// Return the created category
 	return c.Status(fiber.StatusCreated).JSON(presenters.ResponseSuccess(data))
 }
+
+func GetProvices(c *fiber.Ctx) error {
+	data, err := dbservice.GetProvince(gormpkg.GetDB())
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "failed to get shipping",
+		})
+	}
+	// Return the created category
+	return c.Status(fiber.StatusCreated).JSON(presenters.ResponseSuccess(data))
+}
+func GetDistricts(c *fiber.Ctx) error {
+	provice_id := c.Params("provice_id")
+	data, err := dbservice.GetDistrict(gormpkg.GetDB(), provice_id)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "failed to get shipping",
+		})
+	}
+	// Return the created category
+	return c.Status(fiber.StatusCreated).JSON(presenters.ResponseSuccess(data))
+}

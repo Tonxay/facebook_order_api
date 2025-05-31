@@ -9,6 +9,8 @@ import (
 
 func SetupShippingRoutesPart(route fiber.Router) {
 	route.Use(middleware.JWTProtected)
+	route.Get("/provice", service.GetProvices)
+	route.Get("/districts/:provice_id", service.GetDistricts)
 	route.Get("/", service.GetShipping)
 
 }
