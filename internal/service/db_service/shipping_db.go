@@ -14,7 +14,7 @@ func GetShipping(db *gorm.DB) (*[]models.Shipping, error) {
 
 func GetProvince(db *gorm.DB) (*[]models.Province, error) {
 	var provices *[]models.Province
-	err := db.Table(models.TableNameProvince).Where("status = ?", "active").Find(&provices).Error
+	err := db.Table(models.TableNameProvince).Find(&provices).Error
 	return provices, err
 }
 
