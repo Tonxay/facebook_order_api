@@ -2,6 +2,8 @@ package custommodel
 
 import (
 	"go-api/internal/pkg/models"
+
+	"gorm.io/datatypes"
 )
 
 // Product mapped from table <products>
@@ -9,7 +11,7 @@ type Products struct {
 	ID             string           `gorm:"column:id;primaryKey;default:gen_random_uuid()" json:"id"`
 	Name           string           `gorm:"column:name;not null" json:"name"`
 	ProductDetails []ProductDetails `gorm:"foreignKey:ProductID;references:ID" json:"product_details"`
-	Promotions     string           `gorm:"column:promotions" json:"promotions"`
+	Promotions     datatypes.JSON   `gorm:"column:promotions" json:"promotions"`
 }
 
 // TableName Product's table name
