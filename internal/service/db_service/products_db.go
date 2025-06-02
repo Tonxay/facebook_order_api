@@ -44,7 +44,7 @@ func GetProducts(db *gorm.DB) ([]custommodel.Products, error) {
 
 	tx := db.Table(models.TableNameProduct + " p")
 
-	tx = tx.Select("p.id,p.name")
+	tx = tx.Select("p.id,p.name,p.discount")
 
 	tx = tx.Preload("ProductDetails", func(db *gorm.DB) *gorm.DB {
 
@@ -56,7 +56,8 @@ func GetProducts(db *gorm.DB) ([]custommodel.Products, error) {
 					`    sizes.id,
 					     sizes.size,
 					     sizes.product_detail_id,
-					     SUM(s.remaining) AS total_remaining 
+					     SUM(s.remaining) AS total_remaining
+						  
 				    `,
 				)
 

@@ -20,6 +20,7 @@ type Product struct {
 	Status     string    `gorm:"column:status;default:active" json:"status"`
 	CreatedAt  time.Time `gorm:"column:created_at;default:CURRENT_TIMESTAMP" json:"created_at"`
 	UpdatedAt  time.Time `gorm:"column:updated_at;default:CURRENT_TIMESTAMP" json:"updated_at"`
+	Discount   string    `gorm:"column:discount" json:"discount"`
 }
 
 // TableName Product's table name
