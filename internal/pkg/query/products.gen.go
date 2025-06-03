@@ -36,7 +36,6 @@ func newProduct(db *gorm.DB, opts ...gen.DOOption) product {
 	_product.Status = field.NewString(tableName, "status")
 	_product.CreatedAt = field.NewTime(tableName, "created_at")
 	_product.UpdatedAt = field.NewTime(tableName, "updated_at")
-	_product.Promotions = field.NewString(tableName, "promotions")
 
 	_product.fillFieldMap()
 
@@ -55,7 +54,6 @@ type product struct {
 	Status     field.String
 	CreatedAt  field.Time
 	UpdatedAt  field.Time
-	Promotions field.String
 
 	fieldMap map[string]field.Expr
 }
@@ -80,7 +78,6 @@ func (p *product) updateTableName(table string) *product {
 	p.Status = field.NewString(table, "status")
 	p.CreatedAt = field.NewTime(table, "created_at")
 	p.UpdatedAt = field.NewTime(table, "updated_at")
-	p.Promotions = field.NewString(table, "promotions")
 
 	p.fillFieldMap()
 
@@ -97,7 +94,7 @@ func (p *product) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (p *product) fillFieldMap() {
-	p.fieldMap = make(map[string]field.Expr, 9)
+	p.fieldMap = make(map[string]field.Expr, 8)
 	p.fieldMap["id"] = p.ID
 	p.fieldMap["name"] = p.Name
 	p.fieldMap["brand"] = p.Brand
@@ -106,7 +103,6 @@ func (p *product) fillFieldMap() {
 	p.fieldMap["status"] = p.Status
 	p.fieldMap["created_at"] = p.CreatedAt
 	p.fieldMap["updated_at"] = p.UpdatedAt
-	p.fieldMap["promotions"] = p.Promotions
 }
 
 func (p product) clone(db *gorm.DB) product {

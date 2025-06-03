@@ -44,7 +44,11 @@ func GetProducts(db *gorm.DB) ([]custommodel.Products, error) {
 
 	tx := db.Table(models.TableNameProduct + " p")
 
-	tx = tx.Select("p.id,p.name,p.promotions")
+	tx = tx.Select("p.id,p.name")
+	tx = tx.Preload("Promotions", func(db *gorm.DB) *gorm.DB {
+		tx := db.Where("status = ?", "active")
+		return tx
+	})
 
 	tx = tx.Preload("ProductDetails", func(db *gorm.DB) *gorm.DB {
 

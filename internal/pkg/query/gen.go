@@ -25,6 +25,7 @@ var (
 	OrderDetail        *orderDetail
 	Product            *product
 	ProductDetail      *productDetail
+	Promotion          *promotion
 	Province           *province
 	Shipping           *shipping
 	Size               *size
@@ -44,6 +45,7 @@ func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
 	OrderDetail = &Q.OrderDetail
 	Product = &Q.Product
 	ProductDetail = &Q.ProductDetail
+	Promotion = &Q.Promotion
 	Province = &Q.Province
 	Shipping = &Q.Shipping
 	Size = &Q.Size
@@ -64,6 +66,7 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		OrderDetail:        newOrderDetail(db, opts...),
 		Product:            newProduct(db, opts...),
 		ProductDetail:      newProductDetail(db, opts...),
+		Promotion:          newPromotion(db, opts...),
 		Province:           newProvince(db, opts...),
 		Shipping:           newShipping(db, opts...),
 		Size:               newSize(db, opts...),
@@ -85,6 +88,7 @@ type Query struct {
 	OrderDetail        orderDetail
 	Product            product
 	ProductDetail      productDetail
+	Promotion          promotion
 	Province           province
 	Shipping           shipping
 	Size               size
@@ -107,6 +111,7 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		OrderDetail:        q.OrderDetail.clone(db),
 		Product:            q.Product.clone(db),
 		ProductDetail:      q.ProductDetail.clone(db),
+		Promotion:          q.Promotion.clone(db),
 		Province:           q.Province.clone(db),
 		Shipping:           q.Shipping.clone(db),
 		Size:               q.Size.clone(db),
@@ -136,6 +141,7 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		OrderDetail:        q.OrderDetail.replaceDB(db),
 		Product:            q.Product.replaceDB(db),
 		ProductDetail:      q.ProductDetail.replaceDB(db),
+		Promotion:          q.Promotion.replaceDB(db),
 		Province:           q.Province.replaceDB(db),
 		Shipping:           q.Shipping.replaceDB(db),
 		Size:               q.Size.replaceDB(db),
@@ -155,6 +161,7 @@ type queryCtx struct {
 	OrderDetail        IOrderDetailDo
 	Product            IProductDo
 	ProductDetail      IProductDetailDo
+	Promotion          IPromotionDo
 	Province           IProvinceDo
 	Shipping           IShippingDo
 	Size               ISizeDo
@@ -174,6 +181,7 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		OrderDetail:        q.OrderDetail.WithContext(ctx),
 		Product:            q.Product.WithContext(ctx),
 		ProductDetail:      q.ProductDetail.WithContext(ctx),
+		Promotion:          q.Promotion.WithContext(ctx),
 		Province:           q.Province.WithContext(ctx),
 		Shipping:           q.Shipping.WithContext(ctx),
 		Size:               q.Size.WithContext(ctx),
