@@ -23,6 +23,7 @@ var (
 	District           *district
 	Order              *order
 	OrderDetail        *orderDetail
+	Page               *page
 	Product            *product
 	ProductDetail      *productDetail
 	Promotion          *promotion
@@ -43,6 +44,7 @@ func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
 	District = &Q.District
 	Order = &Q.Order
 	OrderDetail = &Q.OrderDetail
+	Page = &Q.Page
 	Product = &Q.Product
 	ProductDetail = &Q.ProductDetail
 	Promotion = &Q.Promotion
@@ -64,6 +66,7 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		District:           newDistrict(db, opts...),
 		Order:              newOrder(db, opts...),
 		OrderDetail:        newOrderDetail(db, opts...),
+		Page:               newPage(db, opts...),
 		Product:            newProduct(db, opts...),
 		ProductDetail:      newProductDetail(db, opts...),
 		Promotion:          newPromotion(db, opts...),
@@ -86,6 +89,7 @@ type Query struct {
 	District           district
 	Order              order
 	OrderDetail        orderDetail
+	Page               page
 	Product            product
 	ProductDetail      productDetail
 	Promotion          promotion
@@ -109,6 +113,7 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		District:           q.District.clone(db),
 		Order:              q.Order.clone(db),
 		OrderDetail:        q.OrderDetail.clone(db),
+		Page:               q.Page.clone(db),
 		Product:            q.Product.clone(db),
 		ProductDetail:      q.ProductDetail.clone(db),
 		Promotion:          q.Promotion.clone(db),
@@ -139,6 +144,7 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		District:           q.District.replaceDB(db),
 		Order:              q.Order.replaceDB(db),
 		OrderDetail:        q.OrderDetail.replaceDB(db),
+		Page:               q.Page.replaceDB(db),
 		Product:            q.Product.replaceDB(db),
 		ProductDetail:      q.ProductDetail.replaceDB(db),
 		Promotion:          q.Promotion.replaceDB(db),
@@ -159,6 +165,7 @@ type queryCtx struct {
 	District           IDistrictDo
 	Order              IOrderDo
 	OrderDetail        IOrderDetailDo
+	Page               IPageDo
 	Product            IProductDo
 	ProductDetail      IProductDetailDo
 	Promotion          IPromotionDo
@@ -179,6 +186,7 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		District:           q.District.WithContext(ctx),
 		Order:              q.Order.WithContext(ctx),
 		OrderDetail:        q.OrderDetail.WithContext(ctx),
+		Page:               q.Page.WithContext(ctx),
 		Product:            q.Product.WithContext(ctx),
 		ProductDetail:      q.ProductDetail.WithContext(ctx),
 		Promotion:          q.Promotion.WithContext(ctx),

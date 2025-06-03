@@ -152,6 +152,7 @@ func HandleWebhook(c *fiber.Ctx) error {
 
 				err1 := gormpkg.GetDB().Table(models.TableNameCustomer).Create(&models.Customer{
 					FacebookID: fbID,
+					PageID:     os.Getenv("PAGE_ID"),
 				}).Error
 
 				if err1 == nil {
