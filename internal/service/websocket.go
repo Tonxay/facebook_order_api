@@ -3,8 +3,6 @@ package service
 import (
 	"encoding/json"
 	"fmt"
-	gormpkg "go-api/internal/pkg"
-	dbservice "go-api/internal/service/db_service"
 	"log"
 	"sync"
 	"time"
@@ -191,7 +189,7 @@ func PurchaseWebSocketCheckPayment() func(*websocket.Conn) {
 
 	return func(c *websocket.Conn) {
 		defer c.Close()
-		db := gormpkg.GetDB()
+		// db := gormpkg.GetDB()
 		// Optional: Set a Pong handler to keep connection alive
 		c.SetPongHandler(func(appData string) error {
 			fmt.Println("Pong received")
@@ -211,27 +209,27 @@ func PurchaseWebSocketCheckPayment() func(*websocket.Conn) {
 		}()
 
 		// Write loop
-		for {
-			data, err := dbservice.Getcustomers(db)
-			if err != nil {
-				fmt.Println("DB error:", err)
-				return
-			}
+		// for {
+		// 	// data, err := dbservice.Getcustomers(db)
+		// 	if err != nil {
+		// 		fmt.Println("DB error:", err)
+		// 		return
+		// 	}
 
-			result, err := json.Marshal(data)
-			if err != nil {
-				fmt.Println("JSON marshal error:", err)
-				return
-			}
+		// 	result, err := json.Marshal(data)
+		// 	if err != nil {
+		// 		fmt.Println("JSON marshal error:", err)
+		// 		return
+		// 	}
 
-			err = c.WriteMessage(websocket.TextMessage, result)
-			if err != nil {
-				fmt.Println("WebSocket write error:", err)
-				return
-			}
+		// 	err = c.WriteMessage(websocket.TextMessage, result)
+		// 	if err != nil {
+		// 		fmt.Println("WebSocket write error:", err)
+		// 		return
+		// 	}
 
-			// Wait 3 seconds before sending again to avoid spamming
-			time.Sleep(3 * time.Second)
-		}
+		// 	// Wait 3 seconds before sending again to avoid spamming
+		// 	time.Sleep(3 * time.Second)
+		// }
 	}
 }
