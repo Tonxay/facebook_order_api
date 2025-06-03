@@ -37,6 +37,7 @@ func GetFacebookAllCustomers(c *fiber.Ctx) error {
 	}
 
 	totalPage := int((total + int64(query.Limit) - 1) / int64(query.Limit))
+
 	return c.JSON(presenters.ResponseSuccessListData(user, query.Page, query.Limit, int(total), totalPage))
 }
 

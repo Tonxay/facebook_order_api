@@ -11,11 +11,16 @@ func Getcustomers(db *gorm.DB, query request.CustomerQuery) (*[]models.Customer,
 	var totalCount int64
 	var customers *[]models.Customer
 	offset := (query.Page - 1) * query.Limit
-	err := db.
-		Table(models.TableNameCustomer).
-		Count(&totalCount).
-		Limit(query.Limit).
-		Offset(offset).
-		Find(&customers).Error
+	tx := db.
+		Table(models.TableNameCustomer)
+	tx = tx.Count(&totalCount)
+	if query.Name != "" {
+		tx = tx.Where("first_name ILIKE ?", "%"+query.Name+"%")
+	}
+
+	tx = tx.Limit(query.Limit).
+		Offset(offset)
+
+	err := tx.Find(&customers).Error
 	return customers, totalCount, err
 }
