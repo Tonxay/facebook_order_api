@@ -52,6 +52,7 @@ func main() {
 	}
 	app.Use(cors.New(cors.Config{
 		AllowOrigins: "https://hang-out-a468e.firebaseapp.com",
+		AllowHeaders: "Origin, Content-Type, Accept, Authorization",
 		AllowMethods: "GET,POST,PUT,DELETE,OPTIONS",
 	}))
 	// API Routes
