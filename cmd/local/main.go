@@ -51,7 +51,7 @@ func main() {
 		log.Fatalf("❌ Failed to connect to DB: %v", err)
 	}
 	app.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"https://hang-out-a468e.firebaseapp.com"},
+		AllowOrigins:     []string{"*"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		AllowCredentials: true,
