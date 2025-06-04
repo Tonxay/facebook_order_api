@@ -9,6 +9,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -54,6 +55,12 @@ func main() {
 	// api := app.Group(os.Getenv("API_PREFIX"))
 	api.SetupRoutes(app)
 	api.SetupWebsocketRoutes(app)
+
+	app.Use(cors.New(cors.Config{
+		AllowOrigins: "https://hang-out-a468e.firebaseapp.com",
+		AllowMethods: "GET,POST,PUT,DELETE,OPTIONS",
+	}))
+
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"

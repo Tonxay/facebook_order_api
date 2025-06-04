@@ -23,4 +23,5 @@ func Getcustomers(db *gorm.DB, query request.CustomerQuery) (*[]models.Customer,
 
 	err := tx.Order("created_at DESC").Find(&customers).Error
 	return customers, totalCount, err
+
 }
