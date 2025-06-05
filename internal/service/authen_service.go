@@ -65,8 +65,8 @@ func Login(c *fiber.Ctx) error {
 		return fiber.NewError(401, "Invalid credentials")
 	}
 
-	accessToken, _ := middleware.GenerateToken(user.ID, user.Rolo, time.Hour+7)
-	refreshToken, _ := middleware.GenerateToken(user.ID, user.Rolo, time.Hour+8)
+	accessToken, _ := middleware.GenerateToken(user.ID, user.Rolo, time.Hour)
+	refreshToken, _ := middleware.GenerateToken(user.ID, user.Rolo, 23*time.Hour)
 
 	return c.JSON(fiber.Map{
 		"access_token":  accessToken,
@@ -97,8 +97,8 @@ func Refresh(c *fiber.Ctx) error {
 	role := claims["role"].(string)
 
 	// Issue new access token
-	newAccessToken, _ := middleware.GenerateToken(userID, role, time.Hour+7)
-	refreshToken, _ := middleware.GenerateToken(userID, role, time.Hour+8)
+	newAccessToken, _ := middleware.GenerateToken(userID, role, time.Hour)
+	refreshToken, _ := middleware.GenerateToken(userID, role, 23*time.Hour)
 	return c.JSON(fiber.Map{
 		"access_token":  newAccessToken,
 		"refresh_token": refreshToken,

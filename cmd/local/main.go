@@ -9,7 +9,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/gin-contrib/cors"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -50,13 +49,7 @@ func main() {
 	if err := gormpkg.Init("api"); err != nil {
 		log.Fatalf("❌ Failed to connect to DB: %v", err)
 	}
-	app.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"https://hang-out-a468e.firebaseapp.com"},
-		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
-		AllowCredentials: true,
-		MaxAge:           12 * time.Hour,
-	}))
+
 	// API Routes
 	// api := app.Group(os.Getenv("API_PREFIX"))
 	api.SetupRoutes(app)
