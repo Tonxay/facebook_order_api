@@ -97,8 +97,8 @@ func Refresh(c *fiber.Ctx) error {
 	role := claims["role"].(string)
 
 	// Issue new access token
-	newAccessToken, _ := middleware.GenerateToken(userID, role, time.Minute*15)
-	refreshToken, _ := middleware.GenerateToken(userID, role, time.Hour*24)
+	newAccessToken, _ := middleware.GenerateToken(userID, role, time.Hour+7)
+	refreshToken, _ := middleware.GenerateToken(userID, role, time.Hour+8)
 	return c.JSON(fiber.Map{
 		"access_token":  newAccessToken,
 		"refresh_token": refreshToken,
