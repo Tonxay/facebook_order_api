@@ -16,10 +16,10 @@ func Getcustomers(db *gorm.DB, query request.CustomerQuery) (*[]models.Customer,
 	tx = tx.Count(&totalCount)
 	if query.Name != "" {
 		tx = tx.Where("first_name ILIKE ?", "%"+query.Name+"%")
+	} else {
+		tx = tx.Limit(query.Limit).
+			Offset(offset)
 	}
-
-	tx = tx.Limit(query.Limit).
-		Offset(offset)
 
 	err := tx.Order("created_at DESC").Find(&customers).Error
 	return customers, totalCount, err
