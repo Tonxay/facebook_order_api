@@ -31,6 +31,7 @@ func newPage(db *gorm.DB, opts ...gen.DOOption) page {
 	_page.ID = field.NewString(tableName, "id")
 	_page.PageID = field.NewString(tableName, "page_id")
 	_page.NamePage = field.NewString(tableName, "name_page")
+	_page.Image = field.NewString(tableName, "image")
 
 	_page.fillFieldMap()
 
@@ -44,6 +45,7 @@ type page struct {
 	ID       field.String
 	PageID   field.String
 	NamePage field.String
+	Image    field.String
 
 	fieldMap map[string]field.Expr
 }
@@ -63,6 +65,7 @@ func (p *page) updateTableName(table string) *page {
 	p.ID = field.NewString(table, "id")
 	p.PageID = field.NewString(table, "page_id")
 	p.NamePage = field.NewString(table, "name_page")
+	p.Image = field.NewString(table, "image")
 
 	p.fillFieldMap()
 
@@ -79,10 +82,11 @@ func (p *page) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (p *page) fillFieldMap() {
-	p.fieldMap = make(map[string]field.Expr, 3)
+	p.fieldMap = make(map[string]field.Expr, 4)
 	p.fieldMap["id"] = p.ID
 	p.fieldMap["page_id"] = p.PageID
 	p.fieldMap["name_page"] = p.NamePage
+	p.fieldMap["image"] = p.Image
 }
 
 func (p page) clone(db *gorm.DB) page {

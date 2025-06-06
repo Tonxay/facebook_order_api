@@ -11,6 +11,7 @@ type Page struct {
 	ID       string `gorm:"column:id;default:gen_random_uuid()" json:"id"`
 	PageID   string `gorm:"column:page_id;primaryKey" json:"page_id"`
 	NamePage string `gorm:"column:name_page;not null" json:"name_page"`
+	Image    string `gorm:"column:image" json:"image"`
 }
 
 // TableName Page's table name
