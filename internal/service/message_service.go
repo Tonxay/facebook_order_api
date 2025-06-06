@@ -158,6 +158,9 @@ func HandleWebhook(c *fiber.Ctx) error {
 					FacebookID: fbID,
 					PageID:     pageId,
 				}).Error
+				gormpkg.GetDB().Table(models.TableNameCustomer).Where("facebook_id = ?", fbID).UpdateColumns(&models.Customer{
+					UpdatedAt: time.Now(),
+				})
 
 				if err1 == nil {
 					var fullnam string
