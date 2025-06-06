@@ -27,7 +27,7 @@ func Getcustomers(db *gorm.DB, query request.CustomerQuery) (*[]custommodel.Cust
 			Offset(offset)
 	}
 
-	err := tx.Order("created_at DESC").Find(&customers).Error
+	err := tx.Order("updated_at DESC").Find(&customers).Error
 	return customers, totalCount, err
 
 }
