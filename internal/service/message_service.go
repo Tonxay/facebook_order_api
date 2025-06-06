@@ -8,6 +8,7 @@ import (
 	gormpkg "go-api/internal/pkg"
 	"go-api/internal/pkg/models"
 	dbservice "go-api/internal/service/db_service"
+	"time"
 
 	"log"
 	"net/http"
@@ -168,6 +169,7 @@ func HandleWebhook(c *fiber.Ctx) error {
 					}
 					gormpkg.GetDB().Table(models.TableNameCustomer).Where("facebook_id = ?", fbID).UpdateColumns(&models.Customer{
 						FirstName: fullnam,
+						UpdatedAt: time.Now(),
 					})
 				}
 				// user, _ := GetFacebookProfile(fbID)
