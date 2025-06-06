@@ -1,0 +1,21 @@
+package middleware
+
+import "os"
+
+func CheckPageId(sendId string, recipientID string) (string, string) {
+	pageId := os.Getenv("PAGE_ID")
+	pageToken := os.Getenv("PAGE_ACCESS_TOKEN")
+	pageNanaId := os.Getenv("PAGE_NANAID")
+	pageNanaToken := os.Getenv("PAGE_ACCESS_TOKEN_NANA")
+
+	if sendId == pageId || recipientID == pageId {
+		return pageId, pageToken
+
+	} else if sendId == pageNanaId || recipientID == pageNanaId {
+		return pageNanaId, pageNanaToken
+
+	} else {
+		return pageId, pageToken
+	}
+
+}

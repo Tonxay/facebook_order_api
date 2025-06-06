@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"go-api/internal/config/middleware"
 	gormpkg "go-api/internal/pkg"
 	"go-api/internal/pkg/models"
 	dbservice "go-api/internal/service/db_service"
@@ -144,7 +145,9 @@ func HandleWebhook(c *fiber.Ctx) error {
 				recipientID := msg.Recipient.ID
 				// Store user if not from PAGE_ID
 				var fbID string
-				if senderID != os.Getenv("PAGE_ID") {
+
+				pageId, token := middleware.CheckPageId(senderID, recipientID)
+				if senderID != pageId {
 					fbID = senderID
 				} else {
 					fbID = recipientID
@@ -152,12 +155,12 @@ func HandleWebhook(c *fiber.Ctx) error {
 
 				err1 := gormpkg.GetDB().Table(models.TableNameCustomer).Create(&models.Customer{
 					FacebookID: fbID,
-					PageID:     os.Getenv("PAGE_ID"),
+					PageID:     pageId,
 				}).Error
 
 				if err1 == nil {
 					var fullnam string
-					message, _ := GetMessageDetailsFormid(msg.Message.Mid)
+					message, _ := GetMessageDetailsFormid(msg.Message.Mid, token)
 					if message.From.ID == fbID {
 						fullnam = message.From.Name
 					} else {

@@ -3,6 +3,7 @@ package service
 import (
 	"encoding/json"
 	"fmt"
+	"go-api/internal/config/middleware"
 	custommodel "go-api/internal/pkg/models/custom_model"
 	dbservice "go-api/internal/service/db_service"
 	"io"
@@ -156,8 +157,10 @@ func GetMessagesInConversation(c *fiber.Ctx) error {
 }
 
 func GetMessageDetails(c *fiber.Ctx) error {
-	messageID := c.Params("message_id")
-	result, err := GetMessageDetailsFormid(messageID)
+	messageID := c.Query("message_id")
+	pageId := c.Query("page_id")
+	_, token := middleware.CheckPageId(pageId, pageId)
+	result, err := GetMessageDetailsFormid(messageID, token)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "Failed to read response",
@@ -168,10 +171,9 @@ func GetMessageDetails(c *fiber.Ctx) error {
 }
 
 // GetMessageDetailsFormid retrieves message details from the Facebook Graph API
-func GetMessageDetailsFormid(messageID string) (custommodel.Message, error) {
+func GetMessageDetailsFormid(messageID, pageAccessToken string) (custommodel.Message, error) {
 	apiVersion := "v21.0"
 	var result custommodel.Message
-	pageAccessToken := os.Getenv("PAGE_ACCESS_TOKEN")
 
 	if messageID == "" || pageAccessToken == "" {
 		return result, fmt.Errorf("messageID or PAGE_ACCESS_TOKEN is missing")
