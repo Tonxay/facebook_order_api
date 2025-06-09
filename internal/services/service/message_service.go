@@ -7,7 +7,6 @@ import (
 	"go-api/internal/config/middleware"
 	gormpkg "go-api/internal/pkg"
 	"go-api/internal/pkg/models"
-	dbservice "go-api/internal/services/db_service"
 	"time"
 
 	"log"
@@ -196,12 +195,12 @@ func HandleWebhook(c *fiber.Ctx) error {
 					continue
 				}
 
-				err := dbservice.CreateMesseng(&models.Chat{
-					SenderID:    senderID,
-					UserID:      "1e55b100-8a4e-4372-a9e9-7d3c5f4a2a77", // You might want to dynamically look up user ID
-					RecipientID: recipientID,
-					JSONMesseng: string(c.BodyRaw()),
-				})
+				// err := dbservice.CreateMesseng(&models.Chat{
+				// 	SenderID:    senderID,
+				// 	UserID:      "1e55b100-8a4e-4372-a9e9-7d3c5f4a2a77", // You might want to dynamically look up user ID
+				// 	RecipientID: recipientID,
+				// 	JSONMesseng: string(c.BodyRaw()),
+				// })
 
 				gormpkg.GetDB().Table(models.TableNameCustomer).Where("facebook_id = ?", fbID).First(&user)
 
@@ -223,12 +222,12 @@ func HandleWebhook(c *fiber.Ctx) error {
 					"message": payload,
 				})
 
-				if err != nil {
-					log.Println("Failed to create message:", err)
-					return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-						"error": "create messeng",
-					})
-				}
+				// if err != nil {
+				// 	log.Println("Failed to create message:", err)
+				// 	return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				// 		"error": "create messeng",
+				// 	})
+				// }
 
 				// Handle postbacks
 				if msg.Postback != nil && msg.Postback.Payload != "" {
