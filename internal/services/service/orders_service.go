@@ -125,9 +125,6 @@ func CreateOrder(c *fiber.Ctx) error {
 			productQuantity := int32(item.Quantity)
 			for _, stock := range product.StockProducts {
 
-				// if stock.Remaining <= 0 {
-				// 	continue
-				// }
 				if productQuantity >= 1 {
 
 					if stock.Remaining >= productQuantity {
@@ -151,15 +148,6 @@ func CreateOrder(c *fiber.Ctx) error {
 						}
 
 					}
-					//  else {
-					// 	productQuantity -= stock.Remaining
-					// 	stock.Remaining = 0
-					// 	err = dbservice.UpdateStockProductDetail(db, stock.ID, stock.Remaining, "out_stock")
-					// 	if err != nil {
-					// 		return fiber.NewError(http.StatusInternalServerError, "server create order details error")
-
-					// 	}
-					// }
 
 				}
 
