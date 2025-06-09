@@ -4,13 +4,13 @@ import "go-api/internal/pkg/models"
 
 // OrderRequest represents the order payload with validation tags
 type OrderRequest struct {
-	CustomAddress string `json:"custom_address" validate:"required"`
-	FullName      string `json:"full_name" validate:"required"`
-	Tel           int32  `json:"tel" validate:"required,min=8"`
-	PlatForm      string `json:"plat_form" validate:"required,oneof=facebook whatapp tiktok"`
-	Gender        int    `json:"gender" validate:"required,oneof=0 1 2"` // 0: other, 1: male, 2: female
-	Cod           bool   `json:"cod" `
-	FreeShipping  bool   `json:"free_shipping" `
+	// CustomAddress string `json:"custom_address" validate:"required"`
+	FullName     string `json:"full_name" validate:"required"`
+	Tel          int32  `json:"tel" validate:"required,min=8"`
+	PlatForm     string `json:"plat_form" validate:"required,oneof=facebook whatapp tiktok"`
+	Gender       int    `json:"gender" validate:"required,oneof=0 1 2"` // 0: other, 1: male, 2: female
+	Cod          bool   `json:"cod" `
+	FreeShipping bool   `json:"free_shipping" `
 	// DiscountStr   string      `json:"discount_" validate:"omitempty,numeric"`
 	// ProvinceID int    `json:"province_id" validate:"required,min=1"`
 	ShippingID string `json:"shipping_id" validate:"required"`
