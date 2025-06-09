@@ -24,7 +24,7 @@ func GetProductDetailsForID(db *gorm.DB, productItemDetailId string, size_id str
 	tx = tx.Joins(joinQuery).Joins(joinProduct).Joins(joinSize)
 
 	tx = tx.Preload("StockProducts", func(db *gorm.DB) *gorm.DB {
-		return db.Where("remaining > ? AND status = ?", 0, "active")
+		return db.Where("remaining > ? AND status = ? AND size_id = ?", 0, "active", size_id)
 	})
 
 	tx = tx.Group("pd.id,p.name, s.size, pd.color,pd.price")
@@ -74,6 +74,34 @@ func GetProductDetailsByIDSizdID(db *gorm.DB, productItemDetailId, sizeId, produ
 	tx = tx.Joins(joinQuery).Joins(joinProduct).Joins(joinSize)
 
 	tx = tx.Where("spd.size_id = ? AND spd.remaining > ? AND spd.status = ?", sizeId, 0, "active").Where("pd.id = ?", productItemDetailId).Where("p.id = ?", producId).Where("s.id = ?", sizeId)
+
+	// tx = tx.Preload("StockProducts", func(db *gorm.DB) *gorm.DB {
+	// 	return db.Where("remaining > ? AND status = ?", 0, "active")
+	// })
+
+	tx = tx.Group("pd.product_id,pd.id,p.name, s.size, pd.color_name, pd.price,s.id")
+
+	err := tx.Find(&products).Error
+	return products, err
+}
+
+func GetProductByIDSizdID(db *gorm.DB, productItemDetailId, sizeId, producId string) (custommodel.ProductOrderDetails, error) {
+	var products custommodel.ProductOrderDetails
+
+	tx := db.Table(models.TableNameProductDetail + " pd")
+
+	tx = tx.Select("pd.product_id, pd.id, p.name, s.id  AS size_id , s.size ,pd.color_name , pd.price")
+
+	tx = tx.Where("pd.id = ?", productItemDetailId).Where("p.id = ?", producId).Where("s.id = ?", sizeId)
+	// .Where("spd.status = ?", "active")
+
+	joinProduct := fmt.Sprintf("LEFT JOIN %s p ON pd.product_id = p.id", models.TableNameProduct)
+	joinQuery := fmt.Sprintf("LEFT JOIN %s spd ON spd.product_detail_id = pd.id", models.TableNameStockProductDetail)
+	joinSize := fmt.Sprintf("LEFT JOIN %s s ON s.product_detail_id = pd.id", models.TableNameSize)
+
+	tx = tx.Joins(joinQuery).Joins(joinProduct).Joins(joinSize)
+
+	// tx = tx.Where("spd.size_id = ? AND spd.remaining > ? AND spd.status = ?", sizeId, 0, "active").Where("pd.id = ?", productItemDetailId).Where("p.id = ?", producId).Where("s.id = ?", sizeId)
 
 	// tx = tx.Preload("StockProducts", func(db *gorm.DB) *gorm.DB {
 	// 	return db.Where("remaining > ? AND status = ?", 0, "active")

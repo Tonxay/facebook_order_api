@@ -23,6 +23,8 @@ var (
 	District           *district
 	Order              *order
 	OrderDetail        *orderDetail
+	OrderDiscount      *orderDiscount
+	OrderStockDetail   *orderStockDetail
 	Page               *page
 	Product            *product
 	ProductDetail      *productDetail
@@ -30,7 +32,6 @@ var (
 	Province           *province
 	Shipping           *shipping
 	Size               *size
-	StockDetail        *stockDetail
 	StockProductDetail *stockProductDetail
 	User               *user
 	Village            *village
@@ -44,6 +45,8 @@ func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
 	District = &Q.District
 	Order = &Q.Order
 	OrderDetail = &Q.OrderDetail
+	OrderDiscount = &Q.OrderDiscount
+	OrderStockDetail = &Q.OrderStockDetail
 	Page = &Q.Page
 	Product = &Q.Product
 	ProductDetail = &Q.ProductDetail
@@ -51,7 +54,6 @@ func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
 	Province = &Q.Province
 	Shipping = &Q.Shipping
 	Size = &Q.Size
-	StockDetail = &Q.StockDetail
 	StockProductDetail = &Q.StockProductDetail
 	User = &Q.User
 	Village = &Q.Village
@@ -66,6 +68,8 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		District:           newDistrict(db, opts...),
 		Order:              newOrder(db, opts...),
 		OrderDetail:        newOrderDetail(db, opts...),
+		OrderDiscount:      newOrderDiscount(db, opts...),
+		OrderStockDetail:   newOrderStockDetail(db, opts...),
 		Page:               newPage(db, opts...),
 		Product:            newProduct(db, opts...),
 		ProductDetail:      newProductDetail(db, opts...),
@@ -73,7 +77,6 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		Province:           newProvince(db, opts...),
 		Shipping:           newShipping(db, opts...),
 		Size:               newSize(db, opts...),
-		StockDetail:        newStockDetail(db, opts...),
 		StockProductDetail: newStockProductDetail(db, opts...),
 		User:               newUser(db, opts...),
 		Village:            newVillage(db, opts...),
@@ -89,6 +92,8 @@ type Query struct {
 	District           district
 	Order              order
 	OrderDetail        orderDetail
+	OrderDiscount      orderDiscount
+	OrderStockDetail   orderStockDetail
 	Page               page
 	Product            product
 	ProductDetail      productDetail
@@ -96,7 +101,6 @@ type Query struct {
 	Province           province
 	Shipping           shipping
 	Size               size
-	StockDetail        stockDetail
 	StockProductDetail stockProductDetail
 	User               user
 	Village            village
@@ -113,6 +117,8 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		District:           q.District.clone(db),
 		Order:              q.Order.clone(db),
 		OrderDetail:        q.OrderDetail.clone(db),
+		OrderDiscount:      q.OrderDiscount.clone(db),
+		OrderStockDetail:   q.OrderStockDetail.clone(db),
 		Page:               q.Page.clone(db),
 		Product:            q.Product.clone(db),
 		ProductDetail:      q.ProductDetail.clone(db),
@@ -120,7 +126,6 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		Province:           q.Province.clone(db),
 		Shipping:           q.Shipping.clone(db),
 		Size:               q.Size.clone(db),
-		StockDetail:        q.StockDetail.clone(db),
 		StockProductDetail: q.StockProductDetail.clone(db),
 		User:               q.User.clone(db),
 		Village:            q.Village.clone(db),
@@ -144,6 +149,8 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		District:           q.District.replaceDB(db),
 		Order:              q.Order.replaceDB(db),
 		OrderDetail:        q.OrderDetail.replaceDB(db),
+		OrderDiscount:      q.OrderDiscount.replaceDB(db),
+		OrderStockDetail:   q.OrderStockDetail.replaceDB(db),
 		Page:               q.Page.replaceDB(db),
 		Product:            q.Product.replaceDB(db),
 		ProductDetail:      q.ProductDetail.replaceDB(db),
@@ -151,7 +158,6 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		Province:           q.Province.replaceDB(db),
 		Shipping:           q.Shipping.replaceDB(db),
 		Size:               q.Size.replaceDB(db),
-		StockDetail:        q.StockDetail.replaceDB(db),
 		StockProductDetail: q.StockProductDetail.replaceDB(db),
 		User:               q.User.replaceDB(db),
 		Village:            q.Village.replaceDB(db),
@@ -165,6 +171,8 @@ type queryCtx struct {
 	District           IDistrictDo
 	Order              IOrderDo
 	OrderDetail        IOrderDetailDo
+	OrderDiscount      IOrderDiscountDo
+	OrderStockDetail   IOrderStockDetailDo
 	Page               IPageDo
 	Product            IProductDo
 	ProductDetail      IProductDetailDo
@@ -172,7 +180,6 @@ type queryCtx struct {
 	Province           IProvinceDo
 	Shipping           IShippingDo
 	Size               ISizeDo
-	StockDetail        IStockDetailDo
 	StockProductDetail IStockProductDetailDo
 	User               IUserDo
 	Village            IVillageDo
@@ -186,6 +193,8 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		District:           q.District.WithContext(ctx),
 		Order:              q.Order.WithContext(ctx),
 		OrderDetail:        q.OrderDetail.WithContext(ctx),
+		OrderDiscount:      q.OrderDiscount.WithContext(ctx),
+		OrderStockDetail:   q.OrderStockDetail.WithContext(ctx),
 		Page:               q.Page.WithContext(ctx),
 		Product:            q.Product.WithContext(ctx),
 		ProductDetail:      q.ProductDetail.WithContext(ctx),
@@ -193,7 +202,6 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		Province:           q.Province.WithContext(ctx),
 		Shipping:           q.Shipping.WithContext(ctx),
 		Size:               q.Size.WithContext(ctx),
-		StockDetail:        q.StockDetail.WithContext(ctx),
 		StockProductDetail: q.StockProductDetail.WithContext(ctx),
 		User:               q.User.WithContext(ctx),
 		Village:            q.Village.WithContext(ctx),

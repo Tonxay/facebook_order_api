@@ -29,3 +29,17 @@ func CreateOrderDetails(db *gorm.DB, orderDetail []*models.OrderDetail, ctx cont
 
 	return nil
 }
+
+func CreateOrderDiscounts(db *gorm.DB, orderDiscounts []*models.OrderDiscount, ctx context.Context) error {
+	query.SetDefault(db)
+	daq := query.Q.OrderDiscount
+
+	// Insert in batches, handle error
+	err := daq.WithContext(ctx).CreateInBatches(orderDiscounts, 100)
+	if err != nil {
+		// Optional: Log or wrap for context
+		return fmt.Errorf("failed to create order details: %w", err)
+	}
+
+	return nil
+}

@@ -68,9 +68,9 @@ type ProductOrderDetails struct {
 	// FitType   string `gorm:"column:fit_type" json:"fit_type"`
 	// Material  string `gorm:"column:material" json:"material"`
 	// Status    string `gorm:"column:status;default:active" json:"status"`
-	Price     int32  `gorm:"column:price;not null" json:"price"`
-	ColorName string `gorm:"column:color_name" json:"color_name"`
-	Remaining int32  `gorm:"column:remaining;not null" json:"remaining"`
-	SizeID    string `gorm:"column:size_id" json:"size_id"`
-	Size      string `gorm:"column:size" json:"size"`
+	Price     float64 `gorm:"column:price;not null" json:"price"`
+	ColorName string  `gorm:"column:color_name" json:"color_name"`
+	Remaining int32   `gorm:"column:remaining;not null" json:"remaining"`
+	SizeID    string  `gorm:"column:size_id" json:"size_id"`
+	Size      string  `gorm:"column:size" json:"size"`
 }
