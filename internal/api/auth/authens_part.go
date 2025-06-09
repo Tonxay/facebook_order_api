@@ -2,7 +2,7 @@ package auth
 
 import (
 	"go-api/internal/config/middleware"
-	"go-api/internal/service"
+	"go-api/internal/services/service"
 
 	"github.com/gofiber/fiber/v2"
 )

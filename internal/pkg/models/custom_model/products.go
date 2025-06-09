@@ -59,3 +59,18 @@ type Promotion struct {
 func (*Promotion) TableName() string {
 	return models.TableNamePromotion
 }
+
+type ProductOrderDetails struct {
+	ID        string `gorm:"column:id" json:"id"`
+	ProductID string `gorm:"column:product_id;not null" json:"product_id"`
+	Name      string `gorm:"column:name;not null" json:"name"`
+	// Color     string `gorm:"column:color" json:"color"`
+	// FitType   string `gorm:"column:fit_type" json:"fit_type"`
+	// Material  string `gorm:"column:material" json:"material"`
+	// Status    string `gorm:"column:status;default:active" json:"status"`
+	Price     int32  `gorm:"column:price;not null" json:"price"`
+	ColorName string `gorm:"column:color_name" json:"color_name"`
+	Remaining int32  `gorm:"column:remaining;not null" json:"remaining"`
+	SizeID    string `gorm:"column:size_id" json:"size_id"`
+	Size      string `gorm:"column:size" json:"size"`
+}
