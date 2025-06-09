@@ -205,7 +205,7 @@ func CreateOrder(c *fiber.Ctx) error {
 		Platform:      req.PlatForm,
 	}
 
-	err = dbservice.CreateOrder(db, &order, c.Context())
+	err = dbservice.CreateOrder(db, &order)
 
 	if err != nil {
 		return fiber.NewError(http.StatusInternalServerError, err.Error())

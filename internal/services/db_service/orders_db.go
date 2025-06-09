@@ -9,10 +9,8 @@ import (
 	"gorm.io/gorm"
 )
 
-func CreateOrder(db *gorm.DB, order *models.Order, ctx context.Context) error {
-	query.SetDefault(db)
-	daq := query.Q.Order
-	err := daq.WithContext(ctx).Create(order)
+func CreateOrder(db *gorm.DB, order *models.Order) error {
+	err := db.Table(models.TableNameOrder).Create(order).Error
 	return err
 }
 
