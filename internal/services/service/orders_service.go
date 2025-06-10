@@ -21,7 +21,7 @@ func GetOrder(c *fiber.Ctx) error {
 
 	db := gormpkg.GetDB()
 
-	data, err = dbservice.GetOrder(db)
+	data, err = dbservice.GetOrders(db)
 
 	if err != nil {
 		return fiber.NewError(http.StatusInternalServerError, err.Error())
@@ -236,10 +236,13 @@ func CreateOrder(c *fiber.Ctx) error {
 		return fiber.NewError(http.StatusInternalServerError, err.Error())
 	}
 
+	respones, err1 := dbservice.GetOrder(db, orderID)
+
+	if err1 != nil {
+		return fiber.NewError(http.StatusInternalServerError, err1.Error())
+	}
+
 	db.Commit()
 
-	return c.Status(200).JSON(presenters.ResponseSuccess(fiber.Map{
-		"order": groupedResult,
-		// "items": groupedResult,
-	}))
+	return c.Status(200).JSON(presenters.ResponseSuccess(respones))
 }

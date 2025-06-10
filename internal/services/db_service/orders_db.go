@@ -41,13 +41,36 @@ func CreateOrderDiscounts(db *gorm.DB, orderDiscounts []*models.OrderDiscount, c
 	return nil
 }
 
-func GetOrder(db *gorm.DB) ([]*custommodel.OrderReponse, error) {
-	var order []*custommodel.OrderReponse
-	tx := db.Table(models.TableNameOrder)
+func GetOrders(db *gorm.DB) ([]*custommodel.OrderReponse, error) {
+	var orders []*custommodel.OrderReponse
+	tx := db.Table(models.TableNameOrder + " o").Select(`o.*,SUM(rc.total_discount) AS total_prodouct_discount `)
 
-	tx = tx.Preload("OrderDetails")
+	tx = tx.Joins("LEFT JOIN " + models.TableNameOrderDiscount + " rc ON rc.order_id = o.id")
+
+	tx = tx.Preload("OrderDetails").Preload("OrderDetails.ProductDetail").Preload("OrderDetails.ProductDetail.Product").
+		Preload("OrderDetails.Size")
+
 	tx = tx.Preload("OrderDiscounts")
 
-	err := tx.Find(&order).Error
-	return order, err
+	tx = tx.Group(`o.id`)
+
+	err := tx.Find(&orders).Error
+	return orders, err
+}
+func GetOrder(db *gorm.DB, orderID string) (custommodel.OrderReponse, error) {
+	var orders custommodel.OrderReponse
+
+	tx := db.Table(models.TableNameOrder+" o").Select(`o.*,SUM(rc.total_discount) AS total_prodouct_discount `).Where("o.id = ?", orderID)
+
+	tx = tx.Joins("LEFT JOIN " + models.TableNameOrderDiscount + " rc ON rc.order_id = o.id")
+
+	tx = tx.Preload("OrderDetails").Preload("OrderDetails.ProductDetail").Preload("OrderDetails.ProductDetail.Product").
+		Preload("OrderDetails.Size")
+
+	tx = tx.Preload("OrderDiscounts")
+
+	tx = tx.Group(`o.id`)
+
+	err := tx.Find(&orders).Error
+	return orders, err
 }
