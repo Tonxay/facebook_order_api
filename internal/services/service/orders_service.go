@@ -189,6 +189,12 @@ func CreateOrder(c *fiber.Ctx) error {
 			})
 		}
 	}
+	if req.FacebookID != "" {
+		_, err = dbservice.UpdateColumnsCustomer(db, req.FacebookID, int32(req.Gender), req.Tel)
+		if err != nil {
+			return fiber.NewError(http.StatusInternalServerError, err.Error())
+		}
+	}
 
 	order := models.Order{
 		ID:            orderID,

@@ -4,6 +4,7 @@ import (
 	"go-api/internal/pkg/models"
 	custommodel "go-api/internal/pkg/models/custom_model"
 	"go-api/internal/pkg/models/request"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -30,4 +31,26 @@ func Getcustomers(db *gorm.DB, query request.CustomerQuery) (*[]custommodel.Cust
 	err := tx.Order("updated_at DESC").Find(&customers).Error
 	return customers, totalCount, err
 
+}
+func GetcustomersID(db *gorm.DB, fbID string) (custommodel.Customer, error) {
+	var user custommodel.Customer
+	err := db.Table(models.TableNameCustomer).Where("facebook_id = ?", fbID).First(&user).Error
+	return user, err
+}
+func UpdateColumnsCustomer(db *gorm.DB, fbID string, gender int32, tel int32) (models.Customer, error) {
+	var user models.Customer
+	err := db.Table(models.TableNameCustomer).Where("facebook_id = ?", fbID).UpdateColumns(&models.Customer{
+		Gender:      gender,
+		PhoneNumber: tel,
+		UpdatedAt:   time.Now(),
+	}).First(&user).Error
+	return user, err
+}
+func CreateColumnsCustomer(db *gorm.DB, fbID string, pageId string) (custommodel.Customer, error) {
+	var user custommodel.Customer
+	err := db.Table(models.TableNameCustomer).Create(&models.Customer{
+		FacebookID: fbID,
+		PageID:     pageId,
+	}).First(&user).Error
+	return user, err
 }

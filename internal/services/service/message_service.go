@@ -157,6 +157,7 @@ func HandleWebhook(c *fiber.Ctx) error {
 					FacebookID: fbID,
 					PageID:     pageId,
 				}).Error
+
 				gormpkg.GetDB().Table(models.TableNameCustomer).Where("facebook_id = ?", fbID).UpdateColumns(&models.Customer{
 					UpdatedAt: time.Now(),
 				})
@@ -210,17 +211,17 @@ func HandleWebhook(c *fiber.Ctx) error {
 				//  UpdateColumns(&models.Customer{
 				// 		FirstName: fullnam,
 				// 	})
-				PushToUser(fbID, fiber.Map{
-					// "customer_id": fbID,
-					"user":    user,
-					"message": payload,
-				})
+				// PushToUser(fbID, fiber.Map{
+				// 	// "customer_id": fbID,
+				// 	"user":    user,
+				// 	"message": payload,
+				// })
 
-				PushToAll(fiber.Map{
-					// "customer_id": fbID,
-					"user":    user,
-					"message": payload,
-				})
+				// PushToAll(fiber.Map{
+				// 	// "customer_id": fbID,
+				// 	"user":    user,
+				// 	"message": payload,
+				// })
 
 				// if err != nil {
 				// 	log.Println("Failed to create message:", err)
