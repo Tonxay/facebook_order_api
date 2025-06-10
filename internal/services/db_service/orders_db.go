@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"go-api/internal/pkg/models"
+	custommodel "go-api/internal/pkg/models/custom_model"
 	"go-api/internal/pkg/query"
 
 	"gorm.io/gorm"
@@ -31,13 +32,22 @@ func CreateOrderDetails(db *gorm.DB, orderDetail []*models.OrderDetail, ctx cont
 func CreateOrderDiscounts(db *gorm.DB, orderDiscounts []*models.OrderDiscount, ctx context.Context) error {
 	query.SetDefault(db)
 	daq := query.Q.OrderDiscount
-
 	// Insert in batches, handle error
 	err := daq.WithContext(ctx).CreateInBatches(orderDiscounts, 100)
 	if err != nil {
 		// Optional: Log or wrap for context
 		return fmt.Errorf("failed to create order details: %w", err)
 	}
-
 	return nil
+}
+
+func GetOrder(db *gorm.DB) ([]*custommodel.OrderReponse, error) {
+	var order []*custommodel.OrderReponse
+	tx := db.Table(models.TableNameOrder)
+
+	tx = tx.Preload("OrderDetails")
+	tx = tx.Preload("OrderDiscounts")
+
+	err := tx.Find(&order).Error
+	return order, err
 }

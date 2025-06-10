@@ -31,6 +31,7 @@ func newSize(db *gorm.DB, opts ...gen.DOOption) size {
 	_size.ID = field.NewString(tableName, "id")
 	_size.Size = field.NewString(tableName, "size")
 	_size.ProductDetailID = field.NewString(tableName, "product_detail_id")
+	_size.Price = field.NewFloat64(tableName, "price")
 
 	_size.fillFieldMap()
 
@@ -44,6 +45,7 @@ type size struct {
 	ID              field.String
 	Size            field.String
 	ProductDetailID field.String
+	Price           field.Float64
 
 	fieldMap map[string]field.Expr
 }
@@ -63,6 +65,7 @@ func (s *size) updateTableName(table string) *size {
 	s.ID = field.NewString(table, "id")
 	s.Size = field.NewString(table, "size")
 	s.ProductDetailID = field.NewString(table, "product_detail_id")
+	s.Price = field.NewFloat64(table, "price")
 
 	s.fillFieldMap()
 
@@ -79,10 +82,11 @@ func (s *size) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (s *size) fillFieldMap() {
-	s.fieldMap = make(map[string]field.Expr, 3)
+	s.fieldMap = make(map[string]field.Expr, 4)
 	s.fieldMap["id"] = s.ID
 	s.fieldMap["size"] = s.Size
 	s.fieldMap["product_detail_id"] = s.ProductDetailID
+	s.fieldMap["price"] = s.Price
 }
 
 func (s size) clone(db *gorm.DB) size {

@@ -25,7 +25,8 @@ type ProductDetails struct {
 	Material  string `gorm:"column:material" json:"material"`
 	Status    string `gorm:"column:status;default:active" json:"status"`
 	ImageURL  string `gorm:"column:image_url;default:N/A" json:"image_url"`
-	Price     int32  `gorm:"column:price;not null" json:"price"`
+
+	// Price     int32  `gorm:"column:price;not null" json:"price"`
 	ColorName string `gorm:"column:color_name" json:"color_name"`
 	Sizes     []Size `gorm:"foreignKey:product_detail_id;references:ID" json:"sizes"`
 }
@@ -36,10 +37,11 @@ func (*ProductDetails) TableName() string {
 }
 
 type Size struct {
-	ID              string `gorm:"column:id;primaryKey;default:gen_random_uuid()" json:"id"`
-	Size            string `gorm:"column:size" json:"size"`
-	TotalRemaining  int32  `gorm:"column:total_remaining" json:"total_remaining"`
-	ProductDetailID string `gorm:"column:product_detail_id;not null" json:"product_detail_id"`
+	ID              string  `gorm:"column:id;primaryKey;default:gen_random_uuid()" json:"id"`
+	Size            string  `gorm:"column:size" json:"size"`
+	TotalRemaining  int32   `gorm:"column:total_remaining" json:"total_remaining"`
+	Price           float64 `gorm:"column:price;not null" json:"price"`
+	ProductDetailID string  `gorm:"column:product_detail_id;not null" json:"product_detail_id"`
 }
 
 // TableName Size's table name

@@ -8,9 +8,10 @@ const TableNameSize = "sizes"
 
 // Size mapped from table <sizes>
 type Size struct {
-	ID              string `gorm:"column:id;primaryKey;default:gen_random_uuid()" json:"id"`
-	Size            string `gorm:"column:size" json:"size"`
-	ProductDetailID string `gorm:"column:product_detail_id;not null" json:"product_detail_id"`
+	ID              string  `gorm:"column:id;primaryKey;default:gen_random_uuid()" json:"id"`
+	Size            string  `gorm:"column:size" json:"size"`
+	ProductDetailID string  `gorm:"column:product_detail_id;not null" json:"product_detail_id"`
+	Price           float64 `gorm:"column:price;not null" json:"price"`
 }
 
 // TableName Size's table name

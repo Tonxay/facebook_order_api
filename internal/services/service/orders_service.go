@@ -15,6 +15,21 @@ import (
 	"github.com/google/uuid"
 )
 
+func GetOrder(c *fiber.Ctx) error {
+	var err error
+	var data []*custommodel.OrderReponse
+
+	db := gormpkg.GetDB()
+
+	data, err = dbservice.GetOrder(db)
+
+	if err != nil {
+		return fiber.NewError(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.Status(200).JSON(presenters.ResponseSuccess(data))
+}
+
 func CreateOrder(c *fiber.Ctx) error {
 	user := c.Locals("user_id") // returns interface{}
 	userID, ok := user.(string) // type assert to string (or int, etc.)

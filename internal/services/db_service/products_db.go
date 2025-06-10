@@ -59,6 +59,7 @@ func GetProducts(db *gorm.DB) ([]custommodel.Products, error) {
 				Select(
 					`    sizes.id,
 					     sizes.size,
+					     sizes.price,
 					     sizes.product_detail_id,
 					     SUM(s.remaining) AS total_remaining
 						  
