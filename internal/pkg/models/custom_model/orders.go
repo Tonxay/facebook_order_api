@@ -63,6 +63,7 @@ type OrderReponse struct {
 	ID                    string          `gorm:"column:id;primaryKey;default:gen_random_uuid()" json:"id"`
 	Status                string          `gorm:"column:status;default:pending" json:"status"`
 	CustomerID            string          `gorm:"column:customer_id" json:"customer_id"`
+	PageName              string          `gorm:"column:page_name" json:"page_name"`
 	Tel                   int32           `gorm:"column:tel" json:"tel"`
 	CustomAddress         string          `gorm:"column:custom_address" json:"custom_address"`
 	TotalProductsDiscount float64         `gorm:"column:total_prodouct_discount" json:"total_prodouct_discount"`
