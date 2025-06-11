@@ -43,16 +43,18 @@ func CreateOrderDiscounts(db *gorm.DB, orderDiscounts []*models.OrderDiscount, c
 
 func GetOrders(db *gorm.DB) ([]*custommodel.OrderReponse, error) {
 	var orders []*custommodel.OrderReponse
-	tx := db.Table(models.TableNameOrder + " o").Select(`o.*,SUM(rc.total_discount) AS total_prodouct_discount `)
+	tx := db.Table(models.TableNameOrder + " o").Select(`o.*,SUM(rc.total_discount) AS total_prodouct_discount,d.dr_name,provice.pr_name `)
 
 	tx = tx.Joins("LEFT JOIN " + models.TableNameOrderDiscount + " rc ON rc.order_id = o.id")
+	tx = tx.Joins("LEFT JOIN " + models.TableNameDistrict + " d ON d.id = o.district_id")
+	tx = tx.Joins("LEFT JOIN " + models.TableNameProvince + " provice ON provice.id = d.province_id")
 
 	tx = tx.Preload("OrderDetails").Preload("OrderDetails.ProductDetail").Preload("OrderDetails.ProductDetail.Product").
-		Preload("OrderDetails.Size")
+		Preload("OrderDetails.Size").Preload("Shipping")
 
 	tx = tx.Preload("OrderDiscounts")
 
-	tx = tx.Group(`o.id`)
+	tx = tx.Group(`o.id,d.dr_name,provice.pr_name`)
 
 	err := tx.Find(&orders).Error
 	return orders, err

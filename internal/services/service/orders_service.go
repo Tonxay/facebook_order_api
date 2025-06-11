@@ -204,15 +204,14 @@ func CreateOrder(c *fiber.Ctx) error {
 		OrderNo:       middleware.GenerateOrderNumber(),
 		Tel:           req.Tel,
 		ShippingID:    req.ShippingID,
-		CustomAddress: "test",
-		// req.CustomAddress,
-		UserID:       userID,
-		DistrictID:   req.DistrictID,
-		TotalPrice:   totalPrice,
-		FreeShipping: req.FreeShipping,
-		Cod:          req.Cod,
-		Discount:     req.Discount,
-		Platform:     req.PlatForm,
+		CustomAddress: req.CustomAddress,
+		UserID:        userID,
+		DistrictID:    req.DistrictID,
+		TotalPrice:    totalPrice,
+		FreeShipping:  req.FreeShipping,
+		Cod:           req.Cod,
+		Discount:      req.Discount,
+		Platform:      req.PlatForm,
 	}
 
 	err = dbservice.CreateOrder(db, &order)
