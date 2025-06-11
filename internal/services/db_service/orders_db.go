@@ -58,7 +58,7 @@ func GetOrders(db *gorm.DB) ([]*custommodel.OrderReponse, error) {
 
 	tx = tx.Group(`o.id,d.dr_name,provice.pr_name,page.name_page`)
 
-	err := tx.Find(&orders).Error
+	err := tx.Order("updated_at DESC").Find(&orders).Error
 	return orders, err
 }
 func GetOrder(db *gorm.DB, orderID string) (custommodel.OrderReponse, error) {
