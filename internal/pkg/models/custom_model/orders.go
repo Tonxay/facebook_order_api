@@ -67,6 +67,8 @@ type OrderReponse struct {
 	CustomAddress         string          `gorm:"column:custom_address" json:"custom_address"`
 	TotalProductsDiscount float64         `gorm:"column:total_prodouct_discount" json:"total_prodouct_discount"`
 	UserID                string          `gorm:"column:user_id" json:"user_id"`
+	District              string          `gorm:"column:dr_name" json:"dr_name"`
+	Province              string          `gorm:"column:pr_name" json:"pr_name"`
 	TotalPrice            float64         `gorm:"column:total_price" json:"total_price"`
 	DistrictID            int32           `gorm:"column:district_id" json:"district_id"`
 	OrderedAt             time.Time       `gorm:"column:ordered_at;default:now()" json:"ordered_at"`
@@ -80,6 +82,7 @@ type OrderReponse struct {
 	Platform              string          `gorm:"column:platform;default:facebook" json:"platform"`
 	Cod                   bool            `gorm:"column:cod;default:true" json:"cod"`
 	OrderDetails          []OrderDetail   `gorm:"foreignKey:OrderID;references:ID" json:"order_details"`
+	Shipping              models.Shipping `gorm:"foreignKey:ShippingID;references:ID" json:"shipping"`
 	OrderDiscounts        []OrderDiscount `gorm:"foreignKey:OrderID;references:ID" json:"order_discounts"`
 }
 
