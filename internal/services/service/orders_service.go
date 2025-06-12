@@ -2,12 +2,15 @@ package service
 
 import (
 	"fmt"
+
+	cons "go-api/internal/config/constant"
 	"go-api/internal/config/middleware"
 	"go-api/internal/config/presenters"
 	gormpkg "go-api/internal/pkg"
 	"go-api/internal/pkg/models"
 	custommodel "go-api/internal/pkg/models/custom_model"
 	dbservice "go-api/internal/services/db_service"
+
 	"net/http"
 	"strconv"
 
@@ -31,8 +34,8 @@ func GetOrder(c *fiber.Ctx) error {
 }
 
 func CreateOrder(c *fiber.Ctx) error {
-	user := c.Locals("user_id") // returns interface{}
-	userID, ok := user.(string) // type assert to string (or int, etc.)
+
+	userID, ok := middleware.GetUserID(c)
 
 	if !ok {
 		return fiber.NewError(fiber.StatusUnauthorized, "Invalid user ID")
@@ -199,7 +202,7 @@ func CreateOrder(c *fiber.Ctx) error {
 	order := models.Order{
 		ID:            orderID,
 		OrderName:     req.FullName,
-		Status:        "pending",
+		Status:        cons.Ordered,
 		CustomerID:    req.FacebookID,
 		OrderNo:       middleware.GenerateOrderNumber(),
 		Tel:           req.Tel,
@@ -244,4 +247,42 @@ func CreateOrder(c *fiber.Ctx) error {
 	db.Commit()
 
 	return c.Status(200).JSON(presenters.ResponseSuccess(respones))
+}
+
+func UpdateOrder(c *fiber.Ctx) error {
+	userID, ok := middleware.GetUserID(c)
+	var err error
+
+	if !ok {
+		return fiber.NewError(fiber.StatusUnauthorized, "Invalid user ID")
+	}
+
+	status := c.Query("status")
+	orderId := c.Query("order_id")
+	oldStatus, ok := cons.OrderStatusTransitions[status]
+
+	if !ok {
+		return fiber.NewError(400, "not found status")
+	}
+	db := gormpkg.GetDB().Begin()
+	defer func() {
+		db.Rollback()
+	}()
+
+	err = dbservice.UpdateOrder(db, orderId, status, oldStatus)
+
+	if err != nil {
+		return fiber.NewError(500, err.Error())
+	}
+
+	err = dbservice.CreateOrderTimeLine(db, &models.OrderTimeLine{
+		UserID:      userID,
+		OrderStatus: status,
+		OrderID:     orderId,
+	})
+	if err != nil {
+		return fiber.NewError(500, err.Error())
+	}
+	db.Commit()
+	return c.Status(200).JSON(presenters.ResponseSuccess(oldStatus))
 }

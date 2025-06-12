@@ -25,6 +25,7 @@ var (
 	OrderDetail        *orderDetail
 	OrderDiscount      *orderDiscount
 	OrderStockDetail   *orderStockDetail
+	OrderTimeLine      *orderTimeLine
 	Page               *page
 	Product            *product
 	ProductDetail      *productDetail
@@ -47,6 +48,7 @@ func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
 	OrderDetail = &Q.OrderDetail
 	OrderDiscount = &Q.OrderDiscount
 	OrderStockDetail = &Q.OrderStockDetail
+	OrderTimeLine = &Q.OrderTimeLine
 	Page = &Q.Page
 	Product = &Q.Product
 	ProductDetail = &Q.ProductDetail
@@ -70,6 +72,7 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		OrderDetail:        newOrderDetail(db, opts...),
 		OrderDiscount:      newOrderDiscount(db, opts...),
 		OrderStockDetail:   newOrderStockDetail(db, opts...),
+		OrderTimeLine:      newOrderTimeLine(db, opts...),
 		Page:               newPage(db, opts...),
 		Product:            newProduct(db, opts...),
 		ProductDetail:      newProductDetail(db, opts...),
@@ -94,6 +97,7 @@ type Query struct {
 	OrderDetail        orderDetail
 	OrderDiscount      orderDiscount
 	OrderStockDetail   orderStockDetail
+	OrderTimeLine      orderTimeLine
 	Page               page
 	Product            product
 	ProductDetail      productDetail
@@ -119,6 +123,7 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		OrderDetail:        q.OrderDetail.clone(db),
 		OrderDiscount:      q.OrderDiscount.clone(db),
 		OrderStockDetail:   q.OrderStockDetail.clone(db),
+		OrderTimeLine:      q.OrderTimeLine.clone(db),
 		Page:               q.Page.clone(db),
 		Product:            q.Product.clone(db),
 		ProductDetail:      q.ProductDetail.clone(db),
@@ -151,6 +156,7 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		OrderDetail:        q.OrderDetail.replaceDB(db),
 		OrderDiscount:      q.OrderDiscount.replaceDB(db),
 		OrderStockDetail:   q.OrderStockDetail.replaceDB(db),
+		OrderTimeLine:      q.OrderTimeLine.replaceDB(db),
 		Page:               q.Page.replaceDB(db),
 		Product:            q.Product.replaceDB(db),
 		ProductDetail:      q.ProductDetail.replaceDB(db),
@@ -173,6 +179,7 @@ type queryCtx struct {
 	OrderDetail        IOrderDetailDo
 	OrderDiscount      IOrderDiscountDo
 	OrderStockDetail   IOrderStockDetailDo
+	OrderTimeLine      IOrderTimeLineDo
 	Page               IPageDo
 	Product            IProductDo
 	ProductDetail      IProductDetailDo
@@ -195,6 +202,7 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		OrderDetail:        q.OrderDetail.WithContext(ctx),
 		OrderDiscount:      q.OrderDiscount.WithContext(ctx),
 		OrderStockDetail:   q.OrderStockDetail.WithContext(ctx),
+		OrderTimeLine:      q.OrderTimeLine.WithContext(ctx),
 		Page:               q.Page.WithContext(ctx),
 		Product:            q.Product.WithContext(ctx),
 		ProductDetail:      q.ProductDetail.WithContext(ctx),

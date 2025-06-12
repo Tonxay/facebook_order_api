@@ -59,3 +59,9 @@ func GenerateOrderNumber() string {
 	now := time.Now()
 	return fmt.Sprintf("ORD-%s-%d", now.Format("20060102"), now.UnixNano()%100000)
 }
+
+func GetUserID(c *fiber.Ctx) (string, bool) {
+	user := c.Locals("user_id")
+	userID, ok := user.(string)
+	return userID, ok
+}
