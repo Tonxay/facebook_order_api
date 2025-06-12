@@ -289,7 +289,7 @@ func UpdateStatusOrder(c *fiber.Ctx) error {
 		db.Rollback()
 	}()
 
-	err = dbservice.UpdateOrder(db, orderId, status, oldStatus)
+	err = dbservice.UpdateStatusOrder(db, orderId, status, oldStatus)
 
 	if err != nil {
 		return fiber.NewError(500, err.Error())
@@ -332,8 +332,12 @@ func CancellOrder(c *fiber.Ctx) error {
 	if err1 != nil {
 		return fiber.NewError(500, err1.Error())
 	}
+	err = dbservice.UpdateIsCancelOrder(db, orderId)
+	if err != nil {
+		return fiber.NewError(500, err.Error())
+	}
 
-	if len(orderDetail) == 0 {
+	if len(orderDetail) <= 0 {
 		return fiber.NewError(400, "status is not change")
 	}
 
