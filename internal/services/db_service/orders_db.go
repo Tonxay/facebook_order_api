@@ -3,7 +3,6 @@ package dbservice
 import (
 	"context"
 	"fmt"
-	cons "go-api/internal/config/constant"
 	"go-api/internal/pkg/models"
 	custommodel "go-api/internal/pkg/models/custom_model"
 	"go-api/internal/pkg/query"
@@ -56,12 +55,11 @@ func GetOrders(db *gorm.DB, statuses []string, isCancell bool) ([]*custommodel.O
 	tx = tx.Joins("LEFT JOIN " + models.TableNameProvince + " provice ON provice.id = d.province_id")
 	tx = tx.Joins("LEFT JOIN " + models.TableNameCustomer + " c ON c.facebook_id = o.customer_id")
 	tx = tx.Joins("LEFT JOIN " + models.TableNamePage + " page ON page.page_id = c.page_id")
-	tx = tx.Joins("LEFT JOIN " + models.TableNameOrderTimeLine + " orl ON orl.order_id = o.id")
 
 	if isCancell {
-		tx = tx.Where("orl.order_status = ?", cons.OrderCancelled)
+		tx = tx.Where("o.is_cancel = ?", isCancell)
 	} else {
-		tx = tx.Where("orl.order_status != ?", cons.OrderCancelled)
+		tx = tx.Where("o.is_cancel != ?", isCancell)
 	}
 
 	tx = tx.Preload("OrderDetails").Preload("OrderDetails.ProductDetail").Preload("OrderDetails.ProductDetail.Product").
@@ -84,9 +82,9 @@ func GetOrder(db *gorm.DB, orderID string) (custommodel.OrderReponse, error) {
 	tx = tx.Joins("LEFT JOIN " + models.TableNameProvince + " provice ON provice.id = d.province_id")
 	tx = tx.Joins("LEFT JOIN " + models.TableNameCustomer + " c ON c.facebook_id = o.customer_id")
 	tx = tx.Joins("LEFT JOIN " + models.TableNamePage + " page ON page.page_id = c.page_id")
-	tx = tx.Joins("LEFT JOIN " + models.TableNameOrderTimeLine + " orl ON orl.order_id = o.id")
+	// tx = tx.Joins("LEFT JOIN " + models.TableNameOrderTimeLine + " orl ON orl.order_id = o.id")
 
-	tx = tx.Where("orl.order_status != ?", cons.OrderCancelled)
+	// tx = tx.Where("orl.order_status != ?", cons.OrderCancelled)
 
 	tx = tx.Preload("OrderDetails").Preload("OrderDetails.ProductDetail").Preload("OrderDetails.ProductDetail.Product").
 		Preload("OrderDetails.Size").Preload("Shipping")
