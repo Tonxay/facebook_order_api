@@ -36,8 +36,8 @@ var OrderStatusTransitions = map[string]string{
 	"shipped":                "packed",
 	"customer_bill_notified": "shipped",
 	"delivery_complete":      "customer_bill_notified",
-	"payment_completed":      "payment_completed",
+	"customer_notified":      "delivery_complete",
+	"payment_completed":      "customer_notified",
 	"return_to_sender":       "customer_notified",
 	"order_cancelled":        "ordered",
-	"customer_notified":      "delivery_complete",
 }
