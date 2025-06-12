@@ -56,11 +56,7 @@ func GetOrders(db *gorm.DB, statuses []string, isCancell bool) ([]*custommodel.O
 	tx = tx.Joins("LEFT JOIN " + models.TableNameCustomer + " c ON c.facebook_id = o.customer_id")
 	tx = tx.Joins("LEFT JOIN " + models.TableNamePage + " page ON page.page_id = c.page_id")
 
-	if isCancell {
-		tx = tx.Where("o.is_cancel = ?", isCancell)
-	} else {
-		tx = tx.Where("o.is_cancel != ?", isCancell)
-	}
+	tx = tx.Where("o.is_cancel = ?", isCancell)
 
 	tx = tx.Preload("OrderDetails").Preload("OrderDetails.ProductDetail").Preload("OrderDetails.ProductDetail.Product").
 		Preload("OrderDetails.Size").Preload("Shipping")
