@@ -10,7 +10,7 @@ import (
 func SetupOrdersRoutesPart(route fiber.Router) {
 	route.Use(middleware.JWTProtected)
 	route.Post("/create", service.CreateOrder)
-	route.Get("/all", service.GetOrder)
+	route.Post("/all", service.GetOrder)
 
 	route.Put("/update-status", service.UpdateOrder)
 	// route.Put("/packed", service.GetOrder)
