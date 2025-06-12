@@ -9,6 +9,7 @@ import (
 	gormpkg "go-api/internal/pkg"
 	"go-api/internal/pkg/models"
 	custommodel "go-api/internal/pkg/models/custom_model"
+	"go-api/internal/pkg/models/request"
 	dbservice "go-api/internal/services/db_service"
 
 	"net/http"
@@ -20,11 +21,19 @@ import (
 
 func GetOrder(c *fiber.Ctx) error {
 	var err error
+
 	var data []*custommodel.OrderReponse
+
+	var req = request.StatusOrderRequest{}
+
+	// Parse JSON body into struct
+	if err := middleware.ParseAndValidateBody(c, &req); err != nil {
+		return fiber.NewError(400, err.Error())
+	}
 
 	db := gormpkg.GetDB()
 
-	data, err = dbservice.GetOrders(db)
+	data, err = dbservice.GetOrders(db, req.Statuses)
 
 	if err != nil {
 		return fiber.NewError(http.StatusInternalServerError, err.Error())

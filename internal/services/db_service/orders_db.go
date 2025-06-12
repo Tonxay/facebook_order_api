@@ -41,9 +41,11 @@ func CreateOrderDiscounts(db *gorm.DB, orderDiscounts []*models.OrderDiscount, c
 	return nil
 }
 
-func GetOrders(db *gorm.DB) ([]*custommodel.OrderReponse, error) {
+func GetOrders(db *gorm.DB, statuses []string) ([]*custommodel.OrderReponse, error) {
 	var orders []*custommodel.OrderReponse
+
 	tx := db.Table(models.TableNameOrder + " o").Select(`o.*,SUM(rc.total_discount) AS total_prodouct_discount,d.dr_name,provice.pr_name,page.name_page AS page_name`)
+	tx = tx.Where("status IN ?", statuses)
 
 	tx = tx.Joins("LEFT JOIN " + models.TableNameOrderDiscount + " rc ON rc.order_id = o.id")
 	tx = tx.Joins("LEFT JOIN " + models.TableNameDistrict + " d ON d.id = o.district_id")
