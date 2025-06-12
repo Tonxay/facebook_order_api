@@ -265,6 +265,7 @@ func UpdateOrder(c *fiber.Ctx) error {
 		return fiber.NewError(400, "not found status")
 	}
 	db := gormpkg.GetDB().Begin()
+
 	defer func() {
 		db.Rollback()
 	}()
@@ -280,9 +281,10 @@ func UpdateOrder(c *fiber.Ctx) error {
 		OrderStatus: status,
 		OrderID:     orderId,
 	})
+
 	if err != nil {
 		return fiber.NewError(500, err.Error())
 	}
 	db.Commit()
-	return c.Status(200).JSON(presenters.ResponseSuccess(oldStatus))
+	return c.Status(200).JSON(presenters.ResponseSuccess("update status success"))
 }
