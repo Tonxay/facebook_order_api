@@ -3,6 +3,7 @@ package dbservice
 import (
 	"context"
 	"fmt"
+	cons "go-api/internal/config/constant"
 	"go-api/internal/pkg/models"
 	custommodel "go-api/internal/pkg/models/custom_model"
 	"go-api/internal/pkg/query"
@@ -41,17 +42,27 @@ func CreateOrderDiscounts(db *gorm.DB, orderDiscounts []*models.OrderDiscount, c
 	return nil
 }
 
-func GetOrders(db *gorm.DB, statuses []string) ([]*custommodel.OrderReponse, error) {
+func GetOrders(db *gorm.DB, statuses []string, isCancell bool) ([]*custommodel.OrderReponse, error) {
 	var orders []*custommodel.OrderReponse
 
 	tx := db.Table(models.TableNameOrder + " o").Select(`o.*,SUM(rc.total_discount) AS total_prodouct_discount,d.dr_name,provice.pr_name,page.name_page AS page_name`)
-	tx = tx.Where("status IN ?", statuses)
+
+	if !isCancell {
+		tx = tx.Where("status IN ?", statuses)
+	}
 
 	tx = tx.Joins("LEFT JOIN " + models.TableNameOrderDiscount + " rc ON rc.order_id = o.id")
 	tx = tx.Joins("LEFT JOIN " + models.TableNameDistrict + " d ON d.id = o.district_id")
 	tx = tx.Joins("LEFT JOIN " + models.TableNameProvince + " provice ON provice.id = d.province_id")
 	tx = tx.Joins("LEFT JOIN " + models.TableNameCustomer + " c ON c.facebook_id = o.customer_id")
 	tx = tx.Joins("LEFT JOIN " + models.TableNamePage + " page ON page.page_id = c.page_id")
+	tx = tx.Joins("LEFT JOIN " + models.TableNameOrderTimeLine + " orl ON orl.order_id = o.id")
+
+	if isCancell {
+		tx = tx.Where("orl.order_status = ?", cons.OrderCancelled)
+	} else {
+		tx = tx.Where("orl.order_status != ?", cons.OrderCancelled)
+	}
 
 	tx = tx.Preload("OrderDetails").Preload("OrderDetails.ProductDetail").Preload("OrderDetails.ProductDetail.Product").
 		Preload("OrderDetails.Size").Preload("Shipping")
@@ -73,6 +84,9 @@ func GetOrder(db *gorm.DB, orderID string) (custommodel.OrderReponse, error) {
 	tx = tx.Joins("LEFT JOIN " + models.TableNameProvince + " provice ON provice.id = d.province_id")
 	tx = tx.Joins("LEFT JOIN " + models.TableNameCustomer + " c ON c.facebook_id = o.customer_id")
 	tx = tx.Joins("LEFT JOIN " + models.TableNamePage + " page ON page.page_id = c.page_id")
+	tx = tx.Joins("LEFT JOIN " + models.TableNameOrderTimeLine + " orl ON orl.order_id = o.id")
+
+	tx = tx.Where("orl.order_status != ?", cons.OrderCancelled)
 
 	tx = tx.Preload("OrderDetails").Preload("OrderDetails.ProductDetail").Preload("OrderDetails.ProductDetail.Product").
 		Preload("OrderDetails.Size").Preload("Shipping")
@@ -98,6 +112,7 @@ func CreateOrderTimeLine(db *gorm.DB, orderTimeLine *models.OrderTimeLine) error
 }
 
 func UpdateOrder(db *gorm.DB, orderId, newStatus, oldStatus string) error {
+
 	result := db.Table(models.TableNameOrder).Where("id = ? AND status = ?", orderId, oldStatus).UpdateColumns(&models.Order{
 		Status: newStatus,
 	})

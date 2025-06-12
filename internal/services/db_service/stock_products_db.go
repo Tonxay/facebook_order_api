@@ -2,20 +2,25 @@ package dbservice
 
 import (
 	"context"
-	gormpkg "go-api/internal/pkg"
 	"go-api/internal/pkg/models"
 	"go-api/internal/pkg/query"
 
 	"gorm.io/gorm"
 )
 
-func CreateStockProductDetail(stockProductDetail *models.StockProductDetail, ctx context.Context) error {
-	query.SetDefault(gormpkg.GetDB())
+func CreateStockProductDetail(db *gorm.DB, stockProductDetail *models.StockProductDetail, ctx context.Context) error {
+	query.SetDefault(db)
 	daq := query.Q.StockProductDetail
 	err := daq.WithContext(ctx).Create(stockProductDetail)
 	return err
 }
 
+func CreateStockProductDetailForOrder(db *gorm.DB, stockProductDetail []*models.StockProductDetail, ctx context.Context) error {
+	query.SetDefault(db)
+	daq := query.Q.StockProductDetail
+	err := daq.WithContext(ctx).CreateInBatches(stockProductDetail, 100)
+	return err
+}
 func CreateRoderStockDetails(db *gorm.DB, stockDetails []*models.OrderStockDetail, ctx context.Context) error {
 	query.SetDefault(db)
 	daq := query.Q.OrderStockDetail

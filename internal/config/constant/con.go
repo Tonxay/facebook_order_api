@@ -1,6 +1,8 @@
 package cons
 
 var Ordered = "ordered"
+var OrderCancelled = "order_cancelled"
+var PaymentCompleted = "payment_completed"
 
 var OrderStatus = []string{
 	"ordered",                // 0: ສັ່ງຊື້ (Order placed)
@@ -39,5 +41,5 @@ var OrderStatusTransitions = map[string]string{
 	"customer_notified":      "delivery_complete",
 	"payment_completed":      "customer_notified",
 	"return_to_sender":       "customer_notified",
-	"order_cancelled":        "ordered",
+	"order_cancelled":        "order_cancelled",
 }

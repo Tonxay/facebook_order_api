@@ -13,13 +13,6 @@ func SetupOrdersRoutesPart(route fiber.Router) {
 	route.Post("/all", service.GetOrder)
 
 	route.Put("/update-status", service.UpdateOrder)
-	// route.Put("/packed", service.GetOrder)
-	// route.Put("/shipped", service.GetOrder)
-	// route.Put("/customer-bill-notified", service.GetOrder)
-	// route.Put("/delivery-complete", service.GetOrder)
-	// route.Put("/payment-completed", service.GetOrder)
-	// route.Put("/order-cancelled", service.GetOrder)
-	// route.Put("/return-to-sender", service.GetOrder)
-	// route.Put("/customer-notified", service.GetOrder)
+	route.Put("/cancell", service.CancellOrder)
 
 }

@@ -89,8 +89,9 @@ func CreateStockProductDetail(c *fiber.Ctx) error {
 		SizeID:          requestData.SizeID,
 		Remaining:       requestData.Quantity,
 	}
+	db := gormpkg.GetDB()
 
-	err := dbservice.CreateStockProductDetail(&data, c.Context())
+	err := dbservice.CreateStockProductDetail(db, &data, c.Context())
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "failed to create stock",

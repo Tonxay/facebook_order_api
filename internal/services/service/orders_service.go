@@ -33,7 +33,7 @@ func GetOrder(c *fiber.Ctx) error {
 
 	db := gormpkg.GetDB()
 
-	data, err = dbservice.GetOrders(db, req.Statuses)
+	data, err = dbservice.GetOrders(db, req.Statuses, req.IsCancell)
 
 	if err != nil {
 		return fiber.NewError(http.StatusInternalServerError, err.Error())
@@ -225,6 +225,11 @@ func CreateOrder(c *fiber.Ctx) error {
 		Discount:      req.Discount,
 		Platform:      req.PlatForm,
 	}
+	orderTimeLine := models.OrderTimeLine{
+		OrderStatus: cons.Ordered,
+		UserID:      userID,
+		OrderID:     orderID,
+	}
 
 	err = dbservice.CreateOrder(db, &order)
 
@@ -233,6 +238,11 @@ func CreateOrder(c *fiber.Ctx) error {
 	}
 
 	err = dbservice.CreateOrderDetails(db, orderDetail, c.Context())
+	if err != nil {
+		return fiber.NewError(http.StatusInternalServerError, err.Error())
+	}
+
+	err = dbservice.CreateOrderTimeLine(db, &orderTimeLine)
 	if err != nil {
 		return fiber.NewError(http.StatusInternalServerError, err.Error())
 	}
@@ -291,6 +301,69 @@ func UpdateOrder(c *fiber.Ctx) error {
 		OrderID:     orderId,
 	})
 
+	if err != nil {
+		return fiber.NewError(500, err.Error())
+	}
+	db.Commit()
+	return c.Status(200).JSON(presenters.ResponseSuccess("update status success"))
+}
+
+func CancellOrder(c *fiber.Ctx) error {
+	userID, ok := middleware.GetUserID(c)
+	var err error
+
+	if !ok {
+		return fiber.NewError(fiber.StatusUnauthorized, "Invalid user ID")
+	}
+
+	status := c.Query("status")
+	orderId := c.Query("order_id")
+
+	if status != cons.OrderCancelled {
+		return fiber.NewError(400, "not found status")
+	}
+	db := gormpkg.GetDB().Begin()
+
+	defer func() {
+		db.Rollback()
+	}()
+
+	orderDetail, err1 := dbservice.GetOrderDetails(db, orderId)
+	if err1 != nil {
+		return fiber.NewError(500, err1.Error())
+	}
+
+	if len(orderDetail) == 0 {
+		return fiber.NewError(400, "status is not change")
+	}
+
+	var stockProductDetail []*models.StockProductDetail
+
+	for _, item := range orderDetail {
+		println(item.ProductDetailID)
+
+		stockProductDetail = append(stockProductDetail, &models.StockProductDetail{
+			Quantity:        item.Quantity,
+			Remaining:       item.Quantity,
+			UserID:          userID,
+			Status:          "active",
+			ProductDetailID: item.ProductDetailID,
+			SizeID:          item.SizeID,
+		})
+
+	}
+
+	err2 := dbservice.CreateStockProductDetailForOrder(db, stockProductDetail, c.Context())
+	if err2 != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "failed to create stock",
+		})
+	}
+	err = dbservice.CreateOrderTimeLine(db, &models.OrderTimeLine{
+		UserID:      userID,
+		OrderStatus: cons.OrderCancelled,
+		OrderID:     orderId,
+	})
 	if err != nil {
 		return fiber.NewError(500, err.Error())
 	}
