@@ -12,7 +12,7 @@ func SetupOrdersRoutesPart(route fiber.Router) {
 	route.Post("/create", service.CreateOrder)
 	route.Post("/all", service.GetOrder)
 
-	route.Put("/update-status", service.UpdateOrder)
+	route.Put("/update-status", service.UpdateStatusOrder)
 	route.Put("/cancell", service.CancellOrder)
 
 }

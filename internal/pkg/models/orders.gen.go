@@ -30,6 +30,7 @@ type Order struct {
 	Discount      float64   `gorm:"column:discount;not null" json:"discount"`
 	Platform      string    `gorm:"column:platform;default:facebook" json:"platform"`
 	Cod           bool      `gorm:"column:cod;default:true" json:"cod"`
+	IsCancel      bool      `gorm:"column:is_cancel;not null" json:"is_cancel"`
 }
 
 // TableName Order's table name

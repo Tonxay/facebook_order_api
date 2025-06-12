@@ -268,7 +268,7 @@ func CreateOrder(c *fiber.Ctx) error {
 	return c.Status(200).JSON(presenters.ResponseSuccess(respones))
 }
 
-func UpdateOrder(c *fiber.Ctx) error {
+func UpdateStatusOrder(c *fiber.Ctx) error {
 	userID, ok := middleware.GetUserID(c)
 	var err error
 

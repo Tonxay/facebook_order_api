@@ -46,6 +46,7 @@ func newOrder(db *gorm.DB, opts ...gen.DOOption) order {
 	_order.Discount = field.NewFloat64(tableName, "discount")
 	_order.Platform = field.NewString(tableName, "platform")
 	_order.Cod = field.NewBool(tableName, "cod")
+	_order.IsCancel = field.NewBool(tableName, "is_cancel")
 
 	_order.fillFieldMap()
 
@@ -74,6 +75,7 @@ type order struct {
 	Discount      field.Float64
 	Platform      field.String
 	Cod           field.Bool
+	IsCancel      field.Bool
 
 	fieldMap map[string]field.Expr
 }
@@ -108,6 +110,7 @@ func (o *order) updateTableName(table string) *order {
 	o.Discount = field.NewFloat64(table, "discount")
 	o.Platform = field.NewString(table, "platform")
 	o.Cod = field.NewBool(table, "cod")
+	o.IsCancel = field.NewBool(table, "is_cancel")
 
 	o.fillFieldMap()
 
@@ -124,7 +127,7 @@ func (o *order) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (o *order) fillFieldMap() {
-	o.fieldMap = make(map[string]field.Expr, 18)
+	o.fieldMap = make(map[string]field.Expr, 19)
 	o.fieldMap["id"] = o.ID
 	o.fieldMap["status"] = o.Status
 	o.fieldMap["customer_id"] = o.CustomerID
@@ -143,6 +146,7 @@ func (o *order) fillFieldMap() {
 	o.fieldMap["discount"] = o.Discount
 	o.fieldMap["platform"] = o.Platform
 	o.fieldMap["cod"] = o.Cod
+	o.fieldMap["is_cancel"] = o.IsCancel
 }
 
 func (o order) clone(db *gorm.DB) order {
