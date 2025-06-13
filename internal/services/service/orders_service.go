@@ -270,6 +270,28 @@ func CreateOrder(c *fiber.Ctx) error {
 	}
 
 	db.Commit()
+	webhookURL := "https://discord.com/api/webhooks/1382990950107971696/gPuNdiZ_0YrxWczQKTtTOxndUkukqyrtlyxg7T63zCcFLgO4JQZzAESuAaKOQEb8QcOy"
+	message := fmt.Sprintf(`
+---------------------------- ວັນທີ່: %s   ------------------------------
+ລູກຄ້າ: %s 
+ລະຫັດ: %s
+ຈັດສົ່ງໂດຍ: %s
+ເບີໂທ: %d
+ທີ່ຢູ່: ເເຂວງ %s ເມືອງ %s ສາຂາ %s
+ຈາກ: %s 
+`,
+		respones.CreatedAt,
+		respones.OrderName,
+		respones.OrderNo,
+		respones.Shipping.Name,
+		order.Tel,
+		respones.Province,
+		respones.District,
+		order.CustomAddress,
+		respones.PageName,
+	)
+
+	SendDiscordWebhook(webhookURL, message)
 
 	return c.Status(200).JSON(presenters.ResponseSuccess(respones))
 }
@@ -312,6 +334,7 @@ func UpdateStatusOrder(c *fiber.Ctx) error {
 		return fiber.NewError(500, err.Error())
 	}
 	db.Commit()
+
 	return c.Status(200).JSON(presenters.ResponseSuccess("update status success"))
 }
 
