@@ -208,12 +208,18 @@ func CreateOrder(c *fiber.Ctx) error {
 		}
 	}
 
+	number := middleware.GenerateOrderNumber()
+
+	if err != nil {
+		return fiber.NewError(http.StatusInternalServerError, err.Error())
+	}
+
 	order := models.Order{
 		ID:            orderID,
 		OrderName:     req.FullName,
 		Status:        cons.Ordered,
 		CustomerID:    req.FacebookID,
-		OrderNo:       middleware.GenerateOrderNumber(),
+		OrderNo:       number,
 		Tel:           req.Tel,
 		ShippingID:    req.ShippingID,
 		CustomAddress: req.CustomAddress,
@@ -278,6 +284,7 @@ func UpdateStatusOrder(c *fiber.Ctx) error {
 
 	status := c.Query("status")
 	orderId := c.Query("order_id")
+	orderNo := c.Query("order_no")
 	oldStatus, ok := cons.OrderStatusTransitions[status]
 
 	if !ok {
@@ -289,7 +296,7 @@ func UpdateStatusOrder(c *fiber.Ctx) error {
 		db.Rollback()
 	}()
 
-	err = dbservice.UpdateStatusOrder(db, orderId, status, oldStatus)
+	order, err := dbservice.UpdateStatusOrder(db, orderId, status, oldStatus, orderNo)
 
 	if err != nil {
 		return fiber.NewError(500, err.Error())
@@ -298,7 +305,7 @@ func UpdateStatusOrder(c *fiber.Ctx) error {
 	err = dbservice.CreateOrderTimeLine(db, &models.OrderTimeLine{
 		UserID:      userID,
 		OrderStatus: status,
-		OrderID:     orderId,
+		OrderID:     order.ID,
 	})
 
 	if err != nil {

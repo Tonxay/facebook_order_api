@@ -105,21 +105,28 @@ func CreateOrderTimeLine(db *gorm.DB, orderTimeLine *models.OrderTimeLine) error
 	return result.Error
 }
 
-func UpdateStatusOrder(db *gorm.DB, orderId, newStatus, oldStatus string) error {
+func UpdateStatusOrder(db *gorm.DB, orderId, newStatus, oldStatus string, orderNo string) (models.Order, error) {
+	var order models.Order
+	tx := db.Table(models.TableNameOrder)
+	if orderId != "" {
+		tx = tx.Where("id = ? AND status = ? AND is_cancel = ?", orderId, oldStatus, false)
+	} else {
+		tx = tx.Where("order_no = ? AND status = ? AND is_cancel = ?", orderNo, oldStatus, false)
+	}
 
-	result := db.Table(models.TableNameOrder).Where("id = ? AND status = ? AND is_cancel = ?", orderId, oldStatus, false).UpdateColumns(&models.Order{
+	result := tx.UpdateColumns(&models.Order{
 		Status: newStatus,
-	})
+	}).First(&order)
 
 	if result.Error != nil {
-		return fmt.Errorf("failed to update order: %w", result.Error)
+		return order, fmt.Errorf("failed to update order: %w", result.Error)
 	}
 
 	if result.RowsAffected == 0 {
-		return fmt.Errorf("no rows updated — order may not exist or status is unchanged")
+		return order, fmt.Errorf("no rows updated — order may not exist or status is unchanged")
 	}
 
-	return result.Error
+	return order, result.Error
 }
 
 func UpdateIsCancelOrder(db *gorm.DB, orderId string) error {

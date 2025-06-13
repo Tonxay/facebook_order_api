@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"fmt"
+	"math/rand"
 	"os"
 	"strings"
 	"time"
@@ -55,11 +56,23 @@ func GetJwtSecret() []byte {
 	return jwtSecret
 }
 
+var generated = make(map[string]bool) // Track generated order numbers
+
 func GenerateOrderNumber() string {
 	now := time.Now()
-	return fmt.Sprintf("ORD-%s-%d", now.Format("20060102"), now.UnixNano()%100000)
-}
+	prefix := now.Format("0601") // "yyMM", e.g., "2406"
 
+	for {
+		suffix := rand.Intn(10000) // 0000 to 9999
+		orderNo := fmt.Sprintf("%s%04d", prefix, suffix)
+
+		if !generated[orderNo] {
+			generated[orderNo] = true
+			return orderNo
+		}
+		// Retry until a unique number is found
+	}
+}
 func GetUserID(c *fiber.Ctx) (string, bool) {
 	user := c.Locals("user_id")
 	userID, ok := user.(string)

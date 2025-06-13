@@ -1,6 +1,7 @@
 package service
 
 import (
+	"go-api/internal/config/middleware"
 	"go-api/internal/config/presenters"
 	gormpkg "go-api/internal/pkg"
 	"go-api/internal/pkg/models"
@@ -73,6 +74,7 @@ func CreateProductDetail(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusCreated).JSON(presenters.ResponseSuccess(requestData))
 }
 func CreateStockProductDetail(c *fiber.Ctx) error {
+	id, _ := middleware.GetUserID(c)
 	var requestData request.StockProductDetail
 
 	// Parse JSON request body
@@ -83,7 +85,7 @@ func CreateStockProductDetail(c *fiber.Ctx) error {
 	}
 
 	data := models.StockProductDetail{
-		UserID:          "1e55b100-8a4e-4372-a9e9-7d3c5f4a2a77",
+		UserID:          id,
 		ProductDetailID: requestData.ProductDetailID,
 		Quantity:        requestData.Quantity,
 		SizeID:          requestData.SizeID,
