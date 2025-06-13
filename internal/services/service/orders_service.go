@@ -278,8 +278,7 @@ func CreateOrder(c *fiber.Ctx) error {
 ຈັດສົ່ງໂດຍ: %s
 ເບີໂທ: %d
 ທີ່ຢູ່: ເເຂວງ %s ເມືອງ %s ສາຂາ %s
-ຈາກ: %s 
-------------  ວັນທີ່: %s     ------------
+ຈາກ: %s
 `,
 		respones.CreatedAt,
 		respones.OrderName,
@@ -290,7 +289,6 @@ func CreateOrder(c *fiber.Ctx) error {
 		respones.District,
 		order.CustomAddress,
 		respones.PageName,
-		respones.CreatedAt,
 	)
 
 	SendDiscordWebhook(webhookURL, message)
