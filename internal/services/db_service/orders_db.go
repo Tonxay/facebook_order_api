@@ -116,7 +116,7 @@ func UpdateStatusOrder(db *gorm.DB, orderId, newStatus, oldStatus string, orderN
 
 	result := tx.UpdateColumns(&models.Order{
 		Status: newStatus,
-	}).First(&order)
+	})
 
 	if result.Error != nil {
 		return order, fmt.Errorf("failed to update order: %w", result.Error)
@@ -125,7 +125,18 @@ func UpdateStatusOrder(db *gorm.DB, orderId, newStatus, oldStatus string, orderN
 	if result.RowsAffected == 0 {
 		return order, fmt.Errorf("no rows updated — order may not exist or status is unchanged")
 	}
+	tx1 := db.Table(models.TableNameOrder)
 
+	if orderId != "" {
+		tx1 = tx1.Where("id = ? AND status = ? AND is_cancel = ?", orderId, newStatus, false)
+	} else {
+		tx1 = tx1.Where("order_no = ? AND status = ? AND is_cancel = ?", orderNo, newStatus, false)
+	}
+
+	err := tx1.First(&order).Error
+	if err != nil {
+		return order, err
+	}
 	return order, result.Error
 }
 
