@@ -29,7 +29,7 @@ type Order struct {
 	CreatedAt     time.Time `gorm:"column:created_at;default:CURRENT_TIMESTAMP" json:"created_at"`
 	Discount      float64   `gorm:"column:discount;not null" json:"discount"`
 	Platform      string    `gorm:"column:platform;default:facebook" json:"platform"`
-	Cod           bool      `gorm:"column:cod;default:true" json:"cod"`
+	Cod           bool      `gorm:"column:cod;not null" json:"cod"`
 	IsCancel      bool      `gorm:"column:is_cancel;not null" json:"is_cancel"`
 }
 
