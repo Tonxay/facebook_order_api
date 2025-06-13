@@ -272,13 +272,14 @@ func CreateOrder(c *fiber.Ctx) error {
 	db.Commit()
 	webhookURL := "https://discord.com/api/webhooks/1382990950107971696/gPuNdiZ_0YrxWczQKTtTOxndUkukqyrtlyxg7T63zCcFLgO4JQZzAESuAaKOQEb8QcOy"
 	message := fmt.Sprintf(`
----------------------------- ວັນທີ່: %s   ------------------------------
+ວັນທີ່: %s 
 ລູກຄ້າ: %s 
 ລະຫັດ: %s
 ຈັດສົ່ງໂດຍ: %s
 ເບີໂທ: %d
 ທີ່ຢູ່: ເເຂວງ %s ເມືອງ %s ສາຂາ %s
 ຈາກ: %s 
+------------  ວັນທີ່: %s     ------------
 `,
 		respones.CreatedAt,
 		respones.OrderName,
@@ -289,6 +290,7 @@ func CreateOrder(c *fiber.Ctx) error {
 		respones.District,
 		order.CustomAddress,
 		respones.PageName,
+		respones.CreatedAt,
 	)
 
 	SendDiscordWebhook(webhookURL, message)
