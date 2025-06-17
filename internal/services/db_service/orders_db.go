@@ -33,7 +33,8 @@ func CreateOrderDiscounts(db *gorm.DB, orderDiscounts []*models.OrderDiscount, c
 	query.SetDefault(db)
 	daq := query.Q.OrderDiscount
 	// Insert in batches, handle error
-	err := daq.WithContext(ctx).CreateInBatches(orderDiscounts, 100)
+
+	err := daq.WithContext(ctx).Where(daq.DiscountID).CreateInBatches(orderDiscounts, 100)
 	if err != nil {
 		// Optional: Log or wrap for context
 		return fmt.Errorf("failed to create order details: %w", err)
@@ -44,10 +45,15 @@ func CreateOrderDiscounts(db *gorm.DB, orderDiscounts []*models.OrderDiscount, c
 func GetOrders(db *gorm.DB, statuses []string, isCancell bool) ([]*custommodel.OrderReponse, error) {
 	var orders []*custommodel.OrderReponse
 
-	tx := db.Table(models.TableNameOrder + " o").Select(`o.*,SUM(rc.total_discount) AS total_prodouct_discount,d.dr_name,provice.pr_name,page.name_page AS page_name`)
+	tx := db.Table(models.TableNameOrder + " o").Select(
+		`o.*,
+	SUM(rc.total_discount) AS total_prodouct_discount,
+	d.dr_name,provice.pr_name,
+	page.name_page AS page_name,
+	page.tel AS page_tel`)
 
 	if !isCancell {
-		tx = tx.Where("status IN ?", statuses)
+		tx = tx.Where("o.status IN ?", statuses)
 	}
 
 	tx = tx.Joins("LEFT JOIN " + models.TableNameOrderDiscount + " rc ON rc.order_id = o.id")
@@ -63,7 +69,7 @@ func GetOrders(db *gorm.DB, statuses []string, isCancell bool) ([]*custommodel.O
 
 	tx = tx.Preload("OrderDiscounts")
 
-	tx = tx.Group(`o.id,d.dr_name,provice.pr_name,page.name_page`)
+	tx = tx.Group(`o.id,d.dr_name,provice.pr_name,page.name_page,page.tel`)
 
 	err := tx.Order("o.updated_at DESC").Find(&orders).Error
 	return orders, err

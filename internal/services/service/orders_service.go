@@ -58,6 +58,11 @@ func CreateOrder(c *fiber.Ctx) error {
 		return fiber.NewError(400, err.Error())
 	}
 
+	if !middleware.ValidatePhone(req.Tel) {
+		return fiber.NewError(400, "ເບີໂທລະສັບບໍ່ຖືກຕ້ອງ")
+	}
+	print()
+
 	db := gormpkg.GetDB().Begin()
 	defer func() {
 		db.Rollback()
@@ -201,11 +206,42 @@ func CreateOrder(c *fiber.Ctx) error {
 			})
 		}
 	}
-	if req.FacebookID != "" {
+
+	if req.FacebookID != "N/A" && req.PageID != "" {
 		_, err = dbservice.UpdateColumnsCustomer(db, req.FacebookID, int32(req.Gender), req.Tel)
 		if err != nil {
 			return fiber.NewError(http.StatusInternalServerError, err.Error())
 		}
+	}
+
+	// create new customer
+	if req.FacebookID == "N/A" && req.PageID != "" {
+
+		page, err := dbservice.GetPagesByID(db, req.PageID)
+		req.PlatForm = page.Phalform
+
+		if err != nil {
+			return fiber.NewError(http.StatusInternalServerError, err.Error())
+		}
+
+		if page.Phalform == "facebook" {
+			return fiber.NewError(400, "ກະລຸນາເລືອກລູກຄ້າຈາກ ລາຍການທີ່ມີຢູ່")
+		}
+
+		customerId := middleware.GenerateFacebookID()
+		newCustomer, err := dbservice.CreateCustomer(db, models.Customer{
+			FacebookID:  customerId,
+			FirstName:   req.FullName,
+			LastName:    "",
+			Image:       "N/A",
+			PhoneNumber: req.Tel,
+			Gender:      int32(req.Gender),
+			PageID:      req.PageID,
+		})
+		if err != nil {
+			return fiber.NewError(http.StatusInternalServerError, err.Error())
+		}
+		req.FacebookID = newCustomer.FacebookID
 	}
 
 	number := middleware.GenerateOrderNumber()

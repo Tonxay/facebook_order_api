@@ -78,3 +78,15 @@ func GetUserID(c *fiber.Ctx) (string, bool) {
 	userID, ok := user.(string)
 	return userID, ok
 }
+
+func GenerateFacebookID() string {
+	rand.Seed(time.Now().UnixNano())
+	// First digit must not be 0
+	id := fmt.Sprintf("%d", rand.Intn(9)+1)
+	// Add remaining 16 digits
+	for i := 0; i < 16; i++ {
+		id += fmt.Sprintf("%d", rand.Intn(10))
+	}
+
+	return id
+}

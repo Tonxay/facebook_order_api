@@ -31,7 +31,7 @@ func newOrder(db *gorm.DB, opts ...gen.DOOption) order {
 	_order.ID = field.NewString(tableName, "id")
 	_order.Status = field.NewString(tableName, "status")
 	_order.CustomerID = field.NewString(tableName, "customer_id")
-	_order.Tel = field.NewInt32(tableName, "tel")
+	_order.Tel = field.NewInt64(tableName, "tel")
 	_order.CustomAddress = field.NewString(tableName, "custom_address")
 	_order.UserID = field.NewString(tableName, "user_id")
 	_order.TotalPrice = field.NewFloat64(tableName, "total_price")
@@ -60,7 +60,7 @@ type order struct {
 	ID            field.String
 	Status        field.String
 	CustomerID    field.String
-	Tel           field.Int32
+	Tel           field.Int64
 	CustomAddress field.String
 	UserID        field.String
 	TotalPrice    field.Float64
@@ -95,7 +95,7 @@ func (o *order) updateTableName(table string) *order {
 	o.ID = field.NewString(table, "id")
 	o.Status = field.NewString(table, "status")
 	o.CustomerID = field.NewString(table, "customer_id")
-	o.Tel = field.NewInt32(table, "tel")
+	o.Tel = field.NewInt64(table, "tel")
 	o.CustomAddress = field.NewString(table, "custom_address")
 	o.UserID = field.NewString(table, "user_id")
 	o.TotalPrice = field.NewFloat64(table, "total_price")

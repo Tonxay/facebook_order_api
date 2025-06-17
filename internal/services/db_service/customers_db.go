@@ -16,11 +16,12 @@ func Getcustomers(db *gorm.DB, query request.CustomerQuery) (*[]custommodel.Cust
 	tx := db.
 		Table(models.TableNameCustomer + " cus")
 
-	tx = tx.Select(` cus.* ,page.* , page.image AS page_image `)
+	tx = tx.Select(` cus.* ,page.* `)
 
 	tx = tx.Joins("LEFT JOIN " + models.TableNamePage + " page ON page.page_id = cus.page_id")
 
 	tx = tx.Count(&totalCount)
+	tx = tx.Preload("Page")
 	if query.Name != "" {
 		tx = tx.Where("cus.first_name ILIKE ?", "%"+query.Name+"%")
 	} else {
@@ -37,7 +38,7 @@ func GetcustomersID(db *gorm.DB, fbID string) (custommodel.Customer, error) {
 	err := db.Table(models.TableNameCustomer).Where("facebook_id = ?", fbID).First(&user).Error
 	return user, err
 }
-func UpdateColumnsCustomer(db *gorm.DB, fbID string, gender int32, tel int32) (models.Customer, error) {
+func UpdateColumnsCustomer(db *gorm.DB, fbID string, gender int32, tel int64) (models.Customer, error) {
 	var user models.Customer
 	err := db.Table(models.TableNameCustomer).Where("facebook_id = ?", fbID).UpdateColumns(&models.Customer{
 		Gender:      gender,
@@ -52,5 +53,11 @@ func CreateColumnsCustomer(db *gorm.DB, fbID string, pageId string) (custommodel
 		FacebookID: fbID,
 		PageID:     pageId,
 	}).First(&user).Error
+	return user, err
+}
+
+func CreateCustomer(db *gorm.DB, newCustomer models.Customer) (models.Customer, error) {
+	var user models.Customer
+	err := db.Table(models.TableNameCustomer).Create(&newCustomer).First(&user).Error
 	return user, err
 }

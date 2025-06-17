@@ -12,6 +12,9 @@ type Page struct {
 	PageID   string `gorm:"column:page_id;primaryKey" json:"page_id"`
 	NamePage string `gorm:"column:name_page;not null" json:"name_page"`
 	Image    string `gorm:"column:image" json:"image"`
+	Tel      int64  `gorm:"column:tel;default:2092339355" json:"tel"`
+	Phalform string `gorm:"column:phalform;default:facebook" json:"phalform"`
+	Status   int32  `gorm:"column:status;not null;default:1" json:"status"`
 }
 
 // TableName Page's table name

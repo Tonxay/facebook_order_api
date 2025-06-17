@@ -9,7 +9,7 @@ import (
 type OrderRequest struct {
 	CustomAddress string `json:"custom_address" validate:"required"`
 	FullName      string `json:"full_name" validate:"required"`
-	Tel           int32  `json:"tel" validate:"required,min=8"`
+	Tel           int64  `json:"tel" validate:"required,min=8"`
 	PlatForm      string `json:"plat_form" validate:"required,oneof=facebook whatapp tiktok"`
 	Gender        int    `json:"gender" validate:"required,oneof=0 1 2"` // 0: other, 1: male, 2: female
 	Cod           bool   `json:"cod" `
@@ -21,6 +21,7 @@ type OrderRequest struct {
 	// TotalPrice float64     `json:"total_price" validate:"required,min=0"`
 	Discount   float64     `json:"discount" validate:"min=0"`
 	FacebookID string      `json:"facebook_id" validate:"required"`
+	PageID     string      `json:"page_id" validate:"required"`
 	Items      []OrderItem `json:"items" validate:"required,dive,required"`
 }
 
@@ -60,12 +61,14 @@ type GroupedByProduct struct {
 }
 
 type OrderReponse struct {
-	ID                    string          `gorm:"column:id;primaryKey;default:gen_random_uuid()" json:"id"`
-	Status                string          `gorm:"column:status;default:pending" json:"status"`
-	CustomerID            string          `gorm:"column:customer_id" json:"customer_id"`
-	IsCancel              bool            `gorm:"column:is_cancel;not null" json:"is_cancel"`
-	PageName              string          `gorm:"column:page_name" json:"page_name"`
-	Tel                   int32           `gorm:"column:tel" json:"tel"`
+	ID         string `gorm:"column:id;primaryKey;default:gen_random_uuid()" json:"id"`
+	Status     string `gorm:"column:status;default:pending" json:"status"`
+	CustomerID string `gorm:"column:customer_id" json:"customer_id"`
+	IsCancel   bool   `gorm:"column:is_cancel;not null" json:"is_cancel"`
+	PageName   string `gorm:"column:page_name" json:"page_name"`
+	PageTel    int32  `gorm:"column:page_tel" json:"page_tel"`
+
+	Tel                   int64           `gorm:"column:tel" json:"tel"`
 	CustomAddress         string          `gorm:"column:custom_address" json:"custom_address"`
 	TotalProductsDiscount float64         `gorm:"column:total_prodouct_discount" json:"total_prodouct_discount"`
 	UserID                string          `gorm:"column:user_id" json:"user_id"`

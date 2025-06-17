@@ -15,7 +15,7 @@ type Order struct {
 	ID            string    `gorm:"column:id;primaryKey;default:gen_random_uuid()" json:"id"`
 	Status        string    `gorm:"column:status;default:pending" json:"status"`
 	CustomerID    string    `gorm:"column:customer_id" json:"customer_id"`
-	Tel           int32     `gorm:"column:tel" json:"tel"`
+	Tel           int64     `gorm:"column:tel" json:"tel"`
 	CustomAddress string    `gorm:"column:custom_address" json:"custom_address"`
 	UserID        string    `gorm:"column:user_id" json:"user_id"`
 	TotalPrice    float64   `gorm:"column:total_price" json:"total_price"`

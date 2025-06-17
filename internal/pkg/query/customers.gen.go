@@ -31,7 +31,7 @@ func newCustomer(db *gorm.DB, opts ...gen.DOOption) customer {
 	_customer.FacebookID = field.NewString(tableName, "facebook_id")
 	_customer.LastName = field.NewString(tableName, "last_name")
 	_customer.Image = field.NewString(tableName, "image")
-	_customer.PhoneNumber = field.NewInt32(tableName, "phone_number")
+	_customer.PhoneNumber = field.NewInt64(tableName, "phone_number")
 	_customer.FirstName = field.NewString(tableName, "first_name")
 	_customer.ID = field.NewString(tableName, "id")
 	_customer.CreatedAt = field.NewTime(tableName, "created_at")
@@ -51,7 +51,7 @@ type customer struct {
 	FacebookID  field.String
 	LastName    field.String
 	Image       field.String
-	PhoneNumber field.Int32
+	PhoneNumber field.Int64
 	FirstName   field.String
 	ID          field.String
 	CreatedAt   field.Time
@@ -77,7 +77,7 @@ func (c *customer) updateTableName(table string) *customer {
 	c.FacebookID = field.NewString(table, "facebook_id")
 	c.LastName = field.NewString(table, "last_name")
 	c.Image = field.NewString(table, "image")
-	c.PhoneNumber = field.NewInt32(table, "phone_number")
+	c.PhoneNumber = field.NewInt64(table, "phone_number")
 	c.FirstName = field.NewString(table, "first_name")
 	c.ID = field.NewString(table, "id")
 	c.CreatedAt = field.NewTime(table, "created_at")

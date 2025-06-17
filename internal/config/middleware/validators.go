@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"regexp"
+	"strconv"
 
 	"github.com/go-playground/validator"
 	"github.com/gofiber/fiber/v2"
@@ -84,4 +85,16 @@ func ParseAndValidateQuery(c *fiber.Ctx, out interface{}) error {
 		return errors.New("bad_request")
 	}
 	return ValidateReqBody(out)
+}
+
+func ValidatePhone(value int64) bool {
+	str := strconv.Itoa(int(value)) // Convert int32 to string
+
+	if len(str) < 2 {
+		return false
+	}
+
+	prefix := str[:2] // Get first two digits
+
+	return prefix == "20" || prefix == "30"
 }

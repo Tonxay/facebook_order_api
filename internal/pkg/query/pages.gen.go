@@ -32,6 +32,9 @@ func newPage(db *gorm.DB, opts ...gen.DOOption) page {
 	_page.PageID = field.NewString(tableName, "page_id")
 	_page.NamePage = field.NewString(tableName, "name_page")
 	_page.Image = field.NewString(tableName, "image")
+	_page.Tel = field.NewInt64(tableName, "tel")
+	_page.Phalform = field.NewString(tableName, "phalform")
+	_page.Status = field.NewInt32(tableName, "status")
 
 	_page.fillFieldMap()
 
@@ -46,6 +49,9 @@ type page struct {
 	PageID   field.String
 	NamePage field.String
 	Image    field.String
+	Tel      field.Int64
+	Phalform field.String
+	Status   field.Int32
 
 	fieldMap map[string]field.Expr
 }
@@ -66,6 +72,9 @@ func (p *page) updateTableName(table string) *page {
 	p.PageID = field.NewString(table, "page_id")
 	p.NamePage = field.NewString(table, "name_page")
 	p.Image = field.NewString(table, "image")
+	p.Tel = field.NewInt64(table, "tel")
+	p.Phalform = field.NewString(table, "phalform")
+	p.Status = field.NewInt32(table, "status")
 
 	p.fillFieldMap()
 
@@ -82,11 +91,14 @@ func (p *page) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (p *page) fillFieldMap() {
-	p.fieldMap = make(map[string]field.Expr, 4)
+	p.fieldMap = make(map[string]field.Expr, 7)
 	p.fieldMap["id"] = p.ID
 	p.fieldMap["page_id"] = p.PageID
 	p.fieldMap["name_page"] = p.NamePage
 	p.fieldMap["image"] = p.Image
+	p.fieldMap["tel"] = p.Tel
+	p.fieldMap["phalform"] = p.Phalform
+	p.fieldMap["status"] = p.Status
 }
 
 func (p page) clone(db *gorm.DB) page {

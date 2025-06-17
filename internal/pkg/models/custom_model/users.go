@@ -18,15 +18,15 @@ func (*User) TableName() string {
 
 // Customer mapped from table <customers>
 type Customer struct {
-	FacebookID  string `gorm:"column:facebook_id;primaryKey" json:"facebook_id"`
-	LastName    string `gorm:"column:last_name" json:"last_name"`
-	PhoneNumber int32  `gorm:"column:phone_number" json:"phone_number"`
-	FirstName   string `gorm:"column:first_name" json:"first_name"`
-	ID          string `gorm:"column:id;not null;default:gen_random_uuid()" json:"id"`
-	PageID      string `gorm:"column:page_id;not null" json:"page_id"`
-	NamePage    string `gorm:"column:name_page;not null" json:"name_page"`
-	PageImage   string `gorm:"column:page_image" json:"page_image"`
-	Gender      int32  `gorm:"column:gender;not null" json:"gender"`
+	FacebookID  string      `gorm:"column:facebook_id;primaryKey" json:"facebook_id"`
+	LastName    string      `gorm:"column:last_name" json:"last_name"`
+	PhoneNumber int64       `gorm:"column:phone_number" json:"phone_number"`
+	FirstName   string      `gorm:"column:first_name" json:"first_name"`
+	ID          string      `gorm:"column:id;not null;default:gen_random_uuid()" json:"id"`
+	PageID      string      `gorm:"column:page_id;not null" json:"page_id"`
+	NamePage    string      `gorm:"column:name_page;not null" json:"name_page"`
+	Gender      int32       `gorm:"column:gender;not null" json:"gender"`
+	Page        models.Page `gorm:"foreignKey:PageID;references:PageID" json:"page"`
 }
 
 // TableName Customer's table name
