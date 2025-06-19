@@ -16,7 +16,6 @@ type Product struct {
 	Name       string    `gorm:"column:name;not null" json:"name"`
 	Brand      string    `gorm:"column:brand" json:"brand"`
 	CategoryID string    `gorm:"column:category_id;not null" json:"category_id"`
-	Price      float64   `gorm:"column:price;not null" json:"price"`
 	Status     string    `gorm:"column:status;default:active" json:"status"`
 	CreatedAt  time.Time `gorm:"column:created_at;default:CURRENT_TIMESTAMP" json:"created_at"`
 	UpdatedAt  time.Time `gorm:"column:updated_at;default:CURRENT_TIMESTAMP" json:"updated_at"`

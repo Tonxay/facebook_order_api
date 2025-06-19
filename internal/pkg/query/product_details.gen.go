@@ -37,7 +37,6 @@ func newProductDetail(db *gorm.DB, opts ...gen.DOOption) productDetail {
 	_productDetail.CreatedAt = field.NewTime(tableName, "created_at")
 	_productDetail.UpdatedAt = field.NewTime(tableName, "updated_at")
 	_productDetail.ImageURL = field.NewString(tableName, "image_url")
-	_productDetail.Price = field.NewInt32(tableName, "price")
 	_productDetail.ColorName = field.NewString(tableName, "color_name")
 
 	_productDetail.fillFieldMap()
@@ -58,7 +57,6 @@ type productDetail struct {
 	CreatedAt field.Time
 	UpdatedAt field.Time
 	ImageURL  field.String
-	Price     field.Int32
 	ColorName field.String
 
 	fieldMap map[string]field.Expr
@@ -85,7 +83,6 @@ func (p *productDetail) updateTableName(table string) *productDetail {
 	p.CreatedAt = field.NewTime(table, "created_at")
 	p.UpdatedAt = field.NewTime(table, "updated_at")
 	p.ImageURL = field.NewString(table, "image_url")
-	p.Price = field.NewInt32(table, "price")
 	p.ColorName = field.NewString(table, "color_name")
 
 	p.fillFieldMap()
@@ -103,7 +100,7 @@ func (p *productDetail) GetFieldByName(fieldName string) (field.OrderExpr, bool)
 }
 
 func (p *productDetail) fillFieldMap() {
-	p.fieldMap = make(map[string]field.Expr, 11)
+	p.fieldMap = make(map[string]field.Expr, 10)
 	p.fieldMap["id"] = p.ID
 	p.fieldMap["product_id"] = p.ProductID
 	p.fieldMap["color"] = p.Color
@@ -113,7 +110,6 @@ func (p *productDetail) fillFieldMap() {
 	p.fieldMap["created_at"] = p.CreatedAt
 	p.fieldMap["updated_at"] = p.UpdatedAt
 	p.fieldMap["image_url"] = p.ImageURL
-	p.fieldMap["price"] = p.Price
 	p.fieldMap["color_name"] = p.ColorName
 }
 
