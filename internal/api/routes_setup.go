@@ -29,8 +29,12 @@ func SetupRoutes(app *fiber.App) {
 
 	ship := app.Group("/shipping")
 	routers_part.SetupShippingRoutesPart(ship)
+
 	page := app.Group("/page")
 	routers_part.SetupPagesPart(page)
+
+	category := app.Group("/category")
+	routers_part.SetupCatagorysRoutesPart(category)
 
 }
 

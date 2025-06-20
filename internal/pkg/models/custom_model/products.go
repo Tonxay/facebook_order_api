@@ -10,6 +10,7 @@ type Products struct {
 	Name           string           `gorm:"column:name;not null" json:"name"`
 	ProductDetails []ProductDetails `gorm:"foreignKey:ProductID;references:ID" json:"product_details"`
 	Promotions     []Promotion      `gorm:"foreignKey:ProductID;references:ID" json:"promotions"`
+	TotalAmounts   int32            `gorm:"column:total_amounts;" json:"total_amounts"`
 }
 
 // TableName Product's table name
