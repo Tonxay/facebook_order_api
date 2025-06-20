@@ -90,7 +90,7 @@ func GetProductByIDSizdID(db *gorm.DB, productItemDetailId, sizeId, producId str
 
 	tx := db.Table(models.TableNameProductDetail + " pd")
 
-	tx = tx.Select("pd.product_id, pd.id, p.name, s.id  AS size_id , s.size ,pd.color_name , pd.price")
+	tx = tx.Select("pd.product_id, pd.id, p.name, s.id  AS size_id , s.size ,pd.color_name")
 
 	tx = tx.Where("pd.id = ?", productItemDetailId).Where("p.id = ?", producId).Where("s.id = ?", sizeId)
 	// .Where("spd.status = ?", "active")
@@ -107,7 +107,7 @@ func GetProductByIDSizdID(db *gorm.DB, productItemDetailId, sizeId, producId str
 	// 	return db.Where("remaining > ? AND status = ?", 0, "active")
 	// })
 
-	tx = tx.Group("pd.product_id,pd.id,p.name, s.size, pd.color_name, pd.price,s.id")
+	tx = tx.Group("pd.product_id,pd.id,p.name, s.size, pd.color_name,s.id")
 
 	err := tx.Find(&products).Error
 	return products, err
