@@ -1,9 +1,13 @@
 package dbservice
 
 import (
+	"encoding/json"
+	"fmt"
 	"go-api/internal/pkg/models"
 	custommodel "go-api/internal/pkg/models/custom_model"
 	"go-api/internal/pkg/models/request"
+	"io"
+	"net/http"
 	"time"
 
 	"gorm.io/gorm"
@@ -60,4 +64,52 @@ func CreateCustomer(db *gorm.DB, newCustomer models.Customer) (models.Customer, 
 	var user models.Customer
 	err := db.Table(models.TableNameCustomer).Create(&newCustomer).First(&user).Error
 	return user, err
+}
+
+func GetUserInFaceBook(pageId, pageAccessToken string) (custommodel.FacebookConversationList, error) {
+	var result custommodel.FacebookConversationList
+
+	if pageId == "" || pageAccessToken == "" {
+		return result, fmt.Errorf("pageId or pageAccessToken is missing")
+	}
+
+	// Build URL (no token in URL now)
+	url := fmt.Sprintf(
+		"https://graph.facebook.com/v21.0/%s/conversations?fields=participants,updated_time&limit=50",
+		pageId,
+	)
+
+	// Create HTTP request
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return result, fmt.Errorf("failed to create request: %v", err)
+	}
+
+	// Set Authorization header
+	req.Header.Set("Authorization", "Bearer "+pageAccessToken)
+
+	// Send request using default client
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return result, fmt.Errorf("failed to send request: %v", err)
+	}
+	defer resp.Body.Close()
+
+	// Check for non-200 responses
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+		return result, fmt.Errorf("non-200 response from Facebook API: %d, %s", resp.StatusCode, string(body))
+	}
+
+	// Read and parse response
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return result, fmt.Errorf("failed to read response body: %v", err)
+	}
+
+	if err := json.Unmarshal(body, &result); err != nil {
+		return result, fmt.Errorf("failed to parse JSON response: %v\nraw: %s", err, string(body))
+	}
+
+	return result, nil
 }

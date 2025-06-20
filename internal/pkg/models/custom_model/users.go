@@ -32,3 +32,34 @@ type Customer struct {
 func (*Customer) TableName() string {
 	return models.TableNamePage
 }
+
+type FacebookConversationList struct {
+	Data   []ConversationData `json:"data"`
+	Paging PagingInfo         `json:"paging"`
+}
+
+type ConversationData struct {
+	ID           string         `json:"id"`
+	Participants ParticipantSet `json:"participants"`
+	UpdatedTime  string         `json:"updated_time"`
+}
+
+type ParticipantSet struct {
+	Data []Participant `json:"data"`
+}
+
+type Participant struct {
+	Email string `json:"email"`
+	ID    string `json:"id"`
+	Name  string `json:"name"`
+}
+
+type PagingInfo struct {
+	Cursors CursorInfo `json:"cursors"`
+	Next    string     `json:"next"`
+}
+
+type CursorInfo struct {
+	Before string `json:"before"`
+	After  string `json:"after"`
+}

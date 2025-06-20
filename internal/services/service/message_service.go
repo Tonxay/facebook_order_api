@@ -4,12 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"go-api/internal/config/middleware"
-	gormpkg "go-api/internal/pkg"
-	"go-api/internal/pkg/models"
-	"time"
 
-	"log"
 	"net/http"
 	"os"
 
@@ -116,136 +111,136 @@ func SendMessage(recipientID, messageText string) error {
 }
 
 func HandleWebhook(c *fiber.Ctx) error {
-	var raw map[string]interface{}
-	if err := json.Unmarshal(c.Body(), &raw); err != nil {
-		log.Println("Invalid JSON:", err)
-		return c.SendStatus(fiber.StatusBadRequest)
-	}
+	// var raw map[string]interface{}
+	// if err := json.Unmarshal(c.Body(), &raw); err != nil {
+	// 	log.Println("Invalid JSON:", err)
+	// 	return c.SendStatus(fiber.StatusBadRequest)
+	// }
 
-	log.Println("Raw Event:", raw)
+	// log.Println("Raw Event:", raw)
 
-	var event WebhookDeliveryEvent
-	if err := c.BodyParser(&event); err != nil {
-		log.Println("BodyParser error:", err)
-		return c.SendStatus(fiber.StatusBadRequest)
-	}
+	// var event WebhookDeliveryEvent
+	// if err := c.BodyParser(&event); err != nil {
+	// 	log.Println("BodyParser error:", err)
+	// 	return c.SendStatus(fiber.StatusBadRequest)
+	// }
 
-	log.Println("Parsed Event:", event)
-	var user *models.Customer
+	// log.Println("Parsed Event:", event)
+	// var user *models.Customer
 
-	for _, entry := range event.Entry {
-		for _, msg := range entry.Messaging {
-			// if msg.Sender == nil || msg.Recipient == nil {
-			// 	log.Println("Skipping message with nil sender or recipient")
-			// 	continue
-			// }
-			if msg.Message.Text != "" || len(msg.Message.Attachments) >= 1 {
+	// for _, entry := range event.Entry {
+	// 	for _, msg := range entry.Messaging {
+	// 		// if msg.Sender == nil || msg.Recipient == nil {
+	// 		// 	log.Println("Skipping message with nil sender or recipient")
+	// 		// 	continue
+	// 		// }
+	// 		// if msg.Message.Text != "" || len(msg.Message.Attachments) >= 1 {
 
-				senderID := msg.Sender.ID
-				recipientID := msg.Recipient.ID
-				// Store user if not from PAGE_ID
-				var fbID string
+	// 		// 	senderID := msg.Sender.ID
+	// 		// 	recipientID := msg.Recipient.ID
+	// 		// 	// Store user if not from PAGE_ID
+	// 		// 	var fbID string
 
-				pageId, token := middleware.CheckPageId(senderID, recipientID)
-				if senderID != pageId {
-					fbID = senderID
-				} else {
-					fbID = recipientID
-				}
+	// 		// 	pageId, token := middleware.CheckPageId(senderID, recipientID)
+	// 		// 	if senderID != pageId {
+	// 		// 		fbID = senderID
+	// 		// 	} else {
+	// 		// 		fbID = recipientID
+	// 		// 	}
 
-				err1 := gormpkg.GetDB().Table(models.TableNameCustomer).Create(&models.Customer{
-					FacebookID:  fbID,
-					PageID:      pageId,
-					PhoneNumber: 0,
-				}).Error
+	// 		// 	err1 := gormpkg.GetDB().Table(models.TableNameCustomer).Create(&models.Customer{
+	// 		// 		FacebookID:  fbID,
+	// 		// 		PageID:      pageId,
+	// 		// 		PhoneNumber: 0,
+	// 		// 	}).Error
 
-				gormpkg.GetDB().Table(models.TableNameCustomer).Where("facebook_id = ?", fbID).UpdateColumns(&models.Customer{
-					UpdatedAt: time.Now(),
-				})
+	// 		// 	gormpkg.GetDB().Table(models.TableNameCustomer).Where("facebook_id = ?", fbID).UpdateColumns(&models.Customer{
+	// 		// 		UpdatedAt: time.Now(),
+	// 		// 	})
 
-				if err1 == nil {
-					var fullnam string
-					message, _ := GetMessageDetailsFormid(msg.Message.Mid, token)
-					fmt.Println(message)
-					if message.From.ID == fbID {
-						fullnam = message.From.Name
-					} else {
-						fullnam = message.To.Data[0].Name
-					}
-					gormpkg.GetDB().Table(models.TableNameCustomer).Where("facebook_id = ?", fbID).UpdateColumns(&models.Customer{
-						FirstName: fullnam,
-						UpdatedAt: time.Now(),
-					})
-				}
-				// user, _ := GetFacebookProfile(fbID)
+	// 		// 	if err1 == nil {
+	// 		// 		var fullnam string
+	// 		// 		message, _ := GetMessageDetailsFormid(msg.Message.Mid, token)
+	// 		// 		fmt.Println(message)
+	// 		// 		if message.From.ID == fbID {
+	// 		// 			fullnam = message.From.Name
+	// 		// 		} else {
+	// 		// 			fullnam = message.To.Data[0].Name
+	// 		// 		}
+	// 		// 		gormpkg.GetDB().Table(models.TableNameCustomer).Where("facebook_id = ?", fbID).UpdateColumns(&models.Customer{
+	// 		// 			FirstName: fullnam,
+	// 		// 			UpdatedAt: time.Now(),
+	// 		// 		})
+	// 		// 	}
+	// 			// user, _ := GetFacebookProfile(fbID)
 
-				// if err != nil {
+	// 			// if err != nil {
 
-				// 	// if err != nil {
-				// 	// 	log.Println("get user error", err)
-				// 	// 	continue
-				// 	// }
-				// 	gormpkg.GetDB().Table(models.TableNameCustomer).Where("facebook_id = ?", fbID).UpdateColumns(&models.Customer{
-				// 		Image:     user.ProfilePic,
-				// 		FirstName: user.FirstName,
-				// 		LastName:  user.LastName,
-				// 	})
+	// 			// 	// if err != nil {
+	// 			// 	// 	log.Println("get user error", err)
+	// 			// 	// 	continue
+	// 			// 	// }
+	// 			// 	gormpkg.GetDB().Table(models.TableNameCustomer).Where("facebook_id = ?", fbID).UpdateColumns(&models.Customer{
+	// 			// 		Image:     user.ProfilePic,
+	// 			// 		FirstName: user.FirstName,
+	// 			// 		LastName:  user.LastName,
+	// 			// 	})
 
-				// }
+	// 			// }
 
-				if senderID == "" || recipientID == "" {
-					log.Println("Skipping message with empty sender or recipient ID")
-					continue
-				}
+	// 			// if senderID == "" || recipientID == "" {
+	// 			// 	log.Println("Skipping message with empty sender or recipient ID")
+	// 			// 	continue
+	// 			// }
 
-				// err := dbservice.CreateMesseng(&models.Chat{
-				// 	SenderID:    senderID,
-				// 	UserID:      "1e55b100-8a4e-4372-a9e9-7d3c5f4a2a77", // You might want to dynamically look up user ID
-				// 	RecipientID: recipientID,
-				// 	JSONMesseng: string(c.BodyRaw()),
-				// })
+	// 			// // err := dbservice.CreateMesseng(&models.Chat{
+	// 			// // 	SenderID:    senderID,
+	// 			// // 	UserID:      "1e55b100-8a4e-4372-a9e9-7d3c5f4a2a77", // You might want to dynamically look up user ID
+	// 			// // 	RecipientID: recipientID,
+	// 			// // 	JSONMesseng: string(c.BodyRaw()),
+	// 			// // })
 
-				gormpkg.GetDB().Table(models.TableNameCustomer).Where("facebook_id = ?", fbID).First(&user)
+	// 			// gormpkg.GetDB().Table(models.TableNameCustomer).Where("facebook_id = ?", fbID).First(&user)
 
-				var payload interface{}
-				json.Unmarshal(c.BodyRaw(), &payload)
+	// 			// var payload interface{}
+	// 			// json.Unmarshal(c.BodyRaw(), &payload)
 
-				//  UpdateColumns(&models.Customer{
-				// 		FirstName: fullnam,
-				// 	})
-				// PushToUser(fbID, fiber.Map{
-				// 	// "customer_id": fbID,
-				// 	"user":    user,
-				// 	"message": payload,
-				// })
+	// 			//  UpdateColumns(&models.Customer{
+	// 			// 		FirstName: fullnam,
+	// 			// 	})
+	// 			// PushToUser(fbID, fiber.Map{
+	// 			// 	// "customer_id": fbID,
+	// 			// 	"user":    user,
+	// 			// 	"message": payload,
+	// 			// })
 
-				// PushToAll(fiber.Map{
-				// 	// "customer_id": fbID,
-				// 	"user":    user,
-				// 	"message": payload,
-				// })
+	// 			// PushToAll(fiber.Map{
+	// 			// 	// "customer_id": fbID,
+	// 			// 	"user":    user,
+	// 			// 	"message": payload,
+	// 			// })
 
-				// if err != nil {
-				// 	log.Println("Failed to create message:", err)
-				// 	return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-				// 		"error": "create messeng",
-				// 	})
-				// }
+	// 			// if err != nil {
+	// 			// 	log.Println("Failed to create message:", err)
+	// 			// 	return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+	// 			// 		"error": "create messeng",
+	// 			// 	})
+	// 			// }
 
-				// Handle postbacks
-				if msg.Postback != nil && msg.Postback.Payload != "" {
-					log.Printf("Received postback from %s: %s\n", senderID, msg.Postback.Payload)
-					SendMessage(senderID, "You clicked: "+msg.Postback.Payload)
-				}
+	// 			// Handle postbacks
+	// 			// if msg.Postback != nil && msg.Postback.Payload != "" {
+	// 			// 	log.Printf("Received postback from %s: %s\n", senderID, msg.Postback.Payload)
+	// 			// 	SendMessage(senderID, "You clicked: "+msg.Postback.Payload)
+	// 			// }
 
-				// Handle delivery confirmations
-				if msg.Delivery != nil {
-					log.Printf("Delivery confirmed for %d message(s): %v\n",
-						len(msg.Delivery.Mids), msg.Delivery.Mids)
-				}
-			}
-		}
-	}
+	// 			// // Handle delivery confirmations
+	// 			// if msg.Delivery != nil {
+	// 			// 	log.Printf("Delivery confirmed for %d message(s): %v\n",
+	// 			// 		len(msg.Delivery.Mids), msg.Delivery.Mids)
+	// 			// }
+	// 		}
+	// 	}
+	// }
 
 	return c.SendStatus(fiber.StatusOK)
 }

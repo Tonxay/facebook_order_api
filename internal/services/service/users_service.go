@@ -1,6 +1,7 @@
 package service
 
 import (
+	"go-api/internal/config/middleware"
 	"go-api/internal/config/presenters"
 	gormpkg "go-api/internal/pkg"
 	"go-api/internal/pkg/models"
@@ -22,6 +23,21 @@ func GetFacebookProfile(c *fiber.Ctx) error {
 
 	return c.JSON(user)
 }
+func GetUserInFaceBookJson(c *fiber.Ctx) error {
+	id := c.Query("page_id")
+
+	pageId, token := middleware.CheckPageId(id, id)
+
+	user, err := dbservice.GetUserInFaceBook(pageId, token)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "create messeng",
+		})
+	}
+
+	return c.JSON(presenters.ResponseSuccess(user))
+}
+
 func GetFacebookAllCustomers(c *fiber.Ctx) error {
 	query := request.CustomerQuery{}
 

@@ -9,6 +9,7 @@ import (
 
 func SetupCustomersRoutesPart(route fiber.Router) {
 	route.Use(middleware.JWTProtected)
+	route.Get("/users", service.GetUserInFaceBookJson)
 	route.Get("/all", service.GetFacebookAllCustomers)
 	route.Get("/:facebook_id", service.GetFacebookProfile)
 
