@@ -8,7 +8,6 @@ func CheckPageId(sendId string, recipientID string) (string, string) {
 
 	pageNanaId := os.Getenv("PAGE_NANA_ID")
 	pageNanaToken := os.Getenv("PAGE_ACCESS_TOKEN_NANA")
-
 	pageNanaShopId := os.Getenv("PAGE_NANA_SHOP_ID")
 	pageNanaShopToken := os.Getenv("PAGE_ACCESS_TOKEN_NANA_SHOP")
 
