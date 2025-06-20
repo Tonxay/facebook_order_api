@@ -224,7 +224,7 @@ func CreateOrder(c *fiber.Ctx) error {
 
 		if user.FacebookID == "" {
 			newCustomer, err := dbservice.CreateCustomer(db, models.Customer{
-				FacebookID:  user.FacebookID,
+				FacebookID:  req.FacebookID,
 				FirstName:   req.FullName,
 				LastName:    "",
 				Image:       "N/A",
