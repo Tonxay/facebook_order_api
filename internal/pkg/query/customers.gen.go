@@ -33,7 +33,6 @@ func newCustomer(db *gorm.DB, opts ...gen.DOOption) customer {
 	_customer.Image = field.NewString(tableName, "image")
 	_customer.PhoneNumber = field.NewInt64(tableName, "phone_number")
 	_customer.FirstName = field.NewString(tableName, "first_name")
-	_customer.ID = field.NewString(tableName, "id")
 	_customer.CreatedAt = field.NewTime(tableName, "created_at")
 	_customer.UpdatedAt = field.NewTime(tableName, "updated_at")
 	_customer.PageID = field.NewString(tableName, "page_id")
@@ -53,7 +52,6 @@ type customer struct {
 	Image       field.String
 	PhoneNumber field.Int64
 	FirstName   field.String
-	ID          field.String
 	CreatedAt   field.Time
 	UpdatedAt   field.Time
 	PageID      field.String
@@ -79,7 +77,6 @@ func (c *customer) updateTableName(table string) *customer {
 	c.Image = field.NewString(table, "image")
 	c.PhoneNumber = field.NewInt64(table, "phone_number")
 	c.FirstName = field.NewString(table, "first_name")
-	c.ID = field.NewString(table, "id")
 	c.CreatedAt = field.NewTime(table, "created_at")
 	c.UpdatedAt = field.NewTime(table, "updated_at")
 	c.PageID = field.NewString(table, "page_id")
@@ -100,13 +97,12 @@ func (c *customer) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (c *customer) fillFieldMap() {
-	c.fieldMap = make(map[string]field.Expr, 10)
+	c.fieldMap = make(map[string]field.Expr, 9)
 	c.fieldMap["facebook_id"] = c.FacebookID
 	c.fieldMap["last_name"] = c.LastName
 	c.fieldMap["image"] = c.Image
 	c.fieldMap["phone_number"] = c.PhoneNumber
 	c.fieldMap["first_name"] = c.FirstName
-	c.fieldMap["id"] = c.ID
 	c.fieldMap["created_at"] = c.CreatedAt
 	c.fieldMap["updated_at"] = c.UpdatedAt
 	c.fieldMap["page_id"] = c.PageID

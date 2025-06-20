@@ -23,7 +23,7 @@ func CheckPageId(sendId string, recipientID string) (string, string) {
 		return pageNanaShopId, pageNanaShopToken
 		// dd
 	} else {
-		return pageId, pageToken
+		return "", ""
 	}
 
 }

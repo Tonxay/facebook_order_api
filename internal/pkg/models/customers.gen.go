@@ -17,7 +17,6 @@ type Customer struct {
 	Image       string    `gorm:"column:image" json:"image"`
 	PhoneNumber int64     `gorm:"column:phone_number" json:"phone_number"`
 	FirstName   string    `gorm:"column:first_name" json:"first_name"`
-	ID          string    `gorm:"column:id;not null;default:gen_random_uuid()" json:"id"`
 	CreatedAt   time.Time `gorm:"column:created_at;not null;default:CURRENT_TIMESTAMP" json:"created_at"`
 	UpdatedAt   time.Time `gorm:"column:updated_at;not null;default:CURRENT_TIMESTAMP" json:"updated_at"`
 	PageID      string    `gorm:"column:page_id;not null" json:"page_id"`
