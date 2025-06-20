@@ -22,7 +22,6 @@ type Customer struct {
 	LastName    string      `gorm:"column:last_name" json:"last_name"`
 	PhoneNumber int64       `gorm:"column:phone_number" json:"phone_number"`
 	FirstName   string      `gorm:"column:first_name" json:"first_name"`
-	ID          string      `gorm:"column:id;not null;default:gen_random_uuid()" json:"id"`
 	PageID      string      `gorm:"column:page_id;not null" json:"page_id"`
 	NamePage    string      `gorm:"column:name_page;not null" json:"name_page"`
 	Gender      int32       `gorm:"column:gender;not null" json:"gender"`
