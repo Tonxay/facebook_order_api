@@ -209,11 +209,11 @@ func CreateOrder(c *fiber.Ctx) error {
 
 	if req.FacebookID != "N/A" && req.PageID != "" {
 
-		user, err := dbservice.GetcustomersID(db, req.FacebookID)
+		user, _ := dbservice.GetcustomersID(db, req.FacebookID)
 
-		if err != nil {
-			return fiber.NewError(http.StatusInternalServerError, err.Error())
-		}
+		// if err != nil {
+		// 	return fiber.NewError(http.StatusInternalServerError, err.Error())
+		// }
 
 		if user.FacebookID != "" {
 			_, err = dbservice.UpdateColumnsCustomer(db, req.FacebookID, int32(req.Gender), req.Tel)
