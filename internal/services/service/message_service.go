@@ -166,7 +166,7 @@ func HandleWebhook(c *fiber.Ctx) error {
 				if err1 == nil {
 					var fullnam string
 					message, _ := GetMessageDetailsFormid(msg.Message.Mid, token)
-					println(message)
+					fmt.Println(message)
 					if message.From.ID == fbID {
 						fullnam = message.From.Name
 					} else {
