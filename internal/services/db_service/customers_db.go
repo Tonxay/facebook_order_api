@@ -75,7 +75,7 @@ func GetUserInFaceBook(pageId, pageAccessToken string) (custommodel.FacebookConv
 
 	// Build URL (no token in URL now)
 	url := fmt.Sprintf(
-		"https://graph.facebook.com/v21.0/%s/conversations?fields=participants,updated_time&limit=50",
+		"https://graph.facebook.com/v21.0/%s/conversations?fields=participants,updated_time&limit=30",
 		pageId,
 	)
 

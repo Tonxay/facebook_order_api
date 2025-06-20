@@ -208,10 +208,36 @@ func CreateOrder(c *fiber.Ctx) error {
 	}
 
 	if req.FacebookID != "N/A" && req.PageID != "" {
-		_, err = dbservice.UpdateColumnsCustomer(db, req.FacebookID, int32(req.Gender), req.Tel)
+
+		user, err := dbservice.GetcustomersID(db, req.FacebookID)
+
 		if err != nil {
 			return fiber.NewError(http.StatusInternalServerError, err.Error())
 		}
+
+		if user.FacebookID != "" {
+			_, err = dbservice.UpdateColumnsCustomer(db, req.FacebookID, int32(req.Gender), req.Tel)
+			if err != nil {
+				return fiber.NewError(http.StatusInternalServerError, err.Error())
+			}
+		}
+
+		if user.FacebookID == "" {
+			newCustomer, err := dbservice.CreateCustomer(db, models.Customer{
+				FacebookID:  user.FacebookID,
+				FirstName:   req.FullName,
+				LastName:    "",
+				Image:       "N/A",
+				PhoneNumber: req.Tel,
+				Gender:      int32(req.Gender),
+				PageID:      req.PageID,
+			})
+			if err != nil {
+				return fiber.NewError(http.StatusInternalServerError, err.Error())
+			}
+			req.FacebookID = newCustomer.FacebookID
+		}
+
 	}
 
 	// create new customer

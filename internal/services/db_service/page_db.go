@@ -6,9 +6,14 @@ import (
 	"gorm.io/gorm"
 )
 
-func GetPages(db *gorm.DB) ([]models.Page, error) {
+func GetPages(db *gorm.DB, pagetype string) ([]models.Page, error) {
 	var pages []models.Page
 	tx := db.Table(models.TableNamePage)
+
+	if pagetype != "" {
+		tx.Where("phalform =?", pagetype)
+	}
+
 	err := tx.Where("status = ?", 1).Order("name_page ASC").Find(&pages).Error
 	return pages, err
 }

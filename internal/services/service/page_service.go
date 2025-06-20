@@ -9,7 +9,8 @@ import (
 )
 
 func GetPages(c *fiber.Ctx) error {
-	data, err := dbservice.GetPages(gormpkg.GetDB())
+	pagetype := c.Query("page_type")
+	data, err := dbservice.GetPages(gormpkg.GetDB(), pagetype)
 	if err != nil {
 		return fiber.NewError(500, "server error")
 	}
