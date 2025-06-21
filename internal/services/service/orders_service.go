@@ -466,3 +466,13 @@ func CancellOrder(c *fiber.Ctx) error {
 	db.Commit()
 	return c.Status(200).JSON(presenters.ResponseSuccess("update status success"))
 }
+
+func GetSalesHandler(c *fiber.Ctx) error {
+	result, err := dbservice.GetProductSalesByHour(gormpkg.GetDB())
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+	return c.JSON(presenters.ResponseSuccess(result))
+}

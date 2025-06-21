@@ -15,4 +15,6 @@ func SetupOrdersRoutesPart(route fiber.Router) {
 	route.Put("/update-status", service.UpdateStatusOrder)
 	route.Put("/cancel", service.CancellOrder)
 
+	route.Get("/sale", service.GetSalesHandler)
+
 }

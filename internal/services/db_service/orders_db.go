@@ -162,3 +162,49 @@ func UpdateIsCancelOrder(db *gorm.DB, orderId string) error {
 
 	return result.Error
 }
+
+func GetProductSalesByHour(db *gorm.DB) ([]custommodel.ProductSalesGrouped, error) {
+	var flatData []custommodel.FlatProductSales
+
+	err := db.
+		Model(&custommodel.OrderDetail{}).
+		Select(`
+			p.name AS product_name,
+			to_char(d.created_at, 'HH24') AS hour,
+			SUM(order_details.quantity) AS total_quantity,
+			SUM(order_details.total_price) AS total_price
+		`).
+		Joins("JOIN product_details pd ON pd.id = order_details.product_detail_id").
+		Joins("JOIN products p ON pd.product_id = p.id").
+		Joins("JOIN orders d ON order_details.order_id = d.id").
+		Where("d.is_cancel = ?", false).
+		Group("p.name, to_char(d.created_at, 'HH24')").
+		Order("p.name, hour").
+		Scan(&flatData).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	// Group by product name
+	groupMap := make(map[string][]custommodel.HourlyStat)
+
+	for _, record := range flatData {
+		groupMap[record.ProductName] = append(groupMap[record.ProductName], custommodel.HourlyStat{
+			Hour:       record.Hour,
+			Quantity:   record.Quantity,
+			TotalPrice: record.TotalPrice,
+		})
+	}
+
+	// Convert map to slice
+	var result []custommodel.ProductSalesGrouped
+	for name, times := range groupMap {
+		result = append(result, custommodel.ProductSalesGrouped{
+			ProductName: name,
+			Times:       times,
+		})
+	}
+
+	return result, nil
+}
