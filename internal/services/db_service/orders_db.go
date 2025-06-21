@@ -163,10 +163,10 @@ func UpdateIsCancelOrder(db *gorm.DB, orderId string) error {
 	return result.Error
 }
 
-func GetProductSalesByHour(db *gorm.DB) ([]custommodel.ProductSalesGrouped, error) {
+func GetProductSalesByHour(db *gorm.DB, startDate string, endDate string) ([]custommodel.ProductSalesGrouped, error) {
 	var flatData []custommodel.FlatProductSales
 
-	err := db.
+	tx := db.
 		Model(&custommodel.OrderDetail{}).
 		Select(`
 			p.name AS product_name,
@@ -177,10 +177,16 @@ func GetProductSalesByHour(db *gorm.DB) ([]custommodel.ProductSalesGrouped, erro
 		Joins("JOIN product_details pd ON pd.id = order_details.product_detail_id").
 		Joins("JOIN products p ON pd.product_id = p.id").
 		Joins("JOIN orders d ON order_details.order_id = d.id").
-		Where("d.is_cancel = ?", false).
-		Group("p.name, to_char(d.created_at, 'HH24')").
-		Order("p.name, hour").
-		Scan(&flatData).Error
+		Where("d.is_cancel = ?", false)
+
+	if startDate != "" && endDate != "" {
+		tx = tx.Where("d.ordered_at BETWEEN ? AND ?", startDate, endDate)
+	}
+
+	tx = tx.Group("p.name, to_char(d.created_at, 'HH24')")
+	tx = tx.Order("p.name, hour")
+
+	err := tx.Scan(&flatData).Error
 
 	if err != nil {
 		return nil, err

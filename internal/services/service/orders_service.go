@@ -468,7 +468,18 @@ func CancellOrder(c *fiber.Ctx) error {
 }
 
 func GetSalesHandler(c *fiber.Ctx) error {
-	result, err := dbservice.GetProductSalesByHour(gormpkg.GetDB())
+	startStr := c.Query("start")
+	endStr := c.Query("end")
+
+	// start, err := time.Parse(time.RFC3339, startStr)
+	// if err != nil {
+	// 	return c.Status(400).JSON(fiber.Map{"error": "invalid start date"})
+	// }
+	// end, err := time.Parse(time.RFC3339, endStr)
+	// if err != nil {
+	// 	return c.Status(400).JSON(fiber.Map{"error": "invalid end date"})
+	// }
+	result, err := dbservice.GetProductSalesByHour(gormpkg.GetDB(), endStr, startStr)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": err.Error(),
