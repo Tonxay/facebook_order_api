@@ -332,7 +332,7 @@ func CreateOrder(c *fiber.Ctx) error {
 	}
 
 	db.Commit()
-	webhookURL := "https://discord.com/api/webhooks/1382990950107971696/gPuNdiZ_0YrxWczQKTtTOxndUkukqyrtlyxg7T63zCcFLgO4JQZzAESuAaKOQEb8QcOy"
+	webhookURL := "https://discord.com/api/webhooks/1386540472779931679/hTGwQAuCVXAAZLi1tG8WpMdeKfVLEipAo_ffZZV4m09X6lflvnFp5ZjAMobMa5CLkCkY"
 	message := fmt.Sprintf(`
 ວັນທີ່: %s 
 ລູກຄ້າ: %s 
