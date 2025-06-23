@@ -332,7 +332,7 @@ func CreateOrder(c *fiber.Ctx) error {
 	}
 
 	db.Commit()
-	webhookURL := "https://discord.com/api/webhooks/1386540472779931679/hTGwQAuCVXAAZLi1tG8WpMdeKfVLEipAo_ffZZV4m09X6lflvnFp5ZjAMobMa5CLkCkY"
+	webhookURL := "https://discord.com/api/webhooks/1386638914881847366/hz7pb4qbexca75gtnTKNG6G6tLNvlAb5om-21z7ziR_MFvmEkXhKhPLTTPbb4FGtcqH2"
 	message := fmt.Sprintf(`
 ວັນທີ່: %s 
 ລູກຄ້າ: %s 
@@ -350,7 +350,7 @@ func CreateOrder(c *fiber.Ctx) error {
 		respones.Province,
 		respones.District,
 		order.CustomAddress,
-		respones.PageName,
+		respones.Platform+" "+respones.PageName,
 	)
 
 	SendDiscordWebhook(webhookURL, message)
@@ -419,6 +419,10 @@ func CancellOrder(c *fiber.Ctx) error {
 	defer func() {
 		db.Rollback()
 	}()
+	order, err1 := dbservice.GetOrder(db, orderId)
+	if err1 != nil {
+		return fiber.NewError(500, err1.Error())
+	}
 
 	orderDetail, err1 := dbservice.GetOrderDetails(db, orderId)
 	if err1 != nil {
@@ -436,8 +440,6 @@ func CancellOrder(c *fiber.Ctx) error {
 	var stockProductDetail []*models.StockProductDetail
 
 	for _, item := range orderDetail {
-		println(item.ProductDetailID)
-
 		stockProductDetail = append(stockProductDetail, &models.StockProductDetail{
 			Quantity:        item.Quantity,
 			Remaining:       item.Quantity,
@@ -464,6 +466,26 @@ func CancellOrder(c *fiber.Ctx) error {
 		return fiber.NewError(500, err.Error())
 	}
 	db.Commit()
+	webhookURL := "https://discord.com/api/webhooks/1386634660968272027/2MAuHM-iN7ONKqEZ1RjUYQJvdSf51Ck30cb4ojSL5xKY2z7sNXlBLwUqEAqueCui_DTB"
+	message := fmt.Sprintf(`
+
+ລູກຄ້າ: %s 
+ລະຫັດ: %s
+ເບີໂທ: %d
+ທີ່ຢູ່: ເເຂວງ %s ເມືອງ %s ສາຂາ %s
+ຈາກ: %s
+`,
+		order.OrderName,
+		order.OrderNo,
+		order.Tel,
+		order.Province,
+		order.District,
+		order.CustomAddress,
+		order.Platform+" "+order.PageName,
+	)
+
+	SendDiscordWebhook(webhookURL, message)
+
 	return c.Status(200).JSON(presenters.ResponseSuccess("update status success"))
 }
 
