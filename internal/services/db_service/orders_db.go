@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"go-api/internal/pkg/models"
 	custommodel "go-api/internal/pkg/models/custom_model"
+	"go-api/internal/pkg/models/request"
 	"go-api/internal/pkg/query"
 
 	"gorm.io/gorm"
@@ -42,7 +43,7 @@ func CreateOrderDiscounts(db *gorm.DB, orderDiscounts []*models.OrderDiscount, c
 	return nil
 }
 
-func GetOrders(db *gorm.DB, statuses []string, isCancell bool) ([]*custommodel.OrderReponse, error) {
+func GetOrders(db *gorm.DB, filter request.StatusOrderRequest) ([]*custommodel.OrderReponse, error) {
 	var orders []*custommodel.OrderReponse
 
 	tx := db.Table(models.TableNameOrder + " o").Select(
@@ -52,8 +53,12 @@ func GetOrders(db *gorm.DB, statuses []string, isCancell bool) ([]*custommodel.O
 	page.name_page AS page_name,
 	page.tel AS page_tel`)
 
-	if !isCancell {
-		tx = tx.Where("o.status IN ?", statuses)
+	if !filter.IsCancel {
+		tx = tx.Where("o.status IN ?", filter.Statuses)
+	}
+
+	if filter.Tel != "" {
+		tx = tx.Where("o.tel::text LIKE ?", "%"+filter.Tel+"%")
 	}
 
 	tx = tx.Joins("LEFT JOIN " + models.TableNameOrderDiscount + " rc ON rc.order_id = o.id")
@@ -62,7 +67,7 @@ func GetOrders(db *gorm.DB, statuses []string, isCancell bool) ([]*custommodel.O
 	tx = tx.Joins("LEFT JOIN " + models.TableNameCustomer + " c ON c.facebook_id = o.customer_id")
 	tx = tx.Joins("LEFT JOIN " + models.TableNamePage + " page ON page.page_id = c.page_id")
 
-	tx = tx.Where("o.is_cancel = ?", isCancell)
+	tx = tx.Where("o.is_cancel = ?", filter.IsCancel)
 
 	tx = tx.Preload("OrderDetails").Preload("OrderDetails.ProductDetail").Preload("OrderDetails.ProductDetail.Product").
 		Preload("OrderDetails.Size").Preload("Shipping")

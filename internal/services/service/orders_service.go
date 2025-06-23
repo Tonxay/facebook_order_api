@@ -33,7 +33,7 @@ func GetOrder(c *fiber.Ctx) error {
 
 	db := gormpkg.GetDB()
 
-	data, err = dbservice.GetOrders(db, req.Statuses, req.IsCancell)
+	data, err = dbservice.GetOrders(db, req)
 
 	if err != nil {
 		return fiber.NewError(http.StatusInternalServerError, err.Error())
