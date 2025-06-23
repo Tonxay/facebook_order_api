@@ -468,7 +468,7 @@ func CancellOrder(c *fiber.Ctx) error {
 	db.Commit()
 	webhookURL := "https://discord.com/api/webhooks/1386634660968272027/2MAuHM-iN7ONKqEZ1RjUYQJvdSf51Ck30cb4ojSL5xKY2z7sNXlBLwUqEAqueCui_DTB"
 	message := fmt.Sprintf(`
-
+	
 ລູກຄ້າ: %s 
 ລະຫັດ: %s
 ເບີໂທ: %d
@@ -501,7 +501,7 @@ func GetSalesHandler(c *fiber.Ctx) error {
 	// if err != nil {
 	// 	return c.Status(400).JSON(fiber.Map{"error": "invalid end date"})
 	// }
-	result, err := dbservice.GetProductSalesByHour(gormpkg.GetDB(), endStr, startStr)
+	result, err := dbservice.GetProductSalesByHour(gormpkg.GetDB(), startStr, endStr)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": err.Error(),

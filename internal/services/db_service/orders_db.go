@@ -169,6 +169,7 @@ func UpdateIsCancelOrder(db *gorm.DB, orderId string) error {
 }
 
 func GetProductSalesByHour(db *gorm.DB, startDate string, endDate string) ([]custommodel.ProductSalesGrouped, error) {
+
 	var flatData []custommodel.FlatProductSales
 
 	tx := db.
