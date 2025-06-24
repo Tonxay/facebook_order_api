@@ -210,6 +210,8 @@ func CreateOrder(c *fiber.Ctx) error {
 
 	if req.FacebookID != "N/A" && req.PageID != "" {
 
+		println(1)
+
 		user, _ := dbservice.GetcustomersID(db, req.FacebookID)
 
 		// if err != nil {
@@ -217,6 +219,7 @@ func CreateOrder(c *fiber.Ctx) error {
 		// }
 
 		if user.FacebookID != "" {
+			println(2)
 			_, err = dbservice.UpdateColumnsCustomer(db, req.FacebookID, int32(req.Gender), req.Tel)
 			if err != nil {
 				return fiber.NewError(http.StatusInternalServerError, err.Error())
@@ -224,7 +227,7 @@ func CreateOrder(c *fiber.Ctx) error {
 		}
 
 		if user.FacebookID == "" {
-			newCustomer, err := dbservice.CreateCustomer(db, models.Customer{
+			err := dbservice.CreateCustomer(db, models.Customer{
 				FacebookID:  req.FacebookID,
 				FirstName:   req.FullName,
 				LastName:    "",
@@ -236,7 +239,8 @@ func CreateOrder(c *fiber.Ctx) error {
 			if err != nil {
 				return fiber.NewError(http.StatusInternalServerError, err.Error())
 			}
-			req.FacebookID = newCustomer.FacebookID
+			println(3)
+
 		}
 
 	}
@@ -256,7 +260,7 @@ func CreateOrder(c *fiber.Ctx) error {
 		}
 
 		customerId := middleware.GenerateFacebookID()
-		newCustomer, err := dbservice.CreateCustomer(db, models.Customer{
+		err1 := dbservice.CreateCustomer(db, models.Customer{
 			FacebookID:  customerId,
 			FirstName:   req.FullName,
 			LastName:    "",
@@ -265,11 +269,11 @@ func CreateOrder(c *fiber.Ctx) error {
 			Gender:      int32(req.Gender),
 			PageID:      req.PageID,
 		})
-		if err != nil {
-			return fiber.NewError(http.StatusInternalServerError, err.Error())
+		if err1 != nil {
+			return fiber.NewError(http.StatusInternalServerError, err1.Error())
 		}
 
-		req.FacebookID = newCustomer.FacebookID
+		req.FacebookID = customerId
 	}
 
 	number := middleware.GenerateOrderNumber()

@@ -60,10 +60,10 @@ func CreateColumnsCustomer(db *gorm.DB, fbID string, pageId string) (custommodel
 	return user, err
 }
 
-func CreateCustomer(db *gorm.DB, newCustomer models.Customer) (models.Customer, error) {
-	var user models.Customer
-	err := db.Table(models.TableNameCustomer).Create(&newCustomer).First(&user).Error
-	return user, err
+func CreateCustomer(db *gorm.DB, newCustomer models.Customer) error {
+
+	err := db.Table(models.TableNameCustomer).Create(&newCustomer).Error
+	return err
 }
 
 func GetUserInFaceBook(pageId, pageAccessToken string) (custommodel.FacebookConversationList, error) {
