@@ -183,6 +183,7 @@ func GetProductSalesByHour(db *gorm.DB, startDate string, endDate string) ([]cus
 		Joins("JOIN product_details pd ON pd.id = order_details.product_detail_id").
 		Joins("JOIN products p ON pd.product_id = p.id").
 		Joins("JOIN orders d ON order_details.order_id = d.id").
+		Joins("LEFT JOIN "+models.TableNameOrderDiscount+" dc ON dc.order_id = d.id").
 		Where("d.is_cancel = ?", false)
 
 	if startDate != "" && endDate != "" {

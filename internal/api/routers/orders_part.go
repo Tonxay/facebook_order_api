@@ -16,5 +16,6 @@ func SetupOrdersRoutesPart(route fiber.Router) {
 	route.Put("/cancel", service.CancellOrder)
 
 	route.Get("/sale", service.GetSalesHandler)
+	route.Post("/select/text", service.SelectTextImage)
 
 }

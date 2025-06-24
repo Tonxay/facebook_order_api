@@ -206,6 +206,7 @@ func CreateOrder(c *fiber.Ctx) error {
 			})
 		}
 	}
+	println(req.FacebookID)
 
 	if req.FacebookID != "N/A" && req.PageID != "" {
 
@@ -267,6 +268,7 @@ func CreateOrder(c *fiber.Ctx) error {
 		if err != nil {
 			return fiber.NewError(http.StatusInternalServerError, err.Error())
 		}
+
 		req.FacebookID = newCustomer.FacebookID
 	}
 
@@ -274,6 +276,11 @@ func CreateOrder(c *fiber.Ctx) error {
 
 	if err != nil {
 		return fiber.NewError(http.StatusInternalServerError, err.Error())
+	}
+
+	if req.FacebookID == "" {
+		return fiber.NewError(http.StatusInternalServerError, " ບໍ່ພົບ id ")
+
 	}
 
 	order := models.Order{
