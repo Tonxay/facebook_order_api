@@ -17,7 +17,7 @@ type OrderDiscount struct {
 	ProductID     string    `gorm:"column:product_id;not null" json:"product_id"`
 	TotalDiscount float64   `gorm:"column:total_discount;not null" json:"total_discount"`
 	DiscountID    string    `gorm:"column:discount_id;not null" json:"discount_id"`
-	UpdatedAt     time.Time `gorm:"column:updated_at;default:CURRENT_TIMESTAMP" json:"updated_at"`
+	UpdatedAt     time.Time `gorm:"column:updated_at;default:now()" json:"updated_at"`
 	CreatedAt     time.Time `gorm:"column:created_at;default:CURRENT_TIMESTAMP" json:"created_at"`
 }
 

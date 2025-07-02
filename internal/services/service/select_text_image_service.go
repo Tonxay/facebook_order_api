@@ -12,6 +12,7 @@ import (
 )
 
 func SelectTextImage(c *fiber.Ctx) error {
+	println("test")
 	// Parse multipart form with a file named "image"
 	fileHeader, err := c.FormFile("image")
 	if err != nil {

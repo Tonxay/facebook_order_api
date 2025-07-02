@@ -19,7 +19,7 @@ type ProductDetail struct {
 	Material  string    `gorm:"column:material" json:"material"`
 	Status    string    `gorm:"column:status;default:active" json:"status"`
 	CreatedAt time.Time `gorm:"column:created_at;default:CURRENT_TIMESTAMP" json:"created_at"`
-	UpdatedAt time.Time `gorm:"column:updated_at;default:CURRENT_TIMESTAMP" json:"updated_at"`
+	UpdatedAt time.Time `gorm:"column:updated_at;default:now()" json:"updated_at"`
 	ImageURL  string    `gorm:"column:image_url;default:N/A" json:"image_url"`
 	ColorName string    `gorm:"column:color_name" json:"color_name"`
 }

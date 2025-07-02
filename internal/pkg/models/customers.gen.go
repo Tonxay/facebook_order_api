@@ -18,7 +18,7 @@ type Customer struct {
 	PhoneNumber int64     `gorm:"column:phone_number" json:"phone_number"`
 	FirstName   string    `gorm:"column:first_name" json:"first_name"`
 	CreatedAt   time.Time `gorm:"column:created_at;not null;default:CURRENT_TIMESTAMP" json:"created_at"`
-	UpdatedAt   time.Time `gorm:"column:updated_at;not null;default:CURRENT_TIMESTAMP" json:"updated_at"`
+	UpdatedAt   time.Time `gorm:"column:updated_at;not null;default:now()" json:"updated_at"`
 	PageID      string    `gorm:"column:page_id;not null" json:"page_id"`
 	Gender      int32     `gorm:"column:gender;not null" json:"gender"`
 }

@@ -143,8 +143,8 @@ type ProductDetail struct {
 	// UpdatedAt time.Time `gorm:"column:updated_at;default:CURRENT_TIMESTAMP" json:"updated_at"`
 	ImageURL string `gorm:"column:image_url;default:N/A" json:"image_url"`
 	// Price     int32   `gorm:"column:price;not null" json:"price"`
-	ColorName string  `gorm:"column:color_name" json:"color_name"`
-	Product   Product `gorm:"foreignKey:ProductID;references:ID" json:"product"`
+	ColorName string `gorm:"column:color_name" json:"color_name"`
+	// Product   Product `gorm:"foreignKey:ProductID;references:ID" json:"product"`
 }
 
 // TableName ProductDetail's table name
@@ -179,4 +179,106 @@ type Product struct {
 // TableName Product's table name
 func (*Product) TableName() string {
 	return models.TableNameProduct
+}
+
+type OrderRequestNew struct {
+	CustomAddress string `json:"custom_address" validate:"required"`
+	FullName      string `json:"full_name" validate:"required"`
+	Tel           int64  `json:"tel" validate:"required,min=10000000"` // at least 8 digits
+	PlatForm      string `json:"plat_form" validate:"required,oneof=facebook tiktok"`
+	Gender        int    `json:"gender" validate:"required,oneof=0 1 2"` // 0=other, 1=male, 2=female
+	COD           bool   `json:"cod"`
+	FreeShipping  bool   `json:"free_shipping"`
+	ShippingID    string `json:"shipping_id" validate:"required,uuid"`
+	DistrictID    int32  `json:"district_id" validate:"required"`
+	TotalPrice    float64
+	TotalDiscount float64
+	PageID        string    `json:"page_id" validate:"required"`
+	FacebookID    string    `json:"facebook_id" validate:"required"`
+	Products      []ItemNew `json:"items" validate:"required,dive"`
+}
+
+type ItemNew struct {
+	ProductID        string  `json:"product_id" validate:"required,uuid"`
+	Discount         float64 `json:"discount" validate:"gte=0"`
+	TotalQuantities  int32
+	TotaProductPrice float64
+	Promotion        models.Promotion
+	ProductDetails   []ProductDetailNew `json:"product_details" validate:"required,dive"`
+}
+
+type ProductDetailNew struct {
+	ProductDetailID string `json:"product_detail_id" validate:"required,uuid"`
+
+	SizeID   string `json:"size_id" validate:"required,uuid"`
+	Quantity int32  `json:"quantity" validate:"required,gt=0"`
+}
+
+type OrderReponseNew struct {
+	ID                    string          `gorm:"column:id;primaryKey;default:gen_random_uuid()" json:"id"`
+	Status                string          `gorm:"column:status;default:pending" json:"status"`
+	CustomerID            string          `gorm:"column:customer_id" json:"customer_id"`
+	IsCancel              bool            `gorm:"column:is_cancel;not null" json:"is_cancel"`
+	PageName              string          `gorm:"column:page_name" json:"page_name"`
+	PageTel               int32           `gorm:"column:page_tel" json:"page_tel"`
+	Tel                   int64           `gorm:"column:tel" json:"tel"`
+	CustomAddress         string          `gorm:"column:custom_address" json:"custom_address"`
+	TotalProductsDiscount float64         `gorm:"column:total_prodouct_discount" json:"total_prodouct_discount"`
+	UserID                string          `gorm:"column:user_id" json:"user_id"`
+	District              string          `gorm:"column:dr_name" json:"dr_name"`
+	Province              string          `gorm:"column:pr_name" json:"pr_name"`
+	TotalPrice            float64         `gorm:"column:total_price" json:"total_price"`
+	DistrictID            int32           `gorm:"column:district_id" json:"district_id"`
+	OrderedAt             time.Time       `gorm:"column:ordered_at;default:now()" json:"ordered_at"`
+	UpdatedAt             time.Time       `gorm:"column:updated_at;default:CURRENT_TIMESTAMP" json:"updated_at"`
+	OrderNo               string          `gorm:"column:order_no;not null" json:"order_no"`
+	FreeShipping          bool            `gorm:"column:free_shipping;not null" json:"free_shipping"`
+	OrderName             string          `gorm:"column:order_name;not null" json:"order_name"`
+	ShippingID            string          `gorm:"column:shipping_id;not null" json:"shipping_id"`
+	CreatedAt             time.Time       `gorm:"column:created_at;default:CURRENT_TIMESTAMP" json:"created_at"`
+	Discount              float64         `gorm:"column:discount;not null" json:"discount"`
+	Platform              string          `gorm:"column:platform;default:facebook" json:"platform"`
+	Cod                   bool            `gorm:"column:cod;default:true" json:"cod"`
+	Shipping              models.Shipping `gorm:"foreignKey:ShippingID;references:ID" json:"shipping"`
+	OrderProducts         []OrderProduct  `gorm:"foreignKey:OrderID;references:ID" json:"products"`
+}
+
+// OrderProduct mapped from table <order_products>
+type OrderProduct struct {
+	ID                   string                        `gorm:"column:id;primaryKey;default:gen_random_uuid()" json:"id"`
+	OrderID              string                        `gorm:"column:order_id;not null" json:"order_id"`
+	Discount             float64                       `gorm:"column:discount;not null" json:"discount"`
+	ProductID            string                        `gorm:"column:product_id" json:"product_id"`
+	CreatedAt            time.Time                     `gorm:"column:created_at;not null;default:CURRENT_TIMESTAMP" json:"created_at"`
+	UpdatedAt            time.Time                     `gorm:"column:updated_at;not null;default:now()" json:"updated_at"`
+	TotalAmounts         int32                         `gorm:"column:total_amounts;not null" json:"total_amounts"`
+	TotalProductPrice    float64                       `gorm:"column:total_product_price;not null" json:"total_product_price"`
+	Product              Product                       `gorm:"foreignKey:ProductID;references:ID" json:"product"`
+	OrderProductsDetails []OrderProductsDetail         `gorm:"foreignKey:OrderProductID;references:ID" json:"product_details"`
+	OrderProductDiscount []models.OrderProductDiscount `gorm:"foreignKey:OrderProductID;references:ID" json:"product_discounts"`
+}
+
+// TableName OrderProduct's table name
+func (*OrderProduct) TableName() string {
+	return models.TableNameOrderProduct
+}
+
+// OrderProductsDetail mapped from table <order_products_details>
+type OrderProductsDetail struct {
+	ID              string        `gorm:"column:id;primaryKey;default:gen_random_uuid()" json:"id"`
+	CreatedAt       time.Time     `gorm:"column:created_at;not null;default:CURRENT_TIMESTAMP" json:"created_at"`
+	UpdatedAt       time.Time     `gorm:"column:updated_at;not null;default:now()" json:"updated_at"`
+	ProductDetailID string        `gorm:"column:product_detail_id;not null" json:"product_detail_id"`
+	UnitPrice       float64       `gorm:"column:unit_price;not null" json:"unit_price"`
+	TotalPrice      float64       `gorm:"column:total_price;not null" json:"total_price"`
+	Quantity        int32         `gorm:"column:quantity;not null" json:"quantity"`
+	SizeID          string        `gorm:"column:size_id;not null" json:"size_id"`
+	OrderProductID  string        `gorm:"column:order_product_id" json:"order_product_id"`
+	ProductDetail   ProductDetail `gorm:"foreignKey:ProductDetailID;references:ID" json:"product_detail"`
+	Size            SizeOrder     `gorm:"foreignKey:SizeID;references:ID" json:"size"`
+}
+
+// TableName OrderProductsDetail's table name
+func (*OrderProductsDetail) TableName() string {
+	return models.TableNameOrderProductsDetail
 }

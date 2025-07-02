@@ -19,7 +19,7 @@ type OrderDetail struct {
 	UnitPrice       float64   `gorm:"column:unit_price;not null" json:"unit_price"`
 	TotalPrice      float64   `gorm:"column:total_price;not null" json:"total_price"`
 	CreatedAt       time.Time `gorm:"column:created_at;default:CURRENT_TIMESTAMP" json:"created_at"`
-	UpdatedAt       time.Time `gorm:"column:updated_at;default:CURRENT_TIMESTAMP" json:"updated_at"`
+	UpdatedAt       time.Time `gorm:"column:updated_at;default:now()" json:"updated_at"`
 	SizeID          string    `gorm:"column:size_id;not null" json:"size_id"`
 }
 

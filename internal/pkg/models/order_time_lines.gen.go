@@ -15,7 +15,7 @@ type OrderTimeLine struct {
 	ID          string    `gorm:"column:id;primaryKey;default:gen_random_uuid()" json:"id"`
 	OrderStatus string    `gorm:"column:order_status;not null" json:"order_status"`
 	UserID      string    `gorm:"column:user_id;not null" json:"user_id"`
-	CreatedAt   time.Time `gorm:"column:created_at;not null;default:now()" json:"created_at"`
+	CreatedAt   time.Time `gorm:"column:created_at;not null;default:CURRENT_TIMESTAMP" json:"created_at"`
 	UpdatedAt   time.Time `gorm:"column:updated_at;default:now()" json:"updated_at"`
 	OrderID     string    `gorm:"column:order_id;not null" json:"order_id"`
 }

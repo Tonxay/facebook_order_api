@@ -60,7 +60,7 @@ func GetProducts(db *gorm.DB) ([]custommodel.Products, error) {
 	tx = tx.Joins("LEFT JOIN " + models.TableNameProductDetail + " pd ON pd.product_id = p.id").
 		Joins("LEFT JOIN " + models.TableNameStockProductDetail + " sd ON sd.product_detail_id = pd.id")
 
-	tx = tx.Where("sd.status  = ?", "active")
+	tx = tx.Where("p.status  = ?", "active")
 	tx = tx.Preload("Promotions", func(db *gorm.DB) *gorm.DB {
 		tx := db.Where("status = ?", "active")
 		return tx
@@ -84,7 +84,7 @@ func GetProducts(db *gorm.DB) ([]custommodel.Products, error) {
 
 			tx = tx.Joins("LEFT JOIN " + models.TableNameStockProductDetail + " s ON s.size_id = sizes.id")
 
-			tx.Where("s.remaining >= ? AND s.status = ? OR s.status = ?", 0, "active", "out_stock")
+			// tx.Where("s.remaining >= ? AND s.status = ? OR s.status = ?", 0, "active", "out_stock")
 
 			tx = tx.Group("sizes.id, sizes.size,sizes.product_detail_id")
 
@@ -109,7 +109,7 @@ func GetProductsForStock(db *gorm.DB) ([]custommodel.Products, error) {
 	tx = tx.Joins("LEFT JOIN " + models.TableNameProductDetail + " pd ON pd.product_id = p.id").
 		Joins("LEFT JOIN " + models.TableNameStockProductDetail + " sd ON sd.product_detail_id = pd.id")
 
-	tx = tx.Where("sd.status  = ?", "active")
+	// tx = tx.Where("sd.status  = ?", "active")
 
 	tx = tx.Preload("Promotions", func(db *gorm.DB) *gorm.DB {
 		tx := db.Where("status = ?", "active")

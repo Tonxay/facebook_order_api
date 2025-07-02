@@ -18,7 +18,7 @@ type Product struct {
 	CategoryID string    `gorm:"column:category_id;not null" json:"category_id"`
 	Status     string    `gorm:"column:status;default:active" json:"status"`
 	CreatedAt  time.Time `gorm:"column:created_at;default:CURRENT_TIMESTAMP" json:"created_at"`
-	UpdatedAt  time.Time `gorm:"column:updated_at;default:CURRENT_TIMESTAMP" json:"updated_at"`
+	UpdatedAt  time.Time `gorm:"column:updated_at;default:now()" json:"updated_at"`
 }
 
 // TableName Product's table name
