@@ -16,3 +16,14 @@ type StockProductDetail struct {
 func (*StockProductDetail) TableName() string {
 	return models.TableNameStockProductDetail
 }
+
+type StockIncreaseRequest struct {
+	StockIncrease []StockIncrease `json:"items" validate:"required,dive"`
+}
+
+type StockIncrease struct {
+	ProductDetailID string `json:"product_detail_id"`
+	SizeID          string `json:"size_id"`
+	Quantity        int32  `json:"quantity"`
+	Remaining       int32  `json:"remaining"`
+}

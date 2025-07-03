@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"go-api/internal/config/middleware"
 	"go-api/internal/config/presenters"
 	gormpkg "go-api/internal/pkg"
@@ -147,34 +148,44 @@ func CreateProductDetail(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusCreated).JSON(presenters.ResponseSuccess(requestData))
 }
 func CreateStockProductDetail(c *fiber.Ctx) error {
+	fmt.Println("Raw body:", string(c.Body()))
+
 	id, _ := middleware.GetUserID(c)
-	var requestData request.StockProductDetail
+	var requestData request.StockIncreaseRequest
+	var newData []*models.StockProductDetail
 
 	// Parse JSON request body
 	if err := c.BodyParser(&requestData); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "invalid request payload",
-		})
+		fmt.Println("Error parsing payload:", err)
+		fmt.Println("Raw body:", string(c.Body()))
+		return fiber.NewError(400, err.Error())
 	}
 
-	data := models.StockProductDetail{
-		UserID:          id,
-		ProductDetailID: requestData.ProductDetailID,
-		Quantity:        requestData.Quantity,
-		SizeID:          requestData.SizeID,
-		Remaining:       requestData.Quantity,
+	if len(requestData.StockIncrease) == 0 {
+		return fiber.NewError(400, "no items provided")
 	}
+	for _, data := range requestData.StockIncrease {
+		newData = append(newData,
+			&models.StockProductDetail{
+				UserID:          id,
+				ProductDetailID: data.ProductDetailID,
+				Quantity:        data.Quantity,
+				SizeID:          data.SizeID,
+				Remaining:       data.Quantity,
+			})
+
+	}
+
 	db := gormpkg.GetDB()
 
-	err := dbservice.CreateStockProductDetail(db, &data, c.Context())
+	err := dbservice.CreateStockProductDetail(db, newData, c.Context())
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "failed to create stock",
 		})
 	}
-	// Return the created category
 
-	return c.Status(fiber.StatusCreated).JSON(presenters.ResponseSuccess(data))
+	return c.Status(fiber.StatusCreated).JSON(presenters.ResponseSuccess(newData))
 }
 
 func GetStockProductDetailForID(c *fiber.Ctx) error {

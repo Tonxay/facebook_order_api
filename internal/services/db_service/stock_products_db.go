@@ -8,10 +8,10 @@ import (
 	"gorm.io/gorm"
 )
 
-func CreateStockProductDetail(db *gorm.DB, stockProductDetail *models.StockProductDetail, ctx context.Context) error {
+func CreateStockProductDetail(db *gorm.DB, stockProductDetail []*models.StockProductDetail, ctx context.Context) error {
 	query.SetDefault(db)
 	daq := query.Q.StockProductDetail
-	err := daq.WithContext(ctx).Create(stockProductDetail)
+	err := daq.WithContext(ctx).CreateInBatches(stockProductDetail, 100)
 	return err
 }
 
