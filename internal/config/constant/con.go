@@ -43,3 +43,11 @@ var OrderStatusTransitions = map[string]string{
 	"return_to_sender":       "customer_notified",
 	"order_cancelled":        "order_cancelled",
 }
+
+var CondetionStatuse = []string{
+	"packed",            // 2: ແພັກເຄື່ອງແລ້ວ (Packed)
+	"shipped",           // 3: ສົ່ງແລ້ວ (Shipped)
+	"payment_completed", // 6: ສຳລະເງິນແລ້ວ (Payment completed)
+	"order_cancelled",   // 7: ຍົກເລີກອໍເດີ (Order cancelled)
+	"return_to_sender",  // 8: ພັດສະດຸຕີກັບ (Returned to sender)
+}

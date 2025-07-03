@@ -31,6 +31,7 @@ type Order struct {
 	Platform      string    `gorm:"column:platform;default:facebook" json:"platform"`
 	Cod           bool      `gorm:"column:cod;not null" json:"cod"`
 	IsCancel      bool      `gorm:"column:is_cancel;not null" json:"is_cancel"`
+	UserUpdated   string    `gorm:"column:user_updated;not null" json:"user_updated"`
 }
 
 // TableName Order's table name

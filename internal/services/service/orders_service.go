@@ -390,17 +390,18 @@ func UpdateStatusOrder(c *fiber.Ctx) error {
 		db.Rollback()
 	}()
 
-	order, err := dbservice.UpdateStatusOrder(db, orderId, status, oldStatus, orderNo)
+	order, err := dbservice.UpdateStatusOrder(db, orderId, status, oldStatus, orderNo, userID)
 
 	if err != nil {
 		return fiber.NewError(500, err.Error())
 	}
-
-	err = dbservice.CreateOrderTimeLine(db, &models.OrderTimeLine{
-		UserID:      userID,
-		OrderStatus: status,
-		OrderID:     order.ID,
-	})
+	if middleware.Contains(cons.CondetionStatuse, status) {
+		err = dbservice.CreateOrderTimeLine(db, &models.OrderTimeLine{
+			UserID:      userID,
+			OrderStatus: status,
+			OrderID:     order.ID,
+		})
+	}
 
 	if err != nil {
 		return fiber.NewError(500, err.Error())
@@ -438,7 +439,7 @@ func CancellOrder(c *fiber.Ctx) error {
 	if err1 != nil {
 		return fiber.NewError(500, err1.Error())
 	}
-	err = dbservice.UpdateIsCancelOrder(db, orderId)
+	err = dbservice.UpdateIsCancelOrder(db, orderId, userID)
 	if err != nil {
 		return fiber.NewError(500, err.Error())
 	}
@@ -752,6 +753,7 @@ func CreateOrder(c *fiber.Ctx) error {
 		UserID:        userID,
 		DistrictID:    req.DistrictID,
 		TotalPrice:    req.TotalPrice,
+		UserUpdated:   userID,
 		FreeShipping:  req.FreeShipping,
 		Cod:           req.COD,
 		Discount:      req.TotalDiscount,
