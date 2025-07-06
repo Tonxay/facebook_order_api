@@ -222,7 +222,7 @@ func GetProductSalesByHour(db *gorm.DB, startDate string, endDate string) ([]cus
 			p.name AS product_name,
 		    to_char(ord.created_at, 'HH24') AS hour,
 			SUM(orpd.quantity) AS total_quantity,
-			SUM(orp.total_product_price) AS total_price
+			orp.total_product_price AS total_price
 		`).
 		// Select("orpd.*"). // ✅ Select fields matching the destination struct
 		Joins("LEFT JOIN "+models.TableNameOrderProduct+" AS orp ON orp.id = orpd.order_product_id").
