@@ -12,6 +12,9 @@ func CheckPageId(sendId string, recipientID string) (string, string) {
 	pageNanaShopId := os.Getenv("PAGE_NANA_SHOP_ID")
 	pageNanaShopToken := os.Getenv("PAGE_ACCESS_TOKEN_NANA_SHOP")
 
+	pageNanaChinaId := os.Getenv("PAGE_NANA_CHINA_ID")
+	pageNanaChinaToken := os.Getenv("PAGE_ACCESS_TOKEN_CHINA_ZOME")
+
 	// dd
 	if sendId == pageId || recipientID == pageId {
 		return pageId, pageToken
@@ -19,9 +22,12 @@ func CheckPageId(sendId string, recipientID string) (string, string) {
 	} else if sendId == pageNanaId || recipientID == pageNanaId {
 		return pageNanaId, pageNanaToken
 		// na shop
-	} else if sendId == pageNanaShopId || recipientID == pageNanaShopToken {
+	} else if sendId == pageNanaShopId || recipientID == pageNanaShopId {
 		return pageNanaShopId, pageNanaShopToken
+
 		// dd
+	} else if sendId == pageNanaChinaId || recipientID == pageNanaChinaId {
+		return pageNanaChinaId, pageNanaChinaToken
 	} else {
 		return "", ""
 	}

@@ -214,18 +214,17 @@ func UpdateIsCancelOrder(db *gorm.DB, orderId string, userID string) error {
 func GetProductSalesByHour(db *gorm.DB, startDate string, endDate string) ([]custommodel.ProductSalesGrouped, error) {
 
 	var flatData []custommodel.FlatProductSales
-	// to_char(d.created_at, 'HH24') AS hour,
-	// SUM(order_details.quantity) AS total_quantity,
-	// SUM(order_details.total_price) AS total_price
+
 	tx := db.Table(models.TableNameOrderProductsDetail+" AS orpd").
 		Select(`
 			p.name AS product_name,
 		    to_char(ord.created_at, 'HH24') AS hour,
 			SUM(orpd.quantity) AS total_quantity,
-			SUM(orpd.total_price) AS total_price
+			SUM(orpd.total_price) - SUM(orp.discount) AS total_price
 		`).
 		// Select("orpd.*"). // ✅ Select fields matching the destination struct
 		Joins("LEFT JOIN "+models.TableNameOrderProduct+" AS orp ON orp.id = orpd.order_product_id").
+		Joins("LEFT JOIN "+models.TableNameOrderProductDiscount+" AS pdis ON pdis.order_product_id = orp.id").
 		Joins("LEFT JOIN "+models.TableNameProduct+" AS p ON p.id = orp.product_id").
 		Joins("LEFT JOIN "+models.TableNameOrder+" AS ord ON ord.id = orp.order_id").
 
