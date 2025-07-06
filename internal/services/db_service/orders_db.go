@@ -236,7 +236,7 @@ func GetProductSalesByHour(db *gorm.DB, startDate string, endDate string) ([]cus
 		tx = tx.Where("ord.ordered_at BETWEEN ? AND ?", startDate, endDate)
 	}
 
-	tx = tx.Group("p.name, to_char(ord.created_at, 'HH24')")
+	tx = tx.Group("p.name, to_char(ord.created_at, 'HH24'),orp.total_product_price")
 	tx = tx.Order("p.name, hour")
 
 	err := tx.Scan(&flatData).Error
