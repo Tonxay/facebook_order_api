@@ -214,26 +214,29 @@ func UpdateIsCancelOrder(db *gorm.DB, orderId string, userID string) error {
 func GetProductSalesByHour(db *gorm.DB, startDate string, endDate string) ([]custommodel.ProductSalesGrouped, error) {
 
 	var flatData []custommodel.FlatProductSales
-
-	tx := db.
-		Model(&custommodel.OrderDetail{}).
+	// to_char(d.created_at, 'HH24') AS hour,
+	// SUM(order_details.quantity) AS total_quantity,
+	// SUM(order_details.total_price) AS total_price
+	tx := db.Table(models.TableNameOrderProductsDetail+" AS orpd").
 		Select(`
 			p.name AS product_name,
-			to_char(d.created_at, 'HH24') AS hour,
-			SUM(order_details.quantity) AS total_quantity,
-			SUM(order_details.total_price) AS total_price
+		    to_char(ord.created_at, 'HH24') AS hour,
+			SUM(orpd.quantity) AS total_quantity,
+			SUM(orp.total_product_price) AS total_price
 		`).
-		Joins("JOIN product_details pd ON pd.id = order_details.product_detail_id").
-		Joins("JOIN products p ON pd.product_id = p.id").
-		Joins("JOIN orders d ON order_details.order_id = d.id").
-		Joins("LEFT JOIN "+models.TableNameOrderDiscount+" dc ON dc.order_id = d.id").
-		Where("d.is_cancel = ?", false)
+		// Select("orpd.*"). // ✅ Select fields matching the destination struct
+		Joins("LEFT JOIN "+models.TableNameOrderProduct+" AS orp ON orp.id = orpd.order_product_id").
+		Joins("LEFT JOIN "+models.TableNameProduct+" AS p ON p.id = orp.product_id").
+		Joins("LEFT JOIN "+models.TableNameOrder+" AS ord ON ord.id = orp.order_id").
+
+		// Where("ord.id = ?", orderID).
+		Where("ord.is_cancel = ?", false)
 
 	if startDate != "" && endDate != "" {
-		tx = tx.Where("d.ordered_at BETWEEN ? AND ?", startDate, endDate)
+		tx = tx.Where("ord.ordered_at BETWEEN ? AND ?", startDate, endDate)
 	}
 
-	tx = tx.Group("p.name, to_char(d.created_at, 'HH24')")
+	tx = tx.Group("p.name, to_char(ord.created_at, 'HH24')")
 	tx = tx.Order("p.name, hour")
 
 	err := tx.Scan(&flatData).Error

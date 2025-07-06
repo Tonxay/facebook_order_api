@@ -443,6 +443,7 @@ func CancellOrder(c *fiber.Ctx) error {
 	if err != nil {
 		return fiber.NewError(500, err.Error())
 	}
+	println(orderDetail)
 
 	if len(orderDetail) <= 0 {
 		return fiber.NewError(400, "status is not change")
@@ -462,6 +463,8 @@ func CancellOrder(c *fiber.Ctx) error {
 
 	}
 
+	println(stockProductDetail)
+
 	err2 := dbservice.CreateStockProductDetailForOrder(db, stockProductDetail, c.Context())
 	if err2 != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
@@ -480,13 +483,13 @@ func CancellOrder(c *fiber.Ctx) error {
 	db.Commit()
 	webhookURL := "https://discord.com/api/webhooks/1386634660968272027/2MAuHM-iN7ONKqEZ1RjUYQJvdSf51Ck30cb4ojSL5xKY2z7sNXlBLwUqEAqueCui_DTB"
 	message := fmt.Sprintf(`
-	
-ລູກຄ້າ: %s 
-ລະຫັດ: %s
-ເບີໂທ: %d
-ທີ່ຢູ່: ເເຂວງ %s ເມືອງ %s ສາຂາ %s
-ຈາກ: %s
-`,
+
+	ລູກຄ້າ: %s
+	ລະຫັດ: %s
+	ເບີໂທ: %d
+	ທີ່ຢູ່: ເເຂວງ %s ເມືອງ %s ສາຂາ %s
+	ຈາກ: %s
+	`,
 		order.OrderName,
 		order.OrderNo,
 		order.Tel,
@@ -498,7 +501,7 @@ func CancellOrder(c *fiber.Ctx) error {
 
 	SendDiscordWebhook(webhookURL, message)
 
-	return c.Status(200).JSON(presenters.ResponseSuccess("update status success"))
+	return c.Status(200).JSON(presenters.ResponseSuccess(orderDetail))
 }
 
 func GetSalesHandler(c *fiber.Ctx) error {
