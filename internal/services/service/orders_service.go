@@ -964,7 +964,12 @@ func GenerateOrderPDF(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
+	// encoded := base64.StdEncoding.EncodeToString(buf.Bytes())
+
+	// return c.JSON(presenters.ResponseSuccess(encoded))
+	// return c.Send(buf.Bytes())
 	c.Set("Content-Type", "application/pdf")
+
 	return c.Send(buf.Bytes())
 }
 
