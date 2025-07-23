@@ -1,7 +1,11 @@
 package service
 
 import (
+	"bytes"
 	"fmt"
+	"strconv"
+	"strings"
+	"time"
 
 	cons "go-api/internal/config/constant"
 	"go-api/internal/config/middleware"
@@ -16,6 +20,9 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
+	"github.com/phpdave11/gofpdf"
+	"golang.org/x/text/language"
+	"golang.org/x/text/message"
 )
 
 func GetOrder(c *fiber.Ctx) error {
@@ -828,4 +835,145 @@ func CreateOrder(c *fiber.Ctx) error {
 	// 	SendDiscordWebhook(webhookURL, message)
 
 	return c.Status(200).JSON(presenters.ResponseSuccess(orderReponse))
+}
+func GenerateOrderPDF(c *fiber.Ctx) error {
+	var req request.StatusOrderRequest
+
+	if err := middleware.ParseAndValidateBody(c, &req); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+	// req.Statuses = []string{
+	// 	"ordered",
+	// }
+	// req.IsCancel = false
+
+	db := gormpkg.GetDB()
+	orders, err := dbservice.GetOrders(db, req)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+
+	pdf := gofpdf.NewCustom(&gofpdf.InitType{
+		// OrientationStr: "P",
+		UnitStr: "mm",
+		Size: gofpdf.SizeType{
+			Wd: 90, // 80mm width
+			Ht: 75, // 200mm height (adjust if needed)
+		},
+	})
+
+	pdf.AddUTF8Font("Phetsarath", "", "./Phetsarath_OT.ttf")
+
+	for _, order := range orders {
+		// var line string
+		// if order.Cod {
+
+		// }
+		pdf.AddPage()
+		pdf.SetFont("Phetsarath", "", 9)
+		// ---------- First Page: Full Info ----------
+
+		pdf.CellFormat(0, 6, strings.ToUpper(order.PageName), "", 1, "C", false, 0, "")
+		pdf.Cell(0, 6, "ຜູ້ຝາກ: "+order.PageName+" / "+strconv.Itoa(int(order.PageTel)))
+		pdf.Ln(5)
+		pdf.Cell(0, 6, "ຜູ້ຮັບ: "+order.OrderName+" / "+strconv.FormatInt(order.Tel, 10))
+		pdf.Ln(5)
+		pdf.SetFont("Phetsarath", "", 9)
+		pdf.MultiCell(0, 5, fmt.Sprintf("ທີ່ຢູ່: ແຂວງ%s,ເມືອງ%s", strings.TrimSpace(order.Province), strings.TrimSpace(order.District)), "", "", false)
+		pdf.Cell(0, 4, "ຂົນສົ່ງ: "+order.Shipping.Name+" ສາຂາ "+order.CustomAddress)
+		pdf.Ln(5)
+		if order.Cod {
+			var freeShipping string
+			if order.FreeShipping {
+				freeShipping = " ຄ່າສົ່ງ: ( ຫັກໃນ COD )"
+			} else {
+				freeShipping = " ຄ່າສົ່ງ: ( ປາຍທາງ )"
+			}
+
+			pdf.Cell(0, 3, "COD : "+FormatLaoKipfloat((order.TotalPrice-order.Discount)-order.TotalProductsDiscount)+freeShipping)
+		} else {
+			var freeShipping string
+			if order.FreeShipping {
+				freeShipping = "ຕົ້ນທາງ"
+			} else {
+				freeShipping = "ປາຍທາງ"
+			}
+			pdf.Cell(0, 3, "ຄ່າສົ່ງ: ("+freeShipping+" )")
+		}
+		pdf.Ln(3)
+
+		// 🔳 Barcode
+		// if order.OrderNo != "" {
+		// 	if barcodeImg, err := code128.Encode(order.OrderNo); err == nil {
+		// 		if scaled, err := barcode.Scale(barcodeImg, 100, 10); err == nil {
+		// 			rgba := image.NewNRGBA(scaled.Bounds())
+		// 			draw.Draw(rgba, rgba.Bounds(), scaled, image.Point{}, draw.Src)
+
+		// 			var imgBuf bytes.Buffer
+		// 			if err := png.Encode(&imgBuf, rgba); err == nil {
+		// 				imgReader := bytes.NewReader(imgBuf.Bytes())
+		// 				imgName := "barcode-" + order.OrderNo
+
+		// 				pdf.RegisterImageOptionsReader(imgName, gofpdf.ImageOptions{
+		// 					ImageType: "png",
+		// 				}, imgReader)
+
+		// 				pdf.ImageOptions(imgName, 10, pdf.GetY(), 40, 20, false, gofpdf.ImageOptions{
+		// 					ImageType: "png",
+		// 				}, 0, "")
+		// 				// pdf.Ln(14)
+		// 			}
+		// 		}
+		// 	}
+		// }
+		// pdf.Ln(2)
+		// 🧾 Product Summary
+		for index, op := range order.OrderProducts {
+			pdf.SetFont("Phetsarath", "", 8)
+			pdf.CellFormat(40, 6, strconv.Itoa((index+1))+". "+op.Product.Name, "", 0, "", false, 0, "")
+			pdf.CellFormat(20, 6, fmt.Sprintf("%d", op.TotalAmounts), "", 0, "", false, 0, "")
+			pdf.CellFormat(20, 6, FormatLaoKipfloat(op.TotalProductPrice), "", 1, "", false, 0, "")
+			var line string
+			for _, detail := range op.OrderProductsDetails {
+				pdf.SetFont("Phetsarath", "", 6)
+				line = fmt.Sprintf("- %s(%s) x%d ,", detail.Size.Size, detail.ProductDetail.ColorName, detail.Quantity) + line
+			}
+			pdf.MultiCell(0, 3.1, line, "", "", false)
+		}
+
+		// 💵 Summary
+		// pdf.Ln(2)
+		// pdf.CellFormat(0, 6, "ລວມສິນຄ້າ:", "", 0, "R", false, 0, "")
+		// pdf.CellFormat(10, 6, fmt.Sprintf("%.0f", order.TotalPrice), "", 1, "R", false, 0, "")
+
+		// pdf.CellFormat(60, 6, "ສ່ວນຫຼຸດ:", "", 0, "R", false, 0, "")
+		// pdf.CellFormat(20, 6, fmt.Sprintf("-%.0f", order.Discount+order.TotalProductsDiscount), "", 1, "R", false, 0, "")
+		// grandTotal := order.TotalPrice - order.Discount - order.TotalProductsDiscount
+		// pdf.SetFont("Phetsarath", "", 12)
+		// pdf.CellFormat(60, 7, "ລວມທັງໝົດ:", "", 0, "R", false, 0, "")
+		// pdf.CellFormat(20, 7, fmt.Sprintf("%.0f ກີບ", grandTotal), "", 1, "R", false, 0, "")
+		pdf.SetFont("Phetsarath", "", 6)
+		pdf.Cell(0, 6, "ວັນທີ່: "+time.Now().Format("02/01/2006"))
+		pdf.SetFont("Phetsarath", "", 11)
+
+	}
+
+	// Output
+	var buf bytes.Buffer
+	if err := pdf.Output(&buf); err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+
+	c.Set("Content-Type", "application/pdf")
+	return c.Send(buf.Bytes())
+}
+
+func FormatLaoKip(amount int32) string {
+	p := message.NewPrinter(language.Lao)
+	return fmt.Sprintf("%s ກິບ", p.Sprintf("%d", amount))
+}
+
+func FormatLaoKipfloat(amount float64) string {
+	p := message.NewPrinter(language.Lao)
+	return fmt.Sprintf("%s ກິບ", p.Sprintf("%.0f", amount))
 }

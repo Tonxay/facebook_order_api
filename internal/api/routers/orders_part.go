@@ -17,5 +17,6 @@ func SetupOrdersRoutesPart(route fiber.Router) {
 
 	route.Get("/sale", service.GetSalesHandler)
 	route.Post("/select/text", service.SelectTextImage)
+	route.Post("/pdf", service.GenerateOrderPDF)
 
 }
