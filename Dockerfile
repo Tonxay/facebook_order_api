@@ -18,14 +18,17 @@ RUN go build -ldflags="-s -w -extldflags '-static'" -installsuffix cgo -o /bin/a
 # Use alpine image as runtime
 FROM alpine:3.16 AS release
 
-# Assuming your font is in the project root or some folder
-COPY Phetsarath_OT.ttf /app/Phetsarath_OT.ttf
+
 COPY --from=builder /usr/share/zoneinfo /usr/share/zoneinfo
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=builder /bin/api-app /bin/api-app
 
+# Copy font file (adjust path as needed)
+COPY Phetsarath_OT.ttf /app/Phetsarath_OT.ttf
+
 # Runtime environment variables (can be overwritten when running `docker run`)
 
+WORKDIR /app
 ARG API_VERSION
 ARG BUILD_DATE
 ENV API_VERSION ${API_VERSION}
