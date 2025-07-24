@@ -943,7 +943,7 @@ func GenerateOrderPDF(c *fiber.Ctx) error {
 				pdf.SetFont("Phetsarath", "", 8)
 				line = fmt.Sprintf("- %s(%s) x%d ,", detail.Size.Size, detail.ProductDetail.ColorName, detail.Quantity) + line
 			}
-			pdf.MultiCell(6, 3, strconv.Itoa((index+1))+". "+op.Product.Name+" "+fmt.Sprintf("%d", op.TotalAmounts)+" ໂຕ : "+line, "", "", false)
+			pdf.MultiCell(0, 3, strconv.Itoa((index+1))+". "+op.Product.Name+" "+fmt.Sprintf("%d", op.TotalAmounts)+" ໂຕ : "+line, "", "", false)
 		}
 
 		if order.OrderNo != "" {
