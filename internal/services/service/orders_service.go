@@ -891,20 +891,20 @@ func GenerateOrderPDF(c *fiber.Ctx) error {
 		// OrientationStr: "P",
 		UnitStr: "mm",
 		Size: gofpdf.SizeType{
-			Wd: 90, // 80mm width
-			Ht: 80, // 200mm height (adjust if needed)
+			Wd: 100, // 80mm width
+			Ht: 90,  // 200mm height (adjust if needed)
 		},
 	})
 
 	var ln1 float64 = 4.5
 
 	pdf.AddUTF8Font("Phetsarath", "", "./Phetsarath_OT.ttf")
-	pdf.SetMargins(2, 5, 2) // Set small margins (left, top, right)
+	pdf.SetMargins(1, 5, 1) // Set small margins (left, top, right)
 
 	for _, order := range orders {
 
 		pdf.AddPage()
-		pdf.SetFont("Phetsarath", "", 8)
+		pdf.SetFont("Phetsarath", "", 11)
 		// ---------- First Page: Full Info ----------
 
 		pdf.CellFormat(0, 0, strings.ToUpper(order.PageName), "", 1, "C", false, 0, "")
@@ -977,9 +977,9 @@ func GenerateOrderPDF(c *fiber.Ctx) error {
 			}
 		}
 		pdf.Ln(2)
-		pdf.SetFont("Phetsarath", "", 4)
+		pdf.SetFont("Phetsarath", "", 6)
 		pdf.CellFormat(0, 0, "ລະຫັດໃບສັ່ງ: "+order.OrderNo, "", 1, "R", false, 0, "")
-		pdf.CellFormat(0, 3, "ວັນທີ່ພີມ: "+time.Now().Format("02/01/2006")+", ວັນທີ່ສັ່ງ: "+order.CreatedAt.Format("02/01/2006"), "", 1, "R", false, 0, "")
+		pdf.CellFormat(0, 5, "ວັນທີ່ພີມ: "+time.Now().Format("02/01/2006")+", ວັນທີ່ສັ່ງ: "+order.CreatedAt.Format("02/01/2006"), "", 1, "R", false, 0, "")
 
 	}
 
