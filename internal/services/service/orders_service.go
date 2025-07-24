@@ -615,6 +615,7 @@ func CreateOrder(c *fiber.Ctx) error {
 								Discount:         float64(discount_only_product),
 							})
 						}
+						break
 					}
 					if productTotalQuantity > promtion.Quentity {
 						pot := promotions[len(promotions)-1]
@@ -627,6 +628,7 @@ func CreateOrder(c *fiber.Ctx) error {
 								Discount:         float64(discount_only_product),
 							})
 						}
+						break
 					}
 
 				}
