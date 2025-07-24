@@ -896,7 +896,7 @@ func GenerateOrderPDF(c *fiber.Ctx) error {
 		},
 	})
 
-	var ln1 = 3.8
+	var ln1 float64 = 5.5
 
 	pdf.AddUTF8Font("Phetsarath", "", "./Phetsarath_OT.ttf")
 	pdf.SetMargins(2, 5, 2) // Set small margins (left, top, right)
@@ -904,7 +904,7 @@ func GenerateOrderPDF(c *fiber.Ctx) error {
 	for _, order := range orders {
 
 		pdf.AddPage()
-		pdf.SetFont("Phetsarath", "", 8)
+		pdf.SetFont("Phetsarath", "", 11)
 		// ---------- First Page: Full Info ----------
 
 		pdf.CellFormat(0, 0, strings.ToUpper(order.PageName), "", 1, "C", false, 0, "")
@@ -935,8 +935,7 @@ func GenerateOrderPDF(c *fiber.Ctx) error {
 			}
 			pdf.Cell(0, 0, "ຄ່າສົ່ງ: ("+freeShipping+" )")
 		}
-		pdf.Ln(2)
-
+		pdf.Ln(3)
 		for index, op := range order.OrderProducts {
 
 			var line string
