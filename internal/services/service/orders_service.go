@@ -941,7 +941,7 @@ func GenerateOrderPDF(c *fiber.Ctx) error {
 			var line string
 			for _, detail := range op.OrderProductsDetails {
 				pdf.SetFont("Phetsarath", "", 8)
-				line = fmt.Sprintf("- %s(%s) x%d ,", detail.Size.Size, detail.ProductDetail.ColorName, detail.Quantity) + line
+				line = fmt.Sprintf(" %s(%s) x%d ,", detail.Size.Size, detail.ProductDetail.ColorName, detail.Quantity) + line
 			}
 			pdf.MultiCell(0, 3, strconv.Itoa((index+1))+". "+op.Product.Name+" "+fmt.Sprintf("%d", op.TotalAmounts)+" ໂຕ : "+line, "", "", false)
 		}
