@@ -62,7 +62,7 @@ func GetProducts(db *gorm.DB) ([]custommodel.Products, error) {
 
 	tx = tx.Where("p.status  = ?", "active")
 	tx = tx.Preload("Promotions", func(db *gorm.DB) *gorm.DB {
-		tx := db.Where("status = ?", "active")
+		tx := db.Where("status = ?", "active").Order("quentity ASC")
 		return tx
 	})
 

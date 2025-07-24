@@ -602,12 +602,12 @@ func CreateOrder(c *fiber.Ctx) error {
 				productTotalQuantity := req.Products[index].TotalQuantities
 				promotions, _ := dbservice.GetPromotion(db, productDetail.ProductID)
 				var discount_only_product float32
-
+				println(productTotalQuantity)
 				for _, promtion := range promotions {
 
 					if productTotalQuantity == promtion.Quentity {
 						req.Products[index].Promotion = promtion
-						discount_only_product = float32(req.Products[index].TotalQuantities/promtion.Quentity) * promtion.Discount
+						discount_only_product = float32(productTotalQuantity/promtion.Quentity) * promtion.Discount
 						if req.Products[index].Promotion.ID != "" {
 							ordProductDiscount = append(ordProductDiscount, &models.OrderProductDiscount{
 								OrderProductID:   orderProductID,
@@ -616,19 +616,20 @@ func CreateOrder(c *fiber.Ctx) error {
 							})
 						}
 						break
-					}
-					if productTotalQuantity > promtion.Quentity {
-						pot := promotions[len(promotions)-1]
-						req.Products[index].Promotion = pot
-						discount_only_product = float32(req.Products[index].TotalQuantities/pot.Quentity) * pot.Discount
-						if req.Products[index].Promotion.ID != "" {
-							ordProductDiscount = append(ordProductDiscount, &models.OrderProductDiscount{
-								OrderProductID:   orderProductID,
-								PromotionPriceID: req.Products[index].Promotion.ID,
-								Discount:         float64(discount_only_product),
-							})
+					} else {
+						if productTotalQuantity > promtion.Quentity {
+							pot := promotions[len(promotions)-1]
+							req.Products[index].Promotion = pot
+							discount_only_product = float32(productTotalQuantity/pot.Quentity) * pot.Discount
+							if req.Products[index].Promotion.ID != "" {
+								ordProductDiscount = append(ordProductDiscount, &models.OrderProductDiscount{
+									OrderProductID:   orderProductID,
+									PromotionPriceID: req.Products[index].Promotion.ID,
+									Discount:         float64(discount_only_product),
+								})
+							}
+							break
 						}
-						break
 					}
 
 				}
