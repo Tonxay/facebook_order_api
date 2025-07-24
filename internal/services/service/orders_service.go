@@ -929,20 +929,17 @@ func GenerateOrderPDF(c *fiber.Ctx) error {
 		pdf.Ln(3)
 
 		for index, op := range order.OrderProducts {
-			// pdf.SetFont("Phetsarath", "", 8)
-			// pdf.CellFormat(40, 6, strconv.Itoa((index+1))+". "+op.Product.Name, "", 0, "", false, 0, "")
-			// pdf.CellFormat(20, 6, fmt.Sprintf("%d", op.TotalAmounts), "", 0, "", false, 0, "")
-			// pdf.CellFormat(20, 6, FormatLaoKipfloat(op.TotalProductPrice), "", 1, "", false, 0, "")
+
 			var line string
 			for _, detail := range op.OrderProductsDetails {
 				pdf.SetFont("Phetsarath", "", 8)
 				line = fmt.Sprintf("- %s(%s) x%d ,", detail.Size.Size, detail.ProductDetail.ColorName, detail.Quantity) + line
 			}
-			pdf.MultiCell(0, 6, strconv.Itoa((index+1))+". "+op.Product.Name+"ຈຳນວນ"+fmt.Sprintf("%d", op.TotalAmounts)+"ລາຍການ: "+line, "", "", false)
+			pdf.MultiCell(0, 0, strconv.Itoa((index+1))+". "+op.Product.Name+"ຈຳນວນ"+fmt.Sprintf("%d", op.TotalAmounts)+"ລາຍການ: "+line, "", "", false)
 		}
 
 		pdf.SetFont("Phetsarath", "", 4)
-		pdf.Cell(0, 0, "ວັນທີ່ພີມ: "+time.Now().Format("02/01/2006")+", ວັນທີ່ສັ່ງ: "+order.CreatedAt.Format("02/01/2006"))
+		pdf.Cell(0, 3, "ວັນທີ່ພີມ: "+time.Now().Format("02/01/2006")+", ວັນທີ່ສັ່ງ: "+order.CreatedAt.Format("02/01/2006"))
 
 	}
 
