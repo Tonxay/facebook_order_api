@@ -620,7 +620,7 @@ func CreateOrder(c *fiber.Ctx) error {
 					if productTotalQuantity > promtion.Quentity {
 						pot := promotions[len(promotions)-1]
 						req.Products[index].Promotion = pot
-						discount_only_product = float32(req.Products[index].TotalQuantities/promtion.Quentity) * promtion.Discount
+						discount_only_product = float32(req.Products[index].TotalQuantities/pot.Quentity) * pot.Discount
 						if req.Products[index].Promotion.ID != "" {
 							ordProductDiscount = append(ordProductDiscount, &models.OrderProductDiscount{
 								OrderProductID:   orderProductID,
