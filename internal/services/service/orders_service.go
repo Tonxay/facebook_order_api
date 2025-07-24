@@ -3,6 +3,9 @@ package service
 import (
 	"bytes"
 	"fmt"
+	"image"
+	"image/draw"
+	"image/png"
 	"strconv"
 	"strings"
 	"time"
@@ -18,6 +21,8 @@ import (
 
 	"net/http"
 
+	"github.com/boombuler/barcode"
+	"github.com/boombuler/barcode/code128"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"github.com/phpdave11/gofpdf"
@@ -887,27 +892,31 @@ func GenerateOrderPDF(c *fiber.Ctx) error {
 		UnitStr: "mm",
 		Size: gofpdf.SizeType{
 			Wd: 90, // 80mm width
-			Ht: 75, // 200mm height (adjust if needed)
+			Ht: 80, // 200mm height (adjust if needed)
 		},
 	})
 
+	var ln1 = 3.8
+
 	pdf.AddUTF8Font("Phetsarath", "", "./Phetsarath_OT.ttf")
-	pdf.SetMargins(5, 5, 5) // Set small margins (left, top, right)
+	pdf.SetMargins(2, 5, 2) // Set small margins (left, top, right)
 
 	for _, order := range orders {
 
 		pdf.AddPage()
-		pdf.SetFont("Phetsarath", "", 11)
+		pdf.SetFont("Phetsarath", "", 8)
 		// ---------- First Page: Full Info ----------
 
-		pdf.CellFormat(0, 6, strings.ToUpper(order.PageName), "", 1, "C", false, 0, "")
-		pdf.Cell(0, 6, "ຜູ້ຝາກ: "+order.PageName+" / "+strconv.Itoa(int(order.PageTel)))
-		pdf.Ln(5)
-		pdf.Cell(0, 6, "ຜູ້ຮັບ: "+order.OrderName+" / "+strconv.FormatInt(order.Tel, 10))
-		pdf.Ln(6)
-		pdf.MultiCell(0, 5, fmt.Sprintf("ທີ່ຢູ່: ແຂວງ%s,ເມືອງ%s", strings.TrimSpace(order.Province), strings.TrimSpace(order.District)), "", "", false)
-		pdf.Cell(0, 4, "ຂົນສົ່ງ: "+order.Shipping.Name+" ສາຂາ "+order.CustomAddress)
-		pdf.Ln(6)
+		pdf.CellFormat(0, 0, strings.ToUpper(order.PageName), "", 1, "C", false, 0, "")
+		pdf.Ln(ln1)
+		pdf.Cell(0, 0, "ຜູ້ຝາກ: "+order.PageName+" / "+strconv.Itoa(int(order.PageTel)))
+		pdf.Ln(ln1)
+		pdf.Cell(0, 0, "ຜູ້ຮັບ: "+order.OrderName+" / "+strconv.FormatInt(order.Tel, 10))
+		pdf.Ln(ln1)
+		pdf.MultiCell(0, 0, fmt.Sprintf("ທີ່ຢູ່: ແຂວງ%s,ເມືອງ%s", strings.TrimSpace(order.Province), strings.TrimSpace(order.District)), "", "", false)
+		pdf.Ln(ln1)
+		pdf.Cell(0, 0, "ຂົນສົ່ງ: "+order.Shipping.Name+" ສາຂາ "+order.CustomAddress)
+		pdf.Ln(ln1)
 		if order.Cod {
 			var freeShipping string
 			if order.FreeShipping {
@@ -916,7 +925,7 @@ func GenerateOrderPDF(c *fiber.Ctx) error {
 				freeShipping = " ຄ່າສົ່ງ: ( ປາຍທາງ )"
 			}
 
-			pdf.Cell(0, 3, "COD : "+FormatLaoKipfloat((order.TotalPrice-order.Discount)-order.TotalProductsDiscount)+freeShipping)
+			pdf.Cell(0, 0, "COD : "+FormatLaoKipfloat((order.TotalPrice-order.Discount)-order.TotalProductsDiscount)+freeShipping)
 		} else {
 			var freeShipping string
 			if order.FreeShipping {
@@ -924,9 +933,9 @@ func GenerateOrderPDF(c *fiber.Ctx) error {
 			} else {
 				freeShipping = "ປາຍທາງ"
 			}
-			pdf.Cell(0, 3, "ຄ່າສົ່ງ: ("+freeShipping+" )")
+			pdf.Cell(0, 0, "ຄ່າສົ່ງ: ("+freeShipping+" )")
 		}
-		pdf.Ln(3)
+		pdf.Ln(2)
 
 		for index, op := range order.OrderProducts {
 
@@ -938,8 +947,40 @@ func GenerateOrderPDF(c *fiber.Ctx) error {
 			pdf.MultiCell(0, 3, strconv.Itoa((index+1))+". "+op.Product.Name+" "+fmt.Sprintf("%d", op.TotalAmounts)+" ລາຍການ: "+line, "", "", false)
 		}
 
+		if order.OrderNo != "" {
+			if barcodeImg, err := code128.Encode(order.OrderNo); err == nil {
+				if scaled, err := barcode.Scale(barcodeImg, 945, 142); err == nil { // scale to 80mm wide
+					rgba := image.NewNRGBA(scaled.Bounds())
+					draw.Draw(rgba, rgba.Bounds(), scaled, image.Point{}, draw.Src)
+
+					var imgBuf bytes.Buffer
+					if err := png.Encode(&imgBuf, rgba); err == nil {
+						imgReader := bytes.NewReader(imgBuf.Bytes())
+						imgName := "barcode-" + order.OrderNo
+
+						pdf.RegisterImageOptionsReader(imgName, gofpdf.ImageOptions{
+							ImageType: "png",
+						}, imgReader)
+
+						// Add spacing before barcode
+						pdf.Ln(2)
+
+						// Center horizontally
+						xPos := (90.0 - 80.0) / 2 // 90mm page width, 80mm barcode width
+
+						// Add image
+						pdf.ImageOptions(imgName, xPos, pdf.GetY(), 80, 12, true, gofpdf.ImageOptions{
+							ImageType: "png",
+						}, 0, "")
+
+					}
+				}
+			}
+		}
+		pdf.Ln(2)
 		pdf.SetFont("Phetsarath", "", 4)
-		pdf.Cell(0, 3, "ວັນທີ່ພີມ: "+time.Now().Format("02/01/2006")+", ວັນທີ່ສັ່ງ: "+order.CreatedAt.Format("02/01/2006"))
+		pdf.CellFormat(0, 0, "ລະຫັດໃບສັ່ງ: "+order.OrderNo, "", 1, "R", false, 0, "")
+		pdf.CellFormat(0, 3, "ວັນທີ່ພີມ: "+time.Now().Format("02/01/2006")+", ວັນທີ່ສັ່ງ: "+order.CreatedAt.Format("02/01/2006"), "", 1, "R", false, 0, "")
 
 	}
 
