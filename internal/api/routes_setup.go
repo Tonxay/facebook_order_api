@@ -36,6 +36,9 @@ func SetupRoutes(app *fiber.App) {
 	category := app.Group("/category")
 	routers_part.SetupCatagorysRoutesPart(category)
 
+	dash := app.Group("/dashboard")
+	routers_part.SetupDashboardRoutesPart(dash)
+
 }
 
 func SetupWebsocketRoutes(app *fiber.App) {

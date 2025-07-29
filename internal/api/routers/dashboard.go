@@ -1,0 +1,14 @@
+package routers_part
+
+import (
+	"go-api/internal/config/middleware"
+	"go-api/internal/services/service"
+
+	"github.com/gofiber/fiber/v2"
+)
+
+func SetupDashboardRoutesPart(route fiber.Router) {
+	route.Use(middleware.JWTProtected)
+	route.Get("/products-province", service.GetProductforProvinceSevice)
+
+}
