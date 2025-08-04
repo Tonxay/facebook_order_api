@@ -31,7 +31,7 @@ func GetUserInFaceBookJson(c *fiber.Ctx) error {
 	user, err := dbservice.GetUserInFaceBook(pageId, token)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "create messeng",
+			"error": err.Error(),
 		})
 	}
 

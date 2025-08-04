@@ -6,6 +6,7 @@ import (
 	"log"
 	"regexp"
 	"strconv"
+	"time"
 
 	"github.com/go-playground/validator"
 	"github.com/gofiber/fiber/v2"
@@ -97,4 +98,22 @@ func ValidatePhone(value int64) bool {
 	prefix := str[:2] // Get first two digits
 
 	return prefix == "20" || prefix == "30"
+}
+
+func SetDefaultDateRangeIfEmpty(startDate, endDate string) (string, string) {
+	now := time.Now()
+	loc := now.Location()
+
+	if startDate == "" {
+		start := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, loc)
+		startDate = start.Format("2006-01-02")
+	}
+
+	if endDate == "" {
+		// last day of current month
+		end := time.Date(now.Year(), now.Month()+1, 0, 23, 59, 59, 0, loc)
+		endDate = end.Format("2006-01-02")
+	}
+
+	return startDate, endDate
 }

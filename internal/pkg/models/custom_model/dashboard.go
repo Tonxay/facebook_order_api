@@ -10,3 +10,16 @@ type ProductForProvincesReport struct {
 	ProductDiscount   float64 `json:"product_discount"`
 	TotalProductPrice float64 `json:"total_product_price"`
 }
+
+type OrderSummary struct {
+	TotalOrders        int     `json:"total_orders"`
+	UniqueCustomers    int     `json:"unique_customers"`
+	SalesRepsInvolved  int     `json:"sales_reps_involved"`
+	TotalUnitsSold     float64 `json:"total_units_sold"`
+	GrossRevenue       float64 `json:"gross_revenue"`
+	TotalDiscounts     float64 `json:"total_discounts"`
+	NetRevenue         float64 `json:"net_revenue"`
+	AvgOrderValue      float64 `json:"avg_order_value"`
+	FreeShippingOrders int     `json:"free_shipping_orders"`
+	CodOrders          int     `json:"cod_orders"`
+}
