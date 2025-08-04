@@ -22,4 +22,5 @@ type OrderSummary struct {
 	AvgOrderValue      float64 `json:"avg_order_value"`
 	FreeShippingOrders int     `json:"free_shipping_orders"`
 	CodOrders          int     `json:"cod_orders"`
+	Paymented          int     `json:"paymented"`
 }

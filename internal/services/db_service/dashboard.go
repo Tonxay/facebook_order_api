@@ -47,16 +47,17 @@ func GetOrderSummary(db *gorm.DB, filter custommodel.FilterDasboard) (custommode
 	tx := db.
 		Table("orders AS o").
 		Select(`
-			COUNT(DISTINCT o.id) AS total_orders,
-			COUNT(DISTINCT o.customer_id) AS unique_customers,
-			COUNT(DISTINCT o.user_id) AS sales_reps_involved,
+			COUNT(o.id) AS total_orders,
+			COUNT(o.customer_id) AS unique_customers,
+			COUNT(o.user_id) AS sales_reps_involved,
 			SUM(op.total_amounts) AS total_units_sold,
 			SUM(op.total_product_price) AS gross_revenue,
 			SUM(opd.discount + op.discount) AS total_discounts,
 			(SUM(op.total_product_price) - SUM(opd.discount + op.discount)) AS net_revenue,
 			CAST(AVG(op.total_product_price) AS DECIMAL(10,2)) AS avg_order_value,
 			COUNT(CASE WHEN o.free_shipping THEN 1 END) AS free_shipping_orders,
-			COUNT(CASE WHEN o.cod THEN 1 END) AS cod_orders
+			COUNT(CASE WHEN o.cod THEN 1 END) AS cod_orders,
+			COUNT(CASE WHEN o.cod = false THEN 1 END) as paymented
 		`).
 		Joins("LEFT JOIN order_products op ON o.id = op.order_id").
 		Joins("LEFT JOIN order_product_discounts opd ON op.id = opd.order_product_id").
