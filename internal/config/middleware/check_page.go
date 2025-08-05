@@ -1,8 +1,11 @@
 package middleware
 
-import "os"
+import (
+	"os"
+)
 
 func CheckPageId(sendId string, recipientID string) (string, string) {
+
 	pageId := os.Getenv("PAGE_ID")
 	pageToken := os.Getenv("PAGE_ACCESS_TOKEN")
 
@@ -27,6 +30,7 @@ func CheckPageId(sendId string, recipientID string) (string, string) {
 
 		// dd
 	} else if sendId == pageNanaChinaId || recipientID == pageNanaChinaId {
+
 		return pageNanaChinaId, pageNanaChinaToken
 	} else {
 		return "", ""
