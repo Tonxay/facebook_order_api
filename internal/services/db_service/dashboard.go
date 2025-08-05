@@ -48,8 +48,8 @@ func GetOrderSummary(db *gorm.DB, filter custommodel.FilterDasboard) (custommode
 		Table("orders AS o").
 		Select(`
 			COUNT(o.id) AS total_orders,
-			COUNT(o.customer_id) AS unique_customers,
-			COUNT(o.user_id) AS sales_reps_involved,
+			COUNT(CASE WHEN c.gender = 2 THEN  1 END ) as female,
+            COUNT(CASE WHEN c.gender = 1 THEN  1 END ) as male,
 			SUM(op.total_amounts) AS total_units_sold,
 			SUM(op.total_product_price) AS gross_revenue,
 			SUM(opd.discount + op.discount) AS total_discounts,
@@ -60,6 +60,7 @@ func GetOrderSummary(db *gorm.DB, filter custommodel.FilterDasboard) (custommode
 			COUNT(CASE WHEN o.cod = false THEN 1 END) as paymented
 		`).
 		Joins("LEFT JOIN order_products op ON o.id = op.order_id").
+		Joins("LEFT JOIN customers c ON c.facebook_id = o.customer_id").
 		Joins("LEFT JOIN order_product_discounts opd ON op.id = opd.order_product_id").
 		Where("o.is_cancel = ?", false)
 

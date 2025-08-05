@@ -13,7 +13,8 @@ type ProductForProvincesReport struct {
 
 type OrderSummary struct {
 	TotalOrders        int     `json:"total_orders"`
-	UniqueCustomers    int     `json:"unique_customers"`
+	Female             int     `json:"female"`
+	Male               int     `json:"male"`
 	SalesRepsInvolved  int     `json:"sales_reps_involved"`
 	TotalUnitsSold     float64 `json:"total_units_sold"`
 	GrossRevenue       float64 `json:"gross_revenue"`
