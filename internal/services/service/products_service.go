@@ -132,7 +132,7 @@ func CreateProductDetail(c *fiber.Ctx) error {
 	// Parse JSON request body
 	if err := c.BodyParser(&requestData); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "invalid request payload",
+			"error": err.Error(),
 		})
 	}
 

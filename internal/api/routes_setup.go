@@ -38,6 +38,8 @@ func SetupRoutes(app *fiber.App) {
 
 	dash := app.Group("/dashboard")
 	routers_part.SetupDashboardRoutesPart(dash)
+	size := app.Group("/size")
+	routers_part.SetupSizeRoutesPart(size)
 
 }
 
