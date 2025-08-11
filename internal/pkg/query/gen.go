@@ -16,28 +16,32 @@ import (
 )
 
 var (
-	Q                    = new(Query)
-	Category             *category
-	Chat                 *chat
-	Customer             *customer
-	District             *district
-	Order                *order
-	OrderDiscount        *orderDiscount
-	OrderProduct         *orderProduct
-	OrderProductDiscount *orderProductDiscount
-	OrderProductsDetail  *orderProductsDetail
-	OrderStockDetail     *orderStockDetail
-	OrderTimeLine        *orderTimeLine
-	Page                 *page
-	Product              *product
-	ProductDetail        *productDetail
-	Promotion            *promotion
-	Province             *province
-	Shipping             *shipping
-	Size                 *size
-	StockProductDetail   *stockProductDetail
-	User                 *user
-	Village              *village
+	Q                        = new(Query)
+	Category                 *category
+	Chat                     *chat
+	Customer                 *customer
+	District                 *district
+	ImportProduct            *importProduct
+	ImportProductsDatail     *importProductsDatail
+	ImportProductsDatailItem *importProductsDatailItem
+	Order                    *order
+	OrderDiscount            *orderDiscount
+	OrderProduct             *orderProduct
+	OrderProductDiscount     *orderProductDiscount
+	OrderProductsDetail      *orderProductsDetail
+	OrderStockDetail         *orderStockDetail
+	OrderTimeLine            *orderTimeLine
+	Page                     *page
+	Product                  *product
+	ProductDetail            *productDetail
+	Promotion                *promotion
+	Province                 *province
+	Shipping                 *shipping
+	Size                     *size
+	StockProductDetail       *stockProductDetail
+	Unit                     *unit
+	User                     *user
+	Village                  *village
 )
 
 func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
@@ -46,6 +50,9 @@ func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
 	Chat = &Q.Chat
 	Customer = &Q.Customer
 	District = &Q.District
+	ImportProduct = &Q.ImportProduct
+	ImportProductsDatail = &Q.ImportProductsDatail
+	ImportProductsDatailItem = &Q.ImportProductsDatailItem
 	Order = &Q.Order
 	OrderDiscount = &Q.OrderDiscount
 	OrderProduct = &Q.OrderProduct
@@ -61,89 +68,102 @@ func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
 	Shipping = &Q.Shipping
 	Size = &Q.Size
 	StockProductDetail = &Q.StockProductDetail
+	Unit = &Q.Unit
 	User = &Q.User
 	Village = &Q.Village
 }
 
 func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 	return &Query{
-		db:                   db,
-		Category:             newCategory(db, opts...),
-		Chat:                 newChat(db, opts...),
-		Customer:             newCustomer(db, opts...),
-		District:             newDistrict(db, opts...),
-		Order:                newOrder(db, opts...),
-		OrderDiscount:        newOrderDiscount(db, opts...),
-		OrderProduct:         newOrderProduct(db, opts...),
-		OrderProductDiscount: newOrderProductDiscount(db, opts...),
-		OrderProductsDetail:  newOrderProductsDetail(db, opts...),
-		OrderStockDetail:     newOrderStockDetail(db, opts...),
-		OrderTimeLine:        newOrderTimeLine(db, opts...),
-		Page:                 newPage(db, opts...),
-		Product:              newProduct(db, opts...),
-		ProductDetail:        newProductDetail(db, opts...),
-		Promotion:            newPromotion(db, opts...),
-		Province:             newProvince(db, opts...),
-		Shipping:             newShipping(db, opts...),
-		Size:                 newSize(db, opts...),
-		StockProductDetail:   newStockProductDetail(db, opts...),
-		User:                 newUser(db, opts...),
-		Village:              newVillage(db, opts...),
+		db:                       db,
+		Category:                 newCategory(db, opts...),
+		Chat:                     newChat(db, opts...),
+		Customer:                 newCustomer(db, opts...),
+		District:                 newDistrict(db, opts...),
+		ImportProduct:            newImportProduct(db, opts...),
+		ImportProductsDatail:     newImportProductsDatail(db, opts...),
+		ImportProductsDatailItem: newImportProductsDatailItem(db, opts...),
+		Order:                    newOrder(db, opts...),
+		OrderDiscount:            newOrderDiscount(db, opts...),
+		OrderProduct:             newOrderProduct(db, opts...),
+		OrderProductDiscount:     newOrderProductDiscount(db, opts...),
+		OrderProductsDetail:      newOrderProductsDetail(db, opts...),
+		OrderStockDetail:         newOrderStockDetail(db, opts...),
+		OrderTimeLine:            newOrderTimeLine(db, opts...),
+		Page:                     newPage(db, opts...),
+		Product:                  newProduct(db, opts...),
+		ProductDetail:            newProductDetail(db, opts...),
+		Promotion:                newPromotion(db, opts...),
+		Province:                 newProvince(db, opts...),
+		Shipping:                 newShipping(db, opts...),
+		Size:                     newSize(db, opts...),
+		StockProductDetail:       newStockProductDetail(db, opts...),
+		Unit:                     newUnit(db, opts...),
+		User:                     newUser(db, opts...),
+		Village:                  newVillage(db, opts...),
 	}
 }
 
 type Query struct {
 	db *gorm.DB
 
-	Category             category
-	Chat                 chat
-	Customer             customer
-	District             district
-	Order                order
-	OrderDiscount        orderDiscount
-	OrderProduct         orderProduct
-	OrderProductDiscount orderProductDiscount
-	OrderProductsDetail  orderProductsDetail
-	OrderStockDetail     orderStockDetail
-	OrderTimeLine        orderTimeLine
-	Page                 page
-	Product              product
-	ProductDetail        productDetail
-	Promotion            promotion
-	Province             province
-	Shipping             shipping
-	Size                 size
-	StockProductDetail   stockProductDetail
-	User                 user
-	Village              village
+	Category                 category
+	Chat                     chat
+	Customer                 customer
+	District                 district
+	ImportProduct            importProduct
+	ImportProductsDatail     importProductsDatail
+	ImportProductsDatailItem importProductsDatailItem
+	Order                    order
+	OrderDiscount            orderDiscount
+	OrderProduct             orderProduct
+	OrderProductDiscount     orderProductDiscount
+	OrderProductsDetail      orderProductsDetail
+	OrderStockDetail         orderStockDetail
+	OrderTimeLine            orderTimeLine
+	Page                     page
+	Product                  product
+	ProductDetail            productDetail
+	Promotion                promotion
+	Province                 province
+	Shipping                 shipping
+	Size                     size
+	StockProductDetail       stockProductDetail
+	Unit                     unit
+	User                     user
+	Village                  village
 }
 
 func (q *Query) Available() bool { return q.db != nil }
 
 func (q *Query) clone(db *gorm.DB) *Query {
 	return &Query{
-		db:                   db,
-		Category:             q.Category.clone(db),
-		Chat:                 q.Chat.clone(db),
-		Customer:             q.Customer.clone(db),
-		District:             q.District.clone(db),
-		Order:                q.Order.clone(db),
-		OrderDiscount:        q.OrderDiscount.clone(db),
-		OrderProduct:         q.OrderProduct.clone(db),
-		OrderProductDiscount: q.OrderProductDiscount.clone(db),
-		OrderProductsDetail:  q.OrderProductsDetail.clone(db),
-		OrderStockDetail:     q.OrderStockDetail.clone(db),
-		OrderTimeLine:        q.OrderTimeLine.clone(db),
-		Page:                 q.Page.clone(db),
-		Product:              q.Product.clone(db),
-		ProductDetail:        q.ProductDetail.clone(db),
-		Promotion:            q.Promotion.clone(db),
-		Province:             q.Province.clone(db),
-		Shipping:             q.Shipping.clone(db),
-		Size:                 q.Size.clone(db),
-		StockProductDetail:   q.StockProductDetail.clone(db),
-		User:                 q.User.clone(db),
-		Village:              q.Village.clone(db),
+		db:                       db,
+		Category:                 q.Category.clone(db),
+		Chat:                     q.Chat.clone(db),
+		Customer:                 q.Customer.clone(db),
+		District:                 q.District.clone(db),
+		ImportProduct:            q.ImportProduct.clone(db),
+		ImportProductsDatail:     q.ImportProductsDatail.clone(db),
+		ImportProductsDatailItem: q.ImportProductsDatailItem.clone(db),
+		Order:                    q.Order.clone(db),
+		OrderDiscount:            q.OrderDiscount.clone(db),
+		OrderProduct:             q.OrderProduct.clone(db),
+		OrderProductDiscount:     q.OrderProductDiscount.clone(db),
+		OrderProductsDetail:      q.OrderProductsDetail.clone(db),
+		OrderStockDetail:         q.OrderStockDetail.clone(db),
+		OrderTimeLine:            q.OrderTimeLine.clone(db),
+		Page:                     q.Page.clone(db),
+		Product:                  q.Product.clone(db),
+		ProductDetail:            q.ProductDetail.clone(db),
+		Promotion:                q.Promotion.clone(db),
+		Province:                 q.Province.clone(db),
+		Shipping:                 q.Shipping.clone(db),
+		Size:                     q.Size.clone(db),
+		StockProductDetail:       q.StockProductDetail.clone(db),
+		Unit:                     q.Unit.clone(db),
+		User:                     q.User.clone(db),
+		Village:                  q.Village.clone(db),
 	}
 }
 
@@ -157,78 +177,90 @@ func (q *Query) WriteDB() *Query {
 
 func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 	return &Query{
-		db:                   db,
-		Category:             q.Category.replaceDB(db),
-		Chat:                 q.Chat.replaceDB(db),
-		Customer:             q.Customer.replaceDB(db),
-		District:             q.District.replaceDB(db),
-		Order:                q.Order.replaceDB(db),
-		OrderDiscount:        q.OrderDiscount.replaceDB(db),
-		OrderProduct:         q.OrderProduct.replaceDB(db),
-		OrderProductDiscount: q.OrderProductDiscount.replaceDB(db),
-		OrderProductsDetail:  q.OrderProductsDetail.replaceDB(db),
-		OrderStockDetail:     q.OrderStockDetail.replaceDB(db),
-		OrderTimeLine:        q.OrderTimeLine.replaceDB(db),
-		Page:                 q.Page.replaceDB(db),
-		Product:              q.Product.replaceDB(db),
-		ProductDetail:        q.ProductDetail.replaceDB(db),
-		Promotion:            q.Promotion.replaceDB(db),
-		Province:             q.Province.replaceDB(db),
-		Shipping:             q.Shipping.replaceDB(db),
-		Size:                 q.Size.replaceDB(db),
-		StockProductDetail:   q.StockProductDetail.replaceDB(db),
-		User:                 q.User.replaceDB(db),
-		Village:              q.Village.replaceDB(db),
+		db:                       db,
+		Category:                 q.Category.replaceDB(db),
+		Chat:                     q.Chat.replaceDB(db),
+		Customer:                 q.Customer.replaceDB(db),
+		District:                 q.District.replaceDB(db),
+		ImportProduct:            q.ImportProduct.replaceDB(db),
+		ImportProductsDatail:     q.ImportProductsDatail.replaceDB(db),
+		ImportProductsDatailItem: q.ImportProductsDatailItem.replaceDB(db),
+		Order:                    q.Order.replaceDB(db),
+		OrderDiscount:            q.OrderDiscount.replaceDB(db),
+		OrderProduct:             q.OrderProduct.replaceDB(db),
+		OrderProductDiscount:     q.OrderProductDiscount.replaceDB(db),
+		OrderProductsDetail:      q.OrderProductsDetail.replaceDB(db),
+		OrderStockDetail:         q.OrderStockDetail.replaceDB(db),
+		OrderTimeLine:            q.OrderTimeLine.replaceDB(db),
+		Page:                     q.Page.replaceDB(db),
+		Product:                  q.Product.replaceDB(db),
+		ProductDetail:            q.ProductDetail.replaceDB(db),
+		Promotion:                q.Promotion.replaceDB(db),
+		Province:                 q.Province.replaceDB(db),
+		Shipping:                 q.Shipping.replaceDB(db),
+		Size:                     q.Size.replaceDB(db),
+		StockProductDetail:       q.StockProductDetail.replaceDB(db),
+		Unit:                     q.Unit.replaceDB(db),
+		User:                     q.User.replaceDB(db),
+		Village:                  q.Village.replaceDB(db),
 	}
 }
 
 type queryCtx struct {
-	Category             ICategoryDo
-	Chat                 IChatDo
-	Customer             ICustomerDo
-	District             IDistrictDo
-	Order                IOrderDo
-	OrderDiscount        IOrderDiscountDo
-	OrderProduct         IOrderProductDo
-	OrderProductDiscount IOrderProductDiscountDo
-	OrderProductsDetail  IOrderProductsDetailDo
-	OrderStockDetail     IOrderStockDetailDo
-	OrderTimeLine        IOrderTimeLineDo
-	Page                 IPageDo
-	Product              IProductDo
-	ProductDetail        IProductDetailDo
-	Promotion            IPromotionDo
-	Province             IProvinceDo
-	Shipping             IShippingDo
-	Size                 ISizeDo
-	StockProductDetail   IStockProductDetailDo
-	User                 IUserDo
-	Village              IVillageDo
+	Category                 ICategoryDo
+	Chat                     IChatDo
+	Customer                 ICustomerDo
+	District                 IDistrictDo
+	ImportProduct            IImportProductDo
+	ImportProductsDatail     IImportProductsDatailDo
+	ImportProductsDatailItem IImportProductsDatailItemDo
+	Order                    IOrderDo
+	OrderDiscount            IOrderDiscountDo
+	OrderProduct             IOrderProductDo
+	OrderProductDiscount     IOrderProductDiscountDo
+	OrderProductsDetail      IOrderProductsDetailDo
+	OrderStockDetail         IOrderStockDetailDo
+	OrderTimeLine            IOrderTimeLineDo
+	Page                     IPageDo
+	Product                  IProductDo
+	ProductDetail            IProductDetailDo
+	Promotion                IPromotionDo
+	Province                 IProvinceDo
+	Shipping                 IShippingDo
+	Size                     ISizeDo
+	StockProductDetail       IStockProductDetailDo
+	Unit                     IUnitDo
+	User                     IUserDo
+	Village                  IVillageDo
 }
 
 func (q *Query) WithContext(ctx context.Context) *queryCtx {
 	return &queryCtx{
-		Category:             q.Category.WithContext(ctx),
-		Chat:                 q.Chat.WithContext(ctx),
-		Customer:             q.Customer.WithContext(ctx),
-		District:             q.District.WithContext(ctx),
-		Order:                q.Order.WithContext(ctx),
-		OrderDiscount:        q.OrderDiscount.WithContext(ctx),
-		OrderProduct:         q.OrderProduct.WithContext(ctx),
-		OrderProductDiscount: q.OrderProductDiscount.WithContext(ctx),
-		OrderProductsDetail:  q.OrderProductsDetail.WithContext(ctx),
-		OrderStockDetail:     q.OrderStockDetail.WithContext(ctx),
-		OrderTimeLine:        q.OrderTimeLine.WithContext(ctx),
-		Page:                 q.Page.WithContext(ctx),
-		Product:              q.Product.WithContext(ctx),
-		ProductDetail:        q.ProductDetail.WithContext(ctx),
-		Promotion:            q.Promotion.WithContext(ctx),
-		Province:             q.Province.WithContext(ctx),
-		Shipping:             q.Shipping.WithContext(ctx),
-		Size:                 q.Size.WithContext(ctx),
-		StockProductDetail:   q.StockProductDetail.WithContext(ctx),
-		User:                 q.User.WithContext(ctx),
-		Village:              q.Village.WithContext(ctx),
+		Category:                 q.Category.WithContext(ctx),
+		Chat:                     q.Chat.WithContext(ctx),
+		Customer:                 q.Customer.WithContext(ctx),
+		District:                 q.District.WithContext(ctx),
+		ImportProduct:            q.ImportProduct.WithContext(ctx),
+		ImportProductsDatail:     q.ImportProductsDatail.WithContext(ctx),
+		ImportProductsDatailItem: q.ImportProductsDatailItem.WithContext(ctx),
+		Order:                    q.Order.WithContext(ctx),
+		OrderDiscount:            q.OrderDiscount.WithContext(ctx),
+		OrderProduct:             q.OrderProduct.WithContext(ctx),
+		OrderProductDiscount:     q.OrderProductDiscount.WithContext(ctx),
+		OrderProductsDetail:      q.OrderProductsDetail.WithContext(ctx),
+		OrderStockDetail:         q.OrderStockDetail.WithContext(ctx),
+		OrderTimeLine:            q.OrderTimeLine.WithContext(ctx),
+		Page:                     q.Page.WithContext(ctx),
+		Product:                  q.Product.WithContext(ctx),
+		ProductDetail:            q.ProductDetail.WithContext(ctx),
+		Promotion:                q.Promotion.WithContext(ctx),
+		Province:                 q.Province.WithContext(ctx),
+		Shipping:                 q.Shipping.WithContext(ctx),
+		Size:                     q.Size.WithContext(ctx),
+		StockProductDetail:       q.StockProductDetail.WithContext(ctx),
+		Unit:                     q.Unit.WithContext(ctx),
+		User:                     q.User.WithContext(ctx),
+		Village:                  q.Village.WithContext(ctx),
 	}
 }
 

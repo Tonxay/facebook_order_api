@@ -55,7 +55,7 @@ type customer struct {
 	CreatedAt   field.Time
 	UpdatedAt   field.Time
 	PageID      field.String
-	Gender      field.Int32
+	Gender      field.Int32 // 1 man
 
 	fieldMap map[string]field.Expr
 }

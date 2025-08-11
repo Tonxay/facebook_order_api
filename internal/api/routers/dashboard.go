@@ -11,5 +11,6 @@ func SetupDashboardRoutesPart(route fiber.Router) {
 	route.Use(middleware.JWTProtected)
 	route.Get("/products-province", service.GetProductforProvinceSevice)
 	route.Get("/order-summary", service.GetOrderSummary)
+	route.Get("/product-sales-day", service.GetProductSalesByDay)
 
 }

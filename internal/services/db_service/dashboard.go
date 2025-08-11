@@ -78,3 +78,57 @@ func GetOrderSummary(db *gorm.DB, filter custommodel.FilterDasboard) (custommode
 
 	return summary, nil
 }
+func GetProductSalesByDay(db *gorm.DB, filter custommodel.FilterDasboard) ([]custommodel.ProductSalesByDay, error) {
+	var results []custommodel.ProductSalesByDay
+
+	// Build the base query using GORM
+	query := db.Table("orders o").
+		Select(`
+			CASE EXTRACT(dow FROM o.ordered_at) 
+				WHEN 0 THEN 'Sunday' 
+				WHEN 1 THEN 'Monday' 
+				WHEN 2 THEN 'Tuesday' 
+				WHEN 3 THEN 'Wednesday' 
+				WHEN 4 THEN 'Thursday' 
+				WHEN 5 THEN 'Friday' 
+				WHEN 6 THEN 'Saturday' 
+			END as day_of_week,
+			EXTRACT(dow FROM o.ordered_at) as dow_number,
+			p.name as product_name,
+			p.brand,
+			COUNT(DISTINCT o.id) as total_orders,
+			SUM(op.total_amounts) as total_units_sold,
+			SUM(op.total_product_price) as total_revenue,
+			AVG(op.total_amounts) as avg_units_per_order
+		`).
+		Joins("JOIN order_products op ON o.id = op.order_id").
+		Joins("JOIN products p ON op.product_id = p.id").
+		Joins("LEFT JOIN order_product_discounts opdc ON op.id = opdc.order_product_id").
+		Where("o.ordered_at IS NOT NULL").
+		Where("o.is_cancel = ?", false)
+
+	// Apply filters
+	if filter.ProductID != "" {
+		query = query.Where("p.id = ?", filter.ProductID)
+	}
+
+	if filter.StartDate != "" {
+		query = query.Where("DATE(o.ordered_at) >= ?", filter.StartDate)
+	}
+
+	if filter.EndDate != "" {
+		query = query.Where("DATE(o.ordered_at) <= ?", filter.EndDate)
+	}
+
+	// Group by and order
+	query = query.
+		Group("EXTRACT(dow FROM o.ordered_at), p.id, p.name, p.brand").
+		Order("dow_number, total_units_sold DESC")
+
+	// Execute the query
+	if err := query.Scan(&results).Error; err != nil {
+		return nil, err
+	}
+
+	return results, nil
+}

@@ -25,3 +25,14 @@ type OrderSummary struct {
 	CodOrders          int     `json:"cod_orders"`
 	Paymented          int     `json:"paymented"`
 }
+
+type ProductSalesByDay struct {
+	DayOfWeek        string  `json:"day_of_week"`
+	DowNumber        int     `json:"dow_number"`
+	ProductName      string  `json:"product_name"`
+	Brand            string  `json:"brand"`
+	TotalOrders      int     `json:"total_orders"`
+	TotalUnitsSold   float64 `json:"total_units_sold"`
+	TotalRevenue     float64 `json:"total_revenue"`
+	AvgUnitsPerOrder float64 `json:"avg_units_per_order"`
+}
