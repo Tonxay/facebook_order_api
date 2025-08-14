@@ -1,5 +1,7 @@
 package custommodel
 
+import "time"
+
 type ProductForProvincesReport struct {
 	ProvinceName      string  `json:"province_name"`
 	ProvinceNameEn    string  `json:"province_name_en"`
@@ -35,4 +37,11 @@ type ProductSalesByDay struct {
 	TotalUnitsSold   float64 `json:"total_units_sold"`
 	TotalRevenue     float64 `json:"total_revenue"`
 	AvgUnitsPerOrder float64 `json:"avg_units_per_order"`
+}
+
+type ProductOrderCount struct {
+	ProductName string    `json:"product_name"`
+	OrderCount  int       `json:"order_count"`
+	Day         time.Time `json:"day"`
+	ProductID   string    `json:"product_id"`
 }

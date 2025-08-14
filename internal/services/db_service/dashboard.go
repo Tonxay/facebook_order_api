@@ -132,3 +132,28 @@ func GetProductSalesByDay(db *gorm.DB, filter custommodel.FilterDasboard) ([]cus
 
 	return results, nil
 }
+
+func GetProductOrderCount(db *gorm.DB, filter custommodel.FilterDasboard) ([]custommodel.ProductOrderCount, error) {
+	var results []custommodel.ProductOrderCount
+	err := db.Table("orders AS o").
+		Select(`
+        p.name AS product_name,
+		p.id AS product_id,
+        COUNT(op.id) AS order_count,
+        o.ordered_at AS day
+    `).
+		Joins("JOIN order_products op ON o.id = op.order_id").
+		Joins("JOIN products p ON op.product_id = p.id").
+		Where("o.ordered_at IS NOT NULL").
+		Where("o.ordered_at >= ?", filter.StartDate).
+		Where("o.ordered_at <= ?", filter.EndDate).
+		Where("o.is_cancel IS NOT TRUE").
+		Group("p.name, o.ordered_at,p.id").
+		Order("o.ordered_at, order_count DESC").
+		Scan(&results).Error
+
+	if err != nil {
+		log.Println("Error:", err)
+	}
+	return results, err
+}
