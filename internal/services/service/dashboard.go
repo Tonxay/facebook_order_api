@@ -44,7 +44,7 @@ func GetOrderSummary(c *fiber.Ctx) error {
 		return fiber.NewError(400, " failed get data error")
 	}
 
-	// filter.StartDate, filter.EndDate = middleware.SetDefaultDateRangeIfEmpty(filter.StartDate, filter.EndDate)
+	filter.StartDate, filter.EndDate = middleware.SetDefaultDateRangeIfEmpty(filter.StartDate, filter.EndDate)
 
 	data, err := dbservice.GetOrderSummary(gormpkg.GetDB(), filter)
 
@@ -57,6 +57,7 @@ func GetOrderSummary(c *fiber.Ctx) error {
 }
 
 func GetProductSalesByDay(c *fiber.Ctx) error {
+
 	var err error
 	filter := custommodel.FilterDasboard{}
 	err = c.QueryParser(&filter)
@@ -91,6 +92,6 @@ func GetProductOrderCount(c *fiber.Ctx) error {
 		return fiber.NewError(500, "server error")
 	}
 
-	return c.JSON(presenters.ResponseSuccess(data))
+	return c.JSON(presenters.ResponseSuccess(fiber.Map{"dfdf": data}))
 
 }

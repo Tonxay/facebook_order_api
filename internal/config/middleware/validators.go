@@ -101,17 +101,17 @@ func ValidatePhone(value int64) bool {
 }
 
 func SetDefaultDateRangeIfEmpty(startDate, endDate string) (string, string) {
-	now := time.Now()
-	loc := now.Location()
+	// now := time.Now()
+	// loc := now.Location()
 
 	if startDate == "" {
-		start := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, loc)
+		start := time.Now()
 		startDate = start.Format("2006-01-02")
 	}
 
 	if endDate == "" {
 		// last day of current month
-		end := time.Date(now.Year(), now.Month()+1, 0, 23, 59, 59, 0, loc)
+		end := time.Now()
 		endDate = end.Format("2006-01-02")
 	}
 
