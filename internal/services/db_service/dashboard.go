@@ -166,7 +166,7 @@ func GetProductSales(db *gorm.DB, filter custommodel.FilterDasboard) ([]custommo
         products.name AS name,
         COUNT(DISTINCT orders.id) AS total_orders,
         SUM(op.total_product_price - op.discount - COALESCE(order_product_discounts.discount, 0)) AS net,
-        SUM(op.total_amounts) AS total_units_sold,
+     	SUM(op.total_amounts) as total_units_sold,
         SUM(SUM(op.total_product_price - op.discount - COALESCE(order_product_discounts.discount, 0)))
             OVER () AS total_net
     `).

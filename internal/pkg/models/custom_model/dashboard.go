@@ -47,9 +47,9 @@ type ProductOrderCount struct {
 }
 
 type ProductSales struct {
-	Name        string  `json:"name"`
-	TotalOrders int64   `json:"total_orders"`
-	Net         float64 `json:"net"`
-	TotalUnits  float64 `json:"total_units_sold"`
-	TotalNet    float64 `json:"total_net"`
+	Name           string  `json:"name"`
+	TotalOrders    int64   `json:"total_orders"`
+	Net            float64 `json:"net"`
+	TotalUnitsSold float64 `json:"total_units_sold"`
+	TotalNet       float64 `json:"total_net"`
 }
