@@ -65,7 +65,8 @@ COPY . .
 RUN go build -ldflags="-s -w -extldflags '-static'" -installsuffix cgo -o /bin/api-app ./cmd/main/main.go
 
 # Use alpine image as runtime
-FROM alpine:3.16 AS release
+
+FROM alpine:3.22 AS release
 
 # Copy timezone & certs from builder
 COPY --from=builder /usr/share/zoneinfo /usr/share/zoneinfo
