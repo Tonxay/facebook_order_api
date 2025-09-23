@@ -108,7 +108,6 @@ func GetProductSales(c *fiber.Ctx) error {
 	filter.StartDate, filter.EndDate = middleware.SetDefaultDateRangeIfEmpty(filter.StartDate, filter.EndDate)
 	fmt.Println(filter.StartDate)
 	data, err := dbservice.GetProductSales(gormpkg.GetDB(), filter)
-
 	if err != nil {
 		return fiber.NewError(500, "server error")
 	}
