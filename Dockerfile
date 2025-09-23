@@ -40,7 +40,7 @@
 # ENTRYPOINT ["/bin/api-app"]
 
 # Build executable binary
-FROM golang:1.23.2-alpine AS builder
+FROM golang:1.24.0-alpine AS builder
 
 # Disable CGO for static binary
 ENV CGO_ENABLED=0 \
