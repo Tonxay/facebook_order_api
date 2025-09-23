@@ -13,5 +13,6 @@ func SetupDashboardRoutesPart(route fiber.Router) {
 	route.Get("/order-summary", service.GetOrderSummary)
 	route.Get("/product-sales-day", service.GetProductSalesByDay)
 	route.Get("/product-order-count", service.GetProductOrderCount)
+	route.Get("/product-sales", service.GetProductSales)
 
 }

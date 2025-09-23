@@ -157,3 +157,26 @@ func GetProductOrderCount(db *gorm.DB, filter custommodel.FilterDasboard) ([]cus
 	}
 	return results, err
 }
+
+func GetProductSales(db *gorm.DB, filter custommodel.FilterDasboard) ([]custommodel.ProductSales, error) {
+	var results []custommodel.ProductSales
+
+	query := db.Model(&models.Order{}).
+		Select(`
+        products.name AS name,
+        COUNT(DISTINCT orders.id) AS total_orders,
+        SUM(order_products.total_product_price - order_products.discount - COALESCE(order_product_discounts.discount, 0)) AS net,
+        SUM(CAST(order_products.total_amounts AS SIGNED)) AS total_units_sold,
+        SUM(SUM(order_products.total_product_price - order_products.discount - COALESCE(order_product_discounts.discount, 0)))
+            OVER () AS total_net
+    `).
+		Joins("JOIN order_products ON orders.id = order_products.order_id").
+		Joins("LEFT JOIN order_product_discounts ON order_products.id = order_product_discounts.order_product_id").
+		Joins("JOIN products ON order_products.product_id = products.id").
+		Where("orders.is_cancel = ?", false).
+		Where("orders.ordered_at BETWEEN ? AND ?", filter.StartDate, filter.EndDate).
+		Group("products.name")
+
+	err := query.Scan(&results).Error
+	return results, err
+}
