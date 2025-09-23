@@ -175,7 +175,7 @@ func GetProductSales(db *gorm.DB, filter custommodel.FilterDasboard) ([]custommo
 		Joins("LEFT JOIN order_product_discounts ON op.id = order_product_discounts.order_product_id").
 		Where("orders.is_cancel = ?", false).
 		Where("orders.ordered_at BETWEEN ? AND ?", filter.StartDate, filter.EndDate).
-		Group("products.name")
+		Group("products.name").Order("total_units_sold ASC")
 
 	err := query.Scan(&results).Error
 	return results, err
