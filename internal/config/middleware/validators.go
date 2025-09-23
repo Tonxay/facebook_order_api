@@ -117,3 +117,22 @@ func SetDefaultDateRangeIfEmpty(startDate, endDate string) (string, string) {
 
 	return startDate, endDate
 }
+func SetDefaultDateRangeMonthIfEmpty(startDate, endDate string) (string, string) {
+	now := time.Now()
+	loc := now.Location()
+
+	if startDate == "" {
+		// first day of the current month
+		start := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, loc)
+		startDate = start.Format("2006-01-02")
+	}
+
+	if endDate == "" {
+		// last day of the current month
+		firstOfNextMonth := time.Date(now.Year(), now.Month()+1, 1, 0, 0, 0, 0, loc)
+		lastOfCurrentMonth := firstOfNextMonth.AddDate(0, 0, -1)
+		endDate = lastOfCurrentMonth.Format("2006-01-02")
+	}
+
+	return startDate, endDate
+}

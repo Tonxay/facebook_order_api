@@ -25,7 +25,7 @@ func GetProductforProvinceSevice(c *fiber.Ctx) error {
 		return fiber.NewError(400, " failed get data error")
 	}
 
-	filter.StartDate, filter.EndDate = middleware.SetDefaultDateRangeIfEmpty(filter.StartDate, filter.EndDate)
+	filter.StartDate, filter.EndDate = middleware.SetDefaultDateRangeMonthIfEmpty(filter.StartDate, filter.EndDate)
 
 	data, err := dbservice.GetProductforProvince(gormpkg.GetDB(), filter)
 
@@ -45,7 +45,7 @@ func GetOrderSummary(c *fiber.Ctx) error {
 		return fiber.NewError(400, " failed get data error")
 	}
 
-	filter.StartDate, filter.EndDate = middleware.SetDefaultDateRangeIfEmpty(filter.StartDate, filter.EndDate)
+	// filter.StartDate, filter.EndDate = middleware.SetDefaultDateRangeIfEmpty(filter.StartDate, filter.EndDate)
 
 	data, err := dbservice.GetOrderSummary(gormpkg.GetDB(), filter)
 

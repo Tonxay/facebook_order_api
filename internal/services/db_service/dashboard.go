@@ -12,14 +12,14 @@ func GetProductforProvince(db *gorm.DB, filter custommodel.FilterDasboard) ([]cu
 	var reports []custommodel.ProductForProvincesReport
 	tx := db.Table(models.TableNameProvince + " pr").Select(
 		`
-						pr.pr_name AS province_name,
-						pr.pr_name_en AS province_name_en,
-						p.name AS product_name,
-						COUNT(*) AS order_count,
-				        SUM(op.total_product_price) AS total_product_price,
-						SUM(opd.discount) AS promotion_discount,
-						SUM(op.discount) AS  product_discount,
-						SUM(op.total_amounts) AS total_quantity
+		pr.pr_name AS province_name,
+		pr.pr_name_en AS province_name_en,
+		p.name AS product_name,
+		COUNT(*) AS order_count,
+		SUM(op.total_product_price) AS total_product_price,
+		SUM(opd.discount) AS promotion_discount,
+		SUM(op.discount) AS  product_discount,
+		SUM(op.total_amounts) AS total_quantity
 						`,
 	)
 	tx =
