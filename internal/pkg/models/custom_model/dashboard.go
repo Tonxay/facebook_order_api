@@ -50,6 +50,6 @@ type ProductSales struct {
 	Name        string  `json:"name"`
 	TotalOrders int64   `json:"total_orders"`
 	Net         float64 `json:"net"`
-	TotalUnits  int64   `json:"total_units_sold"`
+	TotalUnits  float64 `json:"total_units_sold"`
 	TotalNet    float64 `json:"total_net"`
 }
