@@ -112,7 +112,6 @@ func GetProductSales(c *fiber.Ctx) error {
 	if err != nil {
 		return fiber.NewError(500, "server error")
 	}
-
 	return c.JSON(presenters.ResponseSuccess(data))
 
 }
