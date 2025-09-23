@@ -98,6 +98,7 @@ func GetProductOrderCount(c *fiber.Ctx) error {
 }
 
 func GetProductSales(c *fiber.Ctx) error {
+
 	var err error
 	filter := custommodel.FilterDasboard{}
 	err = c.QueryParser(&filter)
