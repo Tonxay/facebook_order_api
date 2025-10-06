@@ -21,6 +21,8 @@ var (
 	Chat                     *chat
 	Customer                 *customer
 	District                 *district
+	Expense                  *expense
+	ExpenseCategory          *expenseCategory
 	ImportProduct            *importProduct
 	ImportProductsDatail     *importProductsDatail
 	ImportProductsDatailItem *importProductsDatailItem
@@ -39,6 +41,7 @@ var (
 	Shipping                 *shipping
 	Size                     *size
 	StockProductDetail       *stockProductDetail
+	Supplier                 *supplier
 	Unit                     *unit
 	User                     *user
 	Village                  *village
@@ -50,6 +53,8 @@ func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
 	Chat = &Q.Chat
 	Customer = &Q.Customer
 	District = &Q.District
+	Expense = &Q.Expense
+	ExpenseCategory = &Q.ExpenseCategory
 	ImportProduct = &Q.ImportProduct
 	ImportProductsDatail = &Q.ImportProductsDatail
 	ImportProductsDatailItem = &Q.ImportProductsDatailItem
@@ -68,6 +73,7 @@ func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
 	Shipping = &Q.Shipping
 	Size = &Q.Size
 	StockProductDetail = &Q.StockProductDetail
+	Supplier = &Q.Supplier
 	Unit = &Q.Unit
 	User = &Q.User
 	Village = &Q.Village
@@ -80,6 +86,8 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		Chat:                     newChat(db, opts...),
 		Customer:                 newCustomer(db, opts...),
 		District:                 newDistrict(db, opts...),
+		Expense:                  newExpense(db, opts...),
+		ExpenseCategory:          newExpenseCategory(db, opts...),
 		ImportProduct:            newImportProduct(db, opts...),
 		ImportProductsDatail:     newImportProductsDatail(db, opts...),
 		ImportProductsDatailItem: newImportProductsDatailItem(db, opts...),
@@ -98,6 +106,7 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		Shipping:                 newShipping(db, opts...),
 		Size:                     newSize(db, opts...),
 		StockProductDetail:       newStockProductDetail(db, opts...),
+		Supplier:                 newSupplier(db, opts...),
 		Unit:                     newUnit(db, opts...),
 		User:                     newUser(db, opts...),
 		Village:                  newVillage(db, opts...),
@@ -111,6 +120,8 @@ type Query struct {
 	Chat                     chat
 	Customer                 customer
 	District                 district
+	Expense                  expense
+	ExpenseCategory          expenseCategory
 	ImportProduct            importProduct
 	ImportProductsDatail     importProductsDatail
 	ImportProductsDatailItem importProductsDatailItem
@@ -129,6 +140,7 @@ type Query struct {
 	Shipping                 shipping
 	Size                     size
 	StockProductDetail       stockProductDetail
+	Supplier                 supplier
 	Unit                     unit
 	User                     user
 	Village                  village
@@ -143,6 +155,8 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		Chat:                     q.Chat.clone(db),
 		Customer:                 q.Customer.clone(db),
 		District:                 q.District.clone(db),
+		Expense:                  q.Expense.clone(db),
+		ExpenseCategory:          q.ExpenseCategory.clone(db),
 		ImportProduct:            q.ImportProduct.clone(db),
 		ImportProductsDatail:     q.ImportProductsDatail.clone(db),
 		ImportProductsDatailItem: q.ImportProductsDatailItem.clone(db),
@@ -161,6 +175,7 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		Shipping:                 q.Shipping.clone(db),
 		Size:                     q.Size.clone(db),
 		StockProductDetail:       q.StockProductDetail.clone(db),
+		Supplier:                 q.Supplier.clone(db),
 		Unit:                     q.Unit.clone(db),
 		User:                     q.User.clone(db),
 		Village:                  q.Village.clone(db),
@@ -182,6 +197,8 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		Chat:                     q.Chat.replaceDB(db),
 		Customer:                 q.Customer.replaceDB(db),
 		District:                 q.District.replaceDB(db),
+		Expense:                  q.Expense.replaceDB(db),
+		ExpenseCategory:          q.ExpenseCategory.replaceDB(db),
 		ImportProduct:            q.ImportProduct.replaceDB(db),
 		ImportProductsDatail:     q.ImportProductsDatail.replaceDB(db),
 		ImportProductsDatailItem: q.ImportProductsDatailItem.replaceDB(db),
@@ -200,6 +217,7 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		Shipping:                 q.Shipping.replaceDB(db),
 		Size:                     q.Size.replaceDB(db),
 		StockProductDetail:       q.StockProductDetail.replaceDB(db),
+		Supplier:                 q.Supplier.replaceDB(db),
 		Unit:                     q.Unit.replaceDB(db),
 		User:                     q.User.replaceDB(db),
 		Village:                  q.Village.replaceDB(db),
@@ -211,6 +229,8 @@ type queryCtx struct {
 	Chat                     IChatDo
 	Customer                 ICustomerDo
 	District                 IDistrictDo
+	Expense                  IExpenseDo
+	ExpenseCategory          IExpenseCategoryDo
 	ImportProduct            IImportProductDo
 	ImportProductsDatail     IImportProductsDatailDo
 	ImportProductsDatailItem IImportProductsDatailItemDo
@@ -229,6 +249,7 @@ type queryCtx struct {
 	Shipping                 IShippingDo
 	Size                     ISizeDo
 	StockProductDetail       IStockProductDetailDo
+	Supplier                 ISupplierDo
 	Unit                     IUnitDo
 	User                     IUserDo
 	Village                  IVillageDo
@@ -240,6 +261,8 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		Chat:                     q.Chat.WithContext(ctx),
 		Customer:                 q.Customer.WithContext(ctx),
 		District:                 q.District.WithContext(ctx),
+		Expense:                  q.Expense.WithContext(ctx),
+		ExpenseCategory:          q.ExpenseCategory.WithContext(ctx),
 		ImportProduct:            q.ImportProduct.WithContext(ctx),
 		ImportProductsDatail:     q.ImportProductsDatail.WithContext(ctx),
 		ImportProductsDatailItem: q.ImportProductsDatailItem.WithContext(ctx),
@@ -258,6 +281,7 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		Shipping:                 q.Shipping.WithContext(ctx),
 		Size:                     q.Size.WithContext(ctx),
 		StockProductDetail:       q.StockProductDetail.WithContext(ctx),
+		Supplier:                 q.Supplier.WithContext(ctx),
 		Unit:                     q.Unit.WithContext(ctx),
 		User:                     q.User.WithContext(ctx),
 		Village:                  q.Village.WithContext(ctx),
