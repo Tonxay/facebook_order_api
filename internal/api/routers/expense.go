@@ -8,6 +8,7 @@ import (
 )
 
 func SetupExpenseRoutesPart(route fiber.Router) {
+
 	route.Use(middleware.JWTProtected)
 	route.Get("/", service.GetFullExpenseDetails)
 	route.Post("/batch", service.CreateExpensesBatch)
