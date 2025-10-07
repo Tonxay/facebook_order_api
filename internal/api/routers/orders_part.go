@@ -11,10 +11,8 @@ func SetupOrdersRoutesPart(route fiber.Router) {
 	route.Use(middleware.JWTProtected)
 	route.Post("/create", service.CreateOrder)
 	route.Post("/all", service.GetOrder)
-
 	route.Put("/update-status", service.UpdateStatusOrder)
 	route.Put("/cancel", service.CancellOrder)
-
 	route.Get("/sale", service.GetSalesHandler)
 	route.Post("/select/text", service.SelectTextImage)
 	route.Post("/pdf", service.GenerateOrderPDF)
