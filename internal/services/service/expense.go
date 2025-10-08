@@ -97,3 +97,19 @@ func GetExpensesProducts(c *fiber.Ctx) error {
 
 	return c.JSON(presenters.ResponseSuccess(data))
 }
+
+func GetExpenseDashboard(c *fiber.Ctx) error {
+	var err error
+	filter := custommodel.ExpenseFilter{}
+	err = c.QueryParser(&filter)
+	if err != nil {
+		return fiber.NewError(400, " failed get data error")
+	}
+	filter.StartDate, filter.EndDate = middleware.SetDefaultDateRangeMonthIfEmpty(filter.StartDate, filter.EndDate)
+	data, err := dbservice.GetExpenseDashboard(gormpkg.GetDB(), filter)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return c.JSON(presenters.ResponseSuccess(data))
+}

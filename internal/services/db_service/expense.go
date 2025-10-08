@@ -167,3 +167,51 @@ func GetFullExpenseProducts(db *gorm.DB) ([]models.Product, error) {
 
 	return results, err
 }
+
+// GetExpenseDashboard retrieves summarized expense data with robust filtering.
+func GetExpenseDashboard(db *gorm.DB, filter custommodel.ExpenseFilter) ([]custommodel.ExpenseSummary, error) {
+	var expenseSummary []custommodel.ExpenseSummary
+
+	// Start query on the 'expenses' table using a model for better GORM integration.
+	// This is more robust than db.Table().
+	tx := db.Model(&models.Expense{})
+
+	// Define the custom SELECT statement.
+	tx = tx.Select(`
+		ec.id AS category_id,
+		ec.category_name,
+		SUM(expenses.amount) AS total_amount`)
+
+	// This join is required to get the category name.
+	tx = tx.Joins("LEFT JOIN expense_categories ec ON expenses.category_id = ec.id")
+
+	// --- Dynamic Filters ---
+
+	// FIX: Correctly check if date objects are set using .IsZero(), not by comparing to a string.
+	if filter.StartDate != " " && filter.EndDate != "" {
+		tx = tx.Where("expenses.expense_date BETWEEN ? AND ?", filter.StartDate, filter.EndDate)
+	}
+
+	// ADDED: Add a filter for a specific CategoryID if it's provided in the filter struct.
+	if filter.CategoryID != "" {
+		tx = tx.Where("expenses.category_id = ?", filter.CategoryID)
+	}
+
+	// ADDED: Add a filter for a specific SupplierID.
+	if filter.SupplierID != "" {
+		// This filter requires joining the suppliers table, so we add the join here.
+		tx = tx.Joins("LEFT JOIN suppliers s ON expenses.supplier_id = s.id")
+		tx = tx.Where("expenses.supplier_id = ?", filter.SupplierID)
+	}
+
+	// FIX: The SQL comment inside the string was removed.
+	tx = tx.Group("ec.id, ec.category_name")
+
+	// ADDED: Add an ORDER BY clause for consistent results.
+	tx = tx.Order("ec.id ASC")
+
+	// FIX: Use .Scan() for custom select/aggregate queries, as it's designed to map results to a struct.
+	err := tx.Scan(&expenseSummary).Error
+
+	return expenseSummary, err
+}

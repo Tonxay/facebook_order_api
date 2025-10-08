@@ -15,5 +15,6 @@ func SetupExpenseRoutesPart(route fiber.Router) {
 	route.Get("/categorys", service.GetExpensesCategory)
 	route.Get("/suppliers", service.GetExpensesSuppliers)
 	route.Get("/products", service.GetExpensesProducts)
+	route.Get("/sum-amount", service.GetExpenseDashboard)
 
 }

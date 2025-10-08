@@ -1,7 +1,6 @@
 package service
 
 import (
-	"fmt"
 	"go-api/internal/config/middleware"
 	"go-api/internal/config/presenters"
 	gormpkg "go-api/internal/pkg"
@@ -105,9 +104,9 @@ func GetProductSales(c *fiber.Ctx) error {
 	if err != nil {
 		return fiber.NewError(400, " failed get data error")
 	}
-	fmt.Println(filter.StartDate)
+
 	filter.StartDate, filter.EndDate = middleware.SetDefaultDateRangeIfEmpty(filter.StartDate, filter.EndDate)
-	fmt.Println(filter.StartDate)
+
 	data, err := dbservice.GetProductSales(gormpkg.GetDB(), filter)
 	if err != nil {
 		return fiber.NewError(500, "server error")

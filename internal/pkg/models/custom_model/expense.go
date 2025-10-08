@@ -64,3 +64,9 @@ type Expense struct {
 func (*Expense) TableName() string {
 	return TableNameExpense
 }
+
+type ExpenseSummary struct {
+	CategoryID   string  `json:"category_id" db:"category_id"`
+	CategoryName string  `json:"category_name" db:"category_name"`
+	TotalAmount  float64 `json:"total_amount" db:"total_amount"`
+}
