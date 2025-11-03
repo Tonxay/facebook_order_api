@@ -5,6 +5,7 @@ import (
 	"go-api/internal/api"
 	"go-api/internal/config/middleware"
 	gormpkg "go-api/internal/pkg"
+	"go-api/internal/services/service"
 	"log"
 	"os"
 	"time"
@@ -49,7 +50,6 @@ func main() {
 	if err := gormpkg.Init("api"); err != nil {
 		log.Fatalf("❌ Failed to connect to DB: %v", err)
 	}
-
 	// API Routes
 	// api := app.Group(os.Getenv("API_PREFIX"))
 	api.SetupRoutes(app)
@@ -59,5 +59,6 @@ func main() {
 	if port == "" {
 		port = "8080"
 	}
+	service.Uploadimage()
 	log.Fatal(app.Listen(":" + port))
 }

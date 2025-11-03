@@ -243,3 +243,31 @@ func GetProductsForStock(c *fiber.Ctx) error {
 	// Return the created category
 	return c.Status(fiber.StatusCreated).JSON(presenters.ResponseSuccess(data))
 }
+
+func GetProductsResearch(c *fiber.Ctx) error {
+	data, err := dbservice.GetProductsResearch(gormpkg.GetDB())
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "failed to get products",
+		})
+	}
+	// Return the created category
+	return c.Status(fiber.StatusCreated).JSON(presenters.ResponseSuccess(data))
+}
+
+func GetProductsResearchFormLazada(c *fiber.Ctx) error {
+
+	fiter := map[string]string{
+		"q":    c.Query("q", "ทั้งหมด"),
+		"page": c.Query("page"),
+	}
+
+	data, err := dbservice.GetProductsResearchFormLazada(fiter)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "failed to get products form",
+		})
+	}
+	// Return the created category
+	return c.Status(fiber.StatusCreated).JSON(presenters.ResponseSuccess(data))
+}

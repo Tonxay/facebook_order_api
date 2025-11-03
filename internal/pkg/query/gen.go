@@ -36,6 +36,7 @@ var (
 	Page                     *page
 	Product                  *product
 	ProductDetail            *productDetail
+	ProductsResearch         *productsResearch
 	Promotion                *promotion
 	Province                 *province
 	Shipping                 *shipping
@@ -68,6 +69,7 @@ func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
 	Page = &Q.Page
 	Product = &Q.Product
 	ProductDetail = &Q.ProductDetail
+	ProductsResearch = &Q.ProductsResearch
 	Promotion = &Q.Promotion
 	Province = &Q.Province
 	Shipping = &Q.Shipping
@@ -101,6 +103,7 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		Page:                     newPage(db, opts...),
 		Product:                  newProduct(db, opts...),
 		ProductDetail:            newProductDetail(db, opts...),
+		ProductsResearch:         newProductsResearch(db, opts...),
 		Promotion:                newPromotion(db, opts...),
 		Province:                 newProvince(db, opts...),
 		Shipping:                 newShipping(db, opts...),
@@ -135,6 +138,7 @@ type Query struct {
 	Page                     page
 	Product                  product
 	ProductDetail            productDetail
+	ProductsResearch         productsResearch
 	Promotion                promotion
 	Province                 province
 	Shipping                 shipping
@@ -170,6 +174,7 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		Page:                     q.Page.clone(db),
 		Product:                  q.Product.clone(db),
 		ProductDetail:            q.ProductDetail.clone(db),
+		ProductsResearch:         q.ProductsResearch.clone(db),
 		Promotion:                q.Promotion.clone(db),
 		Province:                 q.Province.clone(db),
 		Shipping:                 q.Shipping.clone(db),
@@ -212,6 +217,7 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		Page:                     q.Page.replaceDB(db),
 		Product:                  q.Product.replaceDB(db),
 		ProductDetail:            q.ProductDetail.replaceDB(db),
+		ProductsResearch:         q.ProductsResearch.replaceDB(db),
 		Promotion:                q.Promotion.replaceDB(db),
 		Province:                 q.Province.replaceDB(db),
 		Shipping:                 q.Shipping.replaceDB(db),
@@ -244,6 +250,7 @@ type queryCtx struct {
 	Page                     IPageDo
 	Product                  IProductDo
 	ProductDetail            IProductDetailDo
+	ProductsResearch         IProductsResearchDo
 	Promotion                IPromotionDo
 	Province                 IProvinceDo
 	Shipping                 IShippingDo
@@ -276,6 +283,7 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		Page:                     q.Page.WithContext(ctx),
 		Product:                  q.Product.WithContext(ctx),
 		ProductDetail:            q.ProductDetail.WithContext(ctx),
+		ProductsResearch:         q.ProductsResearch.WithContext(ctx),
 		Promotion:                q.Promotion.WithContext(ctx),
 		Province:                 q.Province.WithContext(ctx),
 		Shipping:                 q.Shipping.WithContext(ctx),

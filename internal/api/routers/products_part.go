@@ -19,5 +19,7 @@ func SetupProductRoutesPart(route fiber.Router) {
 	route.Get("/product-detail-size", service.GetStockProductDetailForID)
 	route.Get("/product-in-stock", service.GetProductInStcok)
 	route.Get("/products-manage", service.GetProductsForStock)
+	route.Get("/products-research", service.GetProductsResearch)
+	route.Get("/products-research-lazada", service.GetProductsResearchFormLazada)
 
 }
