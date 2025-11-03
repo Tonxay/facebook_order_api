@@ -27,7 +27,7 @@ func Uploadimage() {
 	opts := append(chromedp.DefaultExecAllocatorOptions[:],
 		chromedp.Flag("headless", true), // true = run in background, false = show browser
 		chromedp.Flag("disable-gpu", true),
-		chromedp.ExecPath("chromium-browser"),
+		chromedp.ExecPath("chromium"),
 	)
 	allocCtx, cancel := chromedp.NewExecAllocator(context.Background(), opts...)
 	defer cancel()
