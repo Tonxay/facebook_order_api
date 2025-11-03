@@ -44,6 +44,9 @@ func SetupRoutes(app *fiber.App) {
 	expense := app.Group("/expense")
 	routers_part.SetupExpenseRoutesPart(expense)
 
+	bill := app.Group("/bill")
+	routers_part.SetupBillRoutesPart(bill)
+
 }
 
 func SetupWebsocketRoutes(app *fiber.App) {
