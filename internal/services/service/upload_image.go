@@ -161,14 +161,14 @@ func scapingImage(trackingId string) string {
 		chromedp.Flag("disable-gpu", true),
 		chromedp.Flag("chromium", true),
 	)
-	allocCtx, cancel := chromedp.NewExecAllocator(context.Background(), opts...)
-	defer cancel()
+	allocCtx, _ := chromedp.NewExecAllocator(context.Background(), opts...)
+	// defer cancel()
 
-	ctx, cancel := chromedp.NewContext(allocCtx, chromedp.WithLogf(log.Printf))
-	defer cancel()
+	ctx, _ := chromedp.NewContext(allocCtx, chromedp.WithLogf(log.Printf))
+	// defer cancel()
 
-	ctx, cancel = context.WithTimeout(ctx, 120*time.Second)
-	defer cancel()
+	ctx, _ = context.WithTimeout(ctx, 120*time.Second)
+	// defer cancel()
 
 	var buf []byte
 	var billRect map[string]interface{}

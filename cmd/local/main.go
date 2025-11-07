@@ -5,7 +5,6 @@ import (
 	"go-api/internal/api"
 	"go-api/internal/config/middleware"
 	gormpkg "go-api/internal/pkg"
-	"go-api/internal/services/service"
 	"log"
 	"os"
 	"time"
@@ -54,7 +53,6 @@ func main() {
 	// api := app.Group(os.Getenv("API_PREFIX"))
 	api.SetupRoutes(app)
 	api.SetupWebsocketRoutes(app)
-	service.Uploadimage()
 
 	port := os.Getenv("PORT")
 	if port == "" {
