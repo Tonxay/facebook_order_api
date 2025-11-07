@@ -157,7 +157,7 @@ func anousithLoging(tel string, password string) {
 func scapingImage(trackingId string) {
 	url := "https://app.anousith.express/landing/search_tracking/bill_share?tacking_number=" + trackingId
 	jpegQuality := 90 // Good quality for bill readability
-	savePath := "../go-api/images/bills/ " + trackingId + ".jpg"
+	savePath := "../go-api/images/bills/" + trackingId + ".jpg"
 
 	opts := append(chromedp.DefaultExecAllocatorOptions[:],
 		chromedp.Flag("headless", true),
@@ -255,7 +255,7 @@ func sendBillTofaceBook(trackingId string) {
 			"attachment": map[string]any{
 				"type": "image",
 				"payload": map[string]any{
-					"url":         "https://app.anousith-express.com/static/media/logo_next_days.08726185419ef9a8e073.png",
+					"url":         "https://api.chat-dd.uk/bill/" + trackingId,
 					"is_reusable": true,
 				},
 			},
