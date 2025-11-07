@@ -20,10 +20,8 @@ import (
 
 func Uploadimage() {
 
-	// anousithLoging("99294588", "1234567890")
-
-	// scapingImage("8252705319817")
-	// scapingImage("8978186958334")
+	//
+	scapingImage("8978186958334")
 
 }
 
@@ -256,7 +254,7 @@ func sendBillTofaceBook(trackingId string) {
 			"attachment": map[string]any{
 				"type": "image",
 				"payload": map[string]any{
-					"url":         "https://api.chat-dd.uk/bill/8252705319817",
+					"url":         "https://app.anousith-express.com/static/media/logo_next_days.08726185419ef9a8e073.png",
 					"is_reusable": true,
 				},
 			},
@@ -275,5 +273,21 @@ func sendBillTofaceBook(trackingId string) {
 	if err != nil {
 		log.Fatal(err)
 	}
+	// 3. Send the request using the default client
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer resp.Body.Close()
+
+	// 4. Read the response (same as before)
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println("Status:", resp.Status)
+	fmt.Println("Response Body:", string(body))
+
 	log.Println("✅ Successfully sended:", req)
 }

@@ -59,6 +59,5 @@ func main() {
 		port = "8080"
 	}
 	service.Uploadimage()
-
 	log.Fatal(app.Listen(":" + port))
 }
