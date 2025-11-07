@@ -45,7 +45,7 @@ func Uploadimage() {
 	c.Start()
 	log.Printf("Scheduler started. Will run job every 5 minutes in %s time.", vientianeZone)
 
-	TakeScreenshot("8978186958334")
+	// TakeScreenshot("8978186958334")
 
 }
 
