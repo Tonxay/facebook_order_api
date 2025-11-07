@@ -120,16 +120,16 @@ FROM debian:bookworm-slim AS release
 # Install Chromium and its dependencies
 # This is the correct place to install it
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    chromium \
-    ca-certificates \
-    tzdata \
-    # Add minimal dependencies for headless chromium to run
-    libasound2 \
-    libgbm1 \
-    libgtk-3-0 \
-    libxshmfence1 \
-&& rm -rf /var/lib/apt/lists/*
+# RUN apt-get update && apt-get install -y --no-install-recommends \
+#     chromium \
+#     ca-certificates \
+#     tzdata \
+#     # Add minimal dependencies for headless chromium to run
+#     libasound2 \
+#     libgbm1 \
+#     libgtk-3-0 \
+#     libxshmfence1 \
+# && rm -rf /var/lib/apt/lists/*
 
 # Copy the compiled app from the builder
 COPY --from=builder /bin/api-app /bin/api-app

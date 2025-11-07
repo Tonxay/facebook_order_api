@@ -14,12 +14,39 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/chromedp/chromedp"
-	"github.com/chromedp/chromedp/device"
+	"github.com/go-rod/rod"
+	"github.com/go-rod/rod/lib/devices" // Import consts for UserAgentIPhone
+	"github.com/go-rod/rod/lib/proto"
+	"github.com/robfig/cron/v3"
 )
 
 func Uploadimage() {
-	scapingImage("8978186958334")
+	log.Println("Starting cron scheduler...")
+
+	// 1. Set the time zone to Vientiane
+	vientianeZone, err := time.LoadLocation("Asia/Vientiane")
+	if err != nil {
+		log.Fatalf("Fatal: Could not load time zone. %v", err)
+	}
+
+	// 2. Create a new cron scheduler in that time zone
+	c := cron.New(cron.WithLocation(vientianeZone))
+
+	// 3. Add the Uploadimage function to the schedule
+	//    This string "*/5 * * * *" means "at every 5th minute".
+	//    - "0 * * * *" = "at the start of every hour"
+	//    - "0 9 * * *" = "at 9:00 AM every day"
+	_, err = c.AddFunc("*/1 * * * *", Uploadimage)
+	if err != nil {
+		log.Fatalf("Fatal: Could not add cron job. %v", err)
+	}
+
+	// 4. Start the scheduler
+	c.Start()
+	log.Printf("Scheduler started. Will run job every 5 minutes in %s time.", vientianeZone)
+
+	TakeScreenshot("8978186958334")
+
 }
 
 // SaveImage saves a data slice (like an image) to the specified file path.
@@ -151,94 +178,167 @@ func anousithLoging(tel string, password string) {
 
 }
 
-func scapingImage(trackingId string) string {
+// TakeScreenshot navigates to the bill URL, finds the '.bill-content' element,
+// captures a JPEG screenshot of only that element, and saves it to a file.
+func TakeScreenshot(trackingId string) (string, error) {
 	url := "https://app.anousith.express/landing/search_tracking/bill_share?tacking_number=" + trackingId
-	jpegQuality := 60 // Good quality for bill readability
-	savePath := "../go-api/images/bills/" + trackingId + ".jpg"
+	saveDir := "../go-api/images/bills/"
+	savePath := filepath.Join(saveDir, trackingId+".jpg")
 
-	opts := append(chromedp.DefaultExecAllocatorOptions[:],
-		chromedp.Flag("headless", true),
-		chromedp.Flag("disable-gpu", true),
-		chromedp.Flag("chromium", true),
-	)
-	allocCtx, _ := chromedp.NewExecAllocator(context.Background(), opts...)
-	// defer cancel()
+	// 1. Setup a new browser session
+	browser := rod.New().MustConnect()
+	defer browser.MustClose()
 
-	ctx, _ := chromedp.NewContext(allocCtx, chromedp.WithLogf(log.Printf))
-	// defer cancel()
+	// Set up a context with a timeout for the entire operation
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
 
-	ctx, _ = context.WithTimeout(ctx, 120*time.Second)
-	// defer cancel()
+	// Create a new page and apply settings
+	page := browser.MustPage().Context(ctx)
 
-	var buf []byte
-	var billRect map[string]interface{}
+	// --- FIX 1: Set UserAgent *before* navigating ---
+	// MustSetUserAgent just takes the user agent string.
+	// We do this before navigating so the *first* request has the correct agent.
+	page.MustSetUserAgent(devices.IPhoneX.UserAgentEmulation())
+	log.Println("Starting screenshot task with go-rod for:", url)
 
-	log.Println("Starting screenshot task for:", url)
-
-	// Get the bill-content's position and dimensions, then take full screenshot
-	err := chromedp.Run(ctx,
-		chromedp.Emulate(device.IPhone12),
-		chromedp.Navigate(url),
-		chromedp.Sleep(2*time.Second), // Wait for page to load completely
-
-		// Get the position and size of the bill-content element
-		chromedp.Evaluate(`
-			(() => {
-				const element = document.querySelector('.bill-content');
-				if (!element) {
-					console.error('Could not find .bill-content element');
-					return null;
-				}
-				const rect = element.getBoundingClientRect();
-				console.log('Bill content rect:', rect);
-				return {
-					x: rect.x,
-					y: rect.y,
-					width: rect.width,
-					height: rect.height
-				};
-			})()
-		`, &billRect),
-
-		// Take full page screenshot
-		chromedp.FullScreenshot(&buf, jpegQuality),
-	)
-
+	// --- FIX 1 (cont.): Navigate to the URL ---
+	page.MustNavigate(url)
+	// We remove MustWaitLoad() because MustNavigate() already waits.
+	// --- FIX 2: Use page.Element() instead of WaitElement ---
+	// page.Element() is the correct function. It waits for the element
+	// to be rendered, finds the first match, and returns it.
+	billElement, err := page.Element(".bill-content")
 	if err != nil {
-		log.Fatalf("Failed during screenshot: %v", err)
+		// Try to capture the full page for debugging
+		page.MustScreenshot("../go-api/images/bills/debug_error_page.png")
+		return "", fmt.Errorf("could not find .bill-content element: %w. Saved debug screenshot", err)
 	}
 
-	// Check if we found the bill-content element
-	if billRect == nil {
-		log.Fatalf("Could not find .bill-content element on the page")
-	}
+	log.Println("Bill content element found. Capturing screenshot...")
 
-	x := int(billRect["x"].(float64))
-	y := int(billRect["y"].(float64))
-	width := int(billRect["width"].(float64) * 4)
-	height := int(billRect["height"].(float64) * 3.4)
-
-	if width == 0 || height == 0 {
-		log.Fatalf("Bill content has invalid dimensions: width=%d, height=%d", width, height)
-	}
-
-	log.Printf("Bill content found at: x=%d, y=%d, width=%d, height=%d", x, y, width, height)
-
-	// Crop the image to the bill-content
-	croppedBuf, err := CropImage(buf, x, y, width, height)
+	// 3. Capture the screenshot directly on the element
+	// Your code here was already correct.
+	// go-rod's Screenshot() when called on an element automatically crops to its bounds.
+	buf, err := billElement.Screenshot(
+		proto.PageCaptureScreenshotFormatJpeg,
+		60, // Quality
+	)
 	if err != nil {
-		log.Fatalf("Failed to crop image: %v", err)
+		return "", fmt.Errorf("failed to capture element screenshot: %w", err)
 	}
 
 	log.Println("Screenshot captured and cropped. Saving to:", savePath)
 
-	if err := SaveImage(croppedBuf, savePath); err != nil {
-		log.Fatalf("Failed to save image: %v", err)
+	// 4. Save the image data
+	if err := SaveBytes(buf, savePath); err != nil {
+		return "", fmt.Errorf("failed to save image: %w", err)
 	}
+
 	message := fmt.Sprintf("✅ Successfully saved cropped screenshot to: %s", savePath)
-	return message
-	// sendBillTofaceBook(trackingId)
+	return message, nil
 }
+
+// SaveBytes is a simple helper function to write the byte slice to a file.
+func SaveBytes(buf []byte, filePath string) error {
+	// Ensure the directory exists
+	dir := filepath.Dir(filePath)
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		return err
+	}
+
+	// Write the file
+	return os.WriteFile(filePath, buf, 0644)
+}
+
+// func scapingImage(trackingId string) string {
+// 	url := "https://app.anousith.express/landing/search_tracking/bill_share?tacking_number=" + trackingId
+// 	jpegQuality := 60 // Good quality for bill readability
+// 	savePath := "../go-api/images/bills/" + trackingId + ".jpg"
+
+// 	opts := append(chromedp.DefaultExecAllocatorOptions[:],
+// 		chromedp.Flag("headless", true),
+// 		chromedp.Flag("disable-gpu", true),
+// 		chromedp.Flag("chromium", true),
+// 	)
+// 	allocCtx, cancel := chromedp.NewExecAllocator(context.Background(), opts...)
+// 	defer cancel()
+
+// 	ctx, cancel := chromedp.NewContext(allocCtx, chromedp.WithLogf(log.Printf))
+// 	defer cancel()
+
+// 	ctx, cancel = context.WithTimeout(ctx, 120*time.Second)
+// 	defer cancel()
+
+// 	var buf []byte
+// 	var billRect map[string]interface{}
+
+// 	log.Println("Starting screenshot task for:", url)
+
+// 	// Get the bill-content's position and dimensions, then take full screenshot
+// 	err := chromedp.Run(ctx,
+// 		chromedp.Emulate(device.IPhone12),
+// 		chromedp.Navigate(url),
+// 		chromedp.Sleep(2*time.Second), // Wait for page to load completely
+
+// 		// Get the position and size of the bill-content element
+// 		chromedp.Evaluate(`
+// 			(() => {
+// 				const element = document.querySelector('.bill-content');
+// 				if (!element) {
+// 					console.error('Could not find .bill-content element');
+// 					return null;
+// 				}
+// 				const rect = element.getBoundingClientRect();
+// 				console.log('Bill content rect:', rect);
+// 				return {
+// 					x: rect.x,
+// 					y: rect.y,
+// 					width: rect.width,
+// 					height: rect.height
+// 				};
+// 			})()
+// 		`, &billRect),
+
+// 		// Take full page screenshot
+// 		chromedp.FullScreenshot(&buf, jpegQuality),
+// 	)
+
+// 	if err != nil {
+// 		log.Fatalf("Failed during screenshot: %v", err)
+// 	}
+
+// 	// Check if we found the bill-content element
+// 	if billRect == nil {
+// 		log.Fatalf("Could not find .bill-content element on the page")
+// 	}
+
+// 	x := int(billRect["x"].(float64))
+// 	y := int(billRect["y"].(float64))
+// 	width := int(billRect["width"].(float64) * 4)
+// 	height := int(billRect["height"].(float64) * 3.4)
+
+// 	if width == 0 || height == 0 {
+// 		log.Fatalf("Bill content has invalid dimensions: width=%d, height=%d", width, height)
+// 	}
+
+// 	log.Printf("Bill content found at: x=%d, y=%d, width=%d, height=%d", x, y, width, height)
+
+// 	// Crop the image to the bill-content
+// 	croppedBuf, err := CropImage(buf, x, y, width, height)
+// 	if err != nil {
+// 		log.Fatalf("Failed to crop image: %v", err)
+// 	}
+
+// 	log.Println("Screenshot captured and cropped. Saving to:", savePath)
+
+// 	if err := SaveImage(croppedBuf, savePath); err != nil {
+// 		log.Fatalf("Failed to save image: %v", err)
+// 	}
+// 	message := fmt.Sprintf("✅ Successfully saved cropped screenshot to: %s", savePath)
+// 	return message
+// 	// sendBillTofaceBook(trackingId)
+// }
 
 func sendBillTofaceBook(trackingId string) {
 
