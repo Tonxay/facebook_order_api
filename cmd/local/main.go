@@ -61,4 +61,5 @@ func main() {
 	}
 	service.Uploadimage()
 	log.Fatal(app.Listen(":" + port))
+
 }

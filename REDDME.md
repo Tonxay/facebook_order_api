@@ -99,3 +99,7 @@ server_name api.chat-dd.uk;
 
 }
 
+
+docker exec golang_app ls -la /go-api/images/bills/
+docker exec golang_app rm /go-api/images/bills/8252705319817.jpg
+docker exec golang_app rm -f /go-api/images/bills/*
