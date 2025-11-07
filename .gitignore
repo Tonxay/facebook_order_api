@@ -5,3 +5,4 @@
 *.env.dev
 *.env.prod
 ./tmp
+*./images

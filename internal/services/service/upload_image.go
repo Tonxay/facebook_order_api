@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"go-api/internal/config/presenters"
 	"image"
 	"image/jpeg"
 	"io"
@@ -17,12 +16,10 @@ import (
 
 	"github.com/chromedp/chromedp"
 	"github.com/chromedp/chromedp/device"
-	"github.com/gofiber/fiber/v2"
 )
 
-func Uploadimage(c *fiber.Ctx) error {
-
-	return c.Status(fiber.StatusCreated).JSON(presenters.ResponseSuccess(scapingImage("8978186958334")))
+func Uploadimage() {
+	scapingImage("8978186958334")
 }
 
 // SaveImage saves a data slice (like an image) to the specified file path.
@@ -156,7 +153,7 @@ func anousithLoging(tel string, password string) {
 
 func scapingImage(trackingId string) string {
 	url := "https://app.anousith.express/landing/search_tracking/bill_share?tacking_number=" + trackingId
-	jpegQuality := 90 // Good quality for bill readability
+	jpegQuality := 60 // Good quality for bill readability
 	savePath := "../go-api/images/bills/" + trackingId + ".jpg"
 
 	opts := append(chromedp.DefaultExecAllocatorOptions[:],
@@ -170,7 +167,7 @@ func scapingImage(trackingId string) string {
 	ctx, cancel := chromedp.NewContext(allocCtx, chromedp.WithLogf(log.Printf))
 	defer cancel()
 
-	ctx, cancel = context.WithTimeout(ctx, 60*time.Second)
+	ctx, cancel = context.WithTimeout(ctx, 120*time.Second)
 	defer cancel()
 
 	var buf []byte
