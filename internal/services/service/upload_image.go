@@ -20,10 +20,10 @@ import (
 
 func Uploadimage() {
 
-	anousithLoging("99294588", "1234567890")
+	// anousithLoging("99294588", "1234567890")
 
 	// scapingImage("8252705319817")
-	scapingImage("8978186958334")
+	// scapingImage("8978186958334")
 
 }
 
@@ -158,7 +158,7 @@ func anousithLoging(tel string, password string) {
 
 func scapingImage(trackingId string) {
 	url := "https://app.anousith.express/landing/search_tracking/bill_share?tacking_number=" + trackingId
-	jpegQuality := 10 // Good quality for bill readability
+	jpegQuality := 90 // Good quality for bill readability
 	savePath := "../go-api/images/bills/ " + trackingId + ".jpg"
 
 	opts := append(chromedp.DefaultExecAllocatorOptions[:],
