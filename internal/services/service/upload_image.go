@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"go-api/internal/config/presenters"
 	"image"
 	"image/jpeg"
 	"io"
@@ -16,13 +17,12 @@ import (
 
 	"github.com/chromedp/chromedp"
 	"github.com/chromedp/chromedp/device"
+	"github.com/gofiber/fiber/v2"
 )
 
-func Uploadimage() {
+func Uploadimage(c *fiber.Ctx) error {
 
-	//
-	scapingImage("8978186958334")
-
+	return c.Status(fiber.StatusCreated).JSON(presenters.ResponseSuccess(scapingImage("8978186958334")))
 }
 
 // SaveImage saves a data slice (like an image) to the specified file path.
@@ -154,7 +154,7 @@ func anousithLoging(tel string, password string) {
 
 }
 
-func scapingImage(trackingId string) {
+func scapingImage(trackingId string) string {
 	url := "https://app.anousith.express/landing/search_tracking/bill_share?tacking_number=" + trackingId
 	jpegQuality := 90 // Good quality for bill readability
 	savePath := "../go-api/images/bills/" + trackingId + ".jpg"
@@ -162,7 +162,7 @@ func scapingImage(trackingId string) {
 	opts := append(chromedp.DefaultExecAllocatorOptions[:],
 		chromedp.Flag("headless", true),
 		chromedp.Flag("disable-gpu", true),
-		// chromedp.Flag("chromium", true),
+		chromedp.Flag("chromium", true),
 	)
 	allocCtx, cancel := chromedp.NewExecAllocator(context.Background(), opts...)
 	defer cancel()
@@ -238,9 +238,9 @@ func scapingImage(trackingId string) {
 	if err := SaveImage(croppedBuf, savePath); err != nil {
 		log.Fatalf("Failed to save image: %v", err)
 	}
-
-	log.Printf("✅ Successfully saved cropped screenshot to: %s", savePath)
-	sendBillTofaceBook(trackingId)
+	message := fmt.Sprintf("✅ Successfully saved cropped screenshot to: %s", savePath)
+	return message
+	// sendBillTofaceBook(trackingId)
 }
 
 func sendBillTofaceBook(trackingId string) {

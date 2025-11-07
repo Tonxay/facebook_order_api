@@ -7,5 +7,7 @@ import (
 )
 
 func SetupBillRoutesPart(route fiber.Router) {
+	route.Get("/send", service.Uploadimage)
 	route.Get("/:tracking_number", service.Getbill)
+
 }
