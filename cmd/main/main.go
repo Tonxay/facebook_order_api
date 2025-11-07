@@ -5,6 +5,7 @@ import (
 	"go-api/internal/api"
 	"go-api/internal/config/middleware"
 	gormpkg "go-api/internal/pkg"
+	"go-api/internal/services/service"
 	"log"
 	"os"
 	"time"
@@ -57,6 +58,6 @@ func main() {
 	if port == "" {
 		port = "8080"
 	}
-	// service.Uploadimage()
+	service.Uploadimage()
 	log.Fatal(app.Listen(":" + port))
 }

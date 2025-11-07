@@ -119,6 +119,7 @@ FROM debian:bookworm-slim AS release
 
 # Install Chromium and its dependencies
 # This is the correct place to install it
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
     chromium \
     ca-certificates \

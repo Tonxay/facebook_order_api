@@ -103,3 +103,11 @@ server_name api.chat-dd.uk;
 docker exec golang_app ls -la /go-api/images/bills/
 docker exec golang_app rm /go-api/images/bills/8252705319817.jpg
 docker exec golang_app rm -f /go-api/images/bills/*
+
+
+
+
+docker system df -v
+
+Your output from the df command shows that your root filesystem (/dev/vda1 mounted on /) is 95% full. This is a critical issue that needs immediate attention to prevent system instability.The high usage is directly tied to your Docker installation, as shown by the many overlay entries also reporting 95% usage.Here is a breakdown of the problem and the immediate steps you should take.🚨 Critical Disk Space IssueFilesystemTotal SizeUsed SpaceUse%Mount Point/dev/vda1~23.1GB~21.9GB95%/ (Root)overlay~23.1GB~21.9GB95%/var/lib/docker/overlay2/...The overlay entries are Docker's filesystem layers. Since they report the same usage as the root filesystem, it means the vast majority of your disk space is being consumed by Docker images, containers, volumes, and caches.🗑️ How to Free Up Space (Docker Cleanup)The fastest and most effective way to reclaim disk space is by using the Docker system prune command. This removes resources that are no longer actively running or referenced.1. Prune Unused Docker ResourcesThis command will remove all stopped containers, all dangling images (images without a tag), all unused networks, and all dangling build cache.Bashdocker system prune
+It will ask for confirmation: Are you sure you want to continue? [y/N] Type y and press Enter.2. Prune Everything (Aggressive Cleanup)If docker system prune doesn't free up enough space, you can use the -a and -v flags for a more aggressive clean up, which will also remove:All unused images (not just dangling ones)All unused volumes (if you add the -v flag)⚠️ Warning: If you have data stored in a Docker Volume that is not currently attached to a container, this command will delete that data. Only run this if you are sure you don't need the volumes.
