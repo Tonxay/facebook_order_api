@@ -7,5 +7,5 @@ import (
 )
 
 func FacebookRoutesPart(route fiber.Router) {
-	route.Post("/auth/callback", service.FacebookCallbackHandler)
+	route.Post("/oauth", service.FacebookCallbackHandler)
 }
