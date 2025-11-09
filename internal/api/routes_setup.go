@@ -47,6 +47,9 @@ func SetupRoutes(app *fiber.App) {
 	bill := app.Group("/bill")
 	routers_part.SetupBillRoutesPart(bill)
 
+	facebook := app.Group("/facebook")
+	routers_part.FacebookRoutesPart(facebook)
+
 }
 
 func SetupWebsocketRoutes(app *fiber.App) {

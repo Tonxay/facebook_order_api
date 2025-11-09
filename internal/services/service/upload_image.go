@@ -17,33 +17,32 @@ import (
 	"github.com/go-rod/rod"
 	"github.com/go-rod/rod/lib/devices" // Import consts for UserAgentIPhone
 	"github.com/go-rod/rod/lib/proto"
-	"github.com/robfig/cron/v3"
 )
 
 func Uploadimage() {
-	log.Println("Starting cron scheduler...")
+	// log.Println("Starting cron scheduler...")
 
-	// 1. Set the time zone to Vientiane
-	vientianeZone, err := time.LoadLocation("Asia/Vientiane")
-	if err != nil {
-		log.Fatalf("Fatal: Could not load time zone. %v", err)
-	}
+	// // 1. Set the time zone to Vientiane
+	// vientianeZone, err := time.LoadLocation("Asia/Vientiane")
+	// if err != nil {
+	// 	log.Fatalf("Fatal: Could not load time zone. %v", err)
+	// }
 
-	// 2. Create a new cron scheduler in that time zone
-	c := cron.New(cron.WithLocation(vientianeZone))
+	// // 2. Create a new cron scheduler in that time zone
+	// c := cron.New(cron.WithLocation(vientianeZone))
 
-	// 3. Add the Uploadimage function to the schedule
-	//    This string "*/5 * * * *" means "at every 5th minute".
-	//    - "0 * * * *" = "at the start of every hour"
-	//    - "0 9 * * *" = "at 9:00 AM every day"
-	_, err = c.AddFunc("*/1 * * * *", Uploadimage)
-	if err != nil {
-		log.Fatalf("Fatal: Could not add cron job. %v", err)
-	}
+	// // 3. Add the Uploadimage function to the schedule
+	// //    This string "*/5 * * * *" means "at every 5th minute".
+	// //    - "0 * * * *" = "at the start of every hour"
+	// //    - "0 9 * * *" = "at 9:00 AM every day"
+	// _, err = c.AddFunc("*/1 * * * *", Uploadimage)
+	// if err != nil {
+	// 	log.Fatalf("Fatal: Could not add cron job. %v", err)
+	// }
 
-	// 4. Start the scheduler
-	c.Start()
-	log.Printf("Scheduler started. Will run job every 5 minutes in %s time.", vientianeZone)
+	// // 4. Start the scheduler
+	// c.Start()
+	// log.Printf("Scheduler started. Will run job every 5 minutes in %s time.", vientianeZone)
 
 	// TakeScreenshot("8978186958334")
 
