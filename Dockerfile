@@ -101,7 +101,7 @@ WORKDIR /build
 COPY go.mod go.sum ./
 
 # Install system dependencies for Alpine
-# RUN apk add --no-cache ca-certificates git tzdata
+RUN apk add --no-cache ca-certificates git tzdata
 
 # Download dependencies
 RUN go mod tidy
@@ -112,7 +112,7 @@ COPY . .
 # Build the binary
 RUN go build -ldflags="-s -w -extldflags '-static'" -installsuffix cgo -o /bin/api-app ./cmd/main/main.go
 
-# RUN apt-get update && apt-get install -y ca-certificates
+RUN apt-get update && apt-get install -y ca-certificates
 # -----------------------------------------------------------------
 # Use debian-slim as runtime, NOT alpine
 # -----------------------------------------------------------------
