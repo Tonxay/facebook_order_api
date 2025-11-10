@@ -251,7 +251,7 @@ func HandleWebhook(c *fiber.Ctx) error {
 
 // --- Configuration ---
 // This secret key must match the one configured on the sending service's side.
-// const webhookSecret = "EAARDcwZBMbeQBPZCG1ZAHM1x"
+const webhookSecret = "EAARDcwZBMbeQBPZCG1ZAHM1x"
 
 // Define a struct to match the expected JSON payload
 type MessageUpdate struct {
@@ -266,10 +266,8 @@ func FacebookWebhookHandler(c *fiber.Ctx) error {
 	// --- 1. Handle Verification Request (GET) ---
 	if c.Method() == fiber.MethodGet {
 		mode := c.Query("hub.mode")
-		//  := c.Query("hub.verify_token")
+		// token := c.Query("hub.verify_token")
 		challenge := c.Query("hub.challenge")
-
-		log.Println(mode)
 
 		if mode == "subscribe" {
 			log.Println("✅ Webhook verified successfully by Facebook.")
@@ -294,7 +292,7 @@ func FacebookWebhookHandler(c *fiber.Ctx) error {
 			return c.Status(fiber.StatusUnauthorized).SendString("Unauthorized: Missing signature")
 		}
 
-		if !validateFacebookSignature(payloadBody, providedSignature, "79ee0ea7042c570913540b6bc140edbb") {
+		if !validateFacebookSignature(payloadBody, providedSignature, webhookSecret) {
 			log.Println("Security validation failed: Signature mismatch")
 			return c.Status(fiber.StatusUnauthorized).SendString("Unauthorized: Invalid signature")
 		}
