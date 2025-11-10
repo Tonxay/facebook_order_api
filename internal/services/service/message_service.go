@@ -266,10 +266,10 @@ func FacebookWebhookHandler(c *fiber.Ctx) error {
 	// --- 1. Handle Verification Request (GET) ---
 	if c.Method() == fiber.MethodGet {
 		mode := c.Query("hub.mode")
-		token := c.Query("hub.verify_token")
+		//  := c.Query("hub.verify_token")
 		challenge := c.Query("hub.challenge")
 
-		if mode == "subscribe" && token == "79ee0ea7042c570913540b6bc140edbb" {
+		if mode == "subscribe" {
 			log.Println("✅ Webhook verified successfully by Facebook.")
 			// Respond with the hub.challenge value
 			return c.Status(fiber.StatusOK).SendString(challenge)
