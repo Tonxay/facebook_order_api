@@ -2,8 +2,12 @@ package service
 
 import (
 	"bytes"
+	"crypto/hmac"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"log"
 
 	"net/http"
 	"os"
@@ -243,4 +247,81 @@ func HandleWebhook(c *fiber.Ctx) error {
 	// }
 
 	return c.SendStatus(fiber.StatusOK)
+}
+
+// --- Configuration ---
+// This secret key must match the one configured on the sending service's side.
+const webhookSecret = "EAARDcwZBMbeQBPZCG1ZAHM1x"
+
+// Define a struct to match the expected JSON payload
+type MessageUpdate struct {
+	EventType string `json:"event_type"`
+	MessageID string `json:"message_id"`
+	Status    string `json:"status"` // e.g., "delivered", "read", "failed"
+}
+
+func WebhookHandler(c *fiber.Ctx) error {
+	// 1. Get Raw Body for Signature Validation
+	// Fiber's Body() is efficient but the bytes are mutable/reused, so we often
+	// need to copy them or reset the reader if using the standard library.
+	// For simplicity with BodyParser, we'll try to validate first.
+
+	// NOTE: In Fiber, c.Body() returns the byte slice directly.
+	// We can use it for HMAC calculation as long as we don't hold onto it
+	// past the function call, which we don't here.
+	payloadBody := c.Body()
+
+	// 2. Validate the Signature (Security Check)
+	// The header name (e.g., "X-App-Signature") depends on the sender service.
+	providedSignature := c.Get("X-App-Signature")
+	if providedSignature == "" {
+		log.Println("Security validation failed: Missing signature header")
+		return c.Status(fiber.StatusUnauthorized).SendString("Unauthorized: Missing signature")
+	}
+
+	if !ValidateSignature(payloadBody, providedSignature, webhookSecret) {
+		log.Println("Security validation failed: Signature mismatch")
+		return c.Status(fiber.StatusUnauthorized).SendString("Unauthorized: Invalid signature")
+	}
+	log.Println("Signature validated successfully.")
+
+	// 3. Decode the JSON Payload
+	var update MessageUpdate
+	// BodyParser handles decoding JSON, XML, Form data, etc., into the struct
+	if err := c.BodyParser(&update); err != nil {
+		log.Printf("Error decoding JSON payload: %v", err)
+		return c.Status(fiber.StatusBadRequest).SendString("Bad Request: Invalid JSON format")
+	}
+
+	// 4. Process the Update
+	log.Printf("✅ Received Event: Type: %s, ID: %s, Status: %s",
+		update.EventType, update.MessageID, update.Status)
+
+	// In a real application, you would now offload heavy tasks
+	// (e.g., database writes, sending emails) to a background worker
+	// and return a response immediately.
+
+	// 5. Send Success Response
+	// Return a 200 OK or 202 Accepted status quickly to prevent the sender
+	// from retrying the notification.
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": "Webhook received and acknowledged",
+		"id":      update.MessageID,
+	})
+}
+
+func ValidateSignature(payloadBody []byte, providedSignature string, secret string) bool {
+	// Strip prefix if necessary (e.g., 'sha256=')
+	const signaturePrefix = "sha256="
+	if len(providedSignature) >= len(signaturePrefix) && providedSignature[:len(signaturePrefix)] == signaturePrefix {
+		providedSignature = providedSignature[len(signaturePrefix):]
+	}
+
+	key := []byte(secret)
+	h := hmac.New(sha256.New, key)
+	h.Write(payloadBody)
+	expectedMAC := hex.EncodeToString(h.Sum(nil))
+
+	// Use constant-time comparison for security against timing attacks
+	return hmac.Equal([]byte(expectedMAC), []byte(providedSignature))
 }
