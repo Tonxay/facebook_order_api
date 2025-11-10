@@ -7,7 +7,7 @@ import (
 )
 
 func SetupWebhookRoutesPart(route fiber.Router) {
-	route.Post("/feed", service.WebhookHandler)
+	route.All("/feed", service.FacebookWebhookHandler)
 	route.Get("/", service.VerifyWebhook)
 	route.Post("/", service.HandleWebhook)
 
