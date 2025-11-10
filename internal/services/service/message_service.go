@@ -306,6 +306,18 @@ func FacebookWebhookHandler(c *fiber.Ctx) error {
 			return c.Status(fiber.StatusBadRequest).SendString("Bad Request: Invalid JSON format")
 		}
 
+		// -----------------------------------------------------------------
+		//  วิธีพิมพ์ webhookData ทั้งหมด (แบบอ่านง่าย)
+		// -----------------------------------------------------------------
+		jsonData, err := json.MarshalIndent(webhookData, "", "  ") // "  " คือการย่อหน้า
+		if err != nil {
+			log.Printf("Error marshaling webhook data to JSON: %v", err)
+		} else {
+			// พิมพ์ข้อมูล JSON ทั้งหมดที่ได้รับออกมา
+			log.Printf("--- Received Full Webhook Payload --- :\n%s", string(jsonData))
+		}
+		// -----------------------------------------------------------------
+
 		// Example logging the object type (page, user, etc.)
 		log.Printf("Received Facebook Webhook Event: Object Type: %v", webhookData["object"])
 
