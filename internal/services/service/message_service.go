@@ -269,6 +269,8 @@ func FacebookWebhookHandler(c *fiber.Ctx) error {
 		//  := c.Query("hub.verify_token")
 		challenge := c.Query("hub.challenge")
 
+		log.Println(mode)
+
 		if mode == "subscribe" {
 			log.Println("✅ Webhook verified successfully by Facebook.")
 			// Respond with the hub.challenge value
@@ -283,7 +285,7 @@ func FacebookWebhookHandler(c *fiber.Ctx) error {
 	if c.Method() == fiber.MethodPost {
 		// a. Get raw body for signature validation
 		payloadBody := c.Body()
-		log.Println("✅ Webhook verified successfully by comment")
+
 		// b. Validate the Signature
 		// Facebook uses X-Hub-Signature-256 header
 		providedSignature := c.Get("X-Hub-Signature-256")
