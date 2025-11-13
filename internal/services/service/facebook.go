@@ -3,11 +3,12 @@ package service
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
 
 	"github.com/gofiber/fiber/v2"
+	"io"
 )
 
 // !! ใส่ App ID และ Secret ของคุณตรงนี้ !!
@@ -37,41 +38,41 @@ type PagesResponse struct {
 // สังเกตว่าเปลี่ยนจาก (w, r) เป็น (c *fiber.Ctx)
 func FacebookCallbackHandler(c *fiber.Ctx) error {
 
-	// // 2. อ่าน JSON (Fiber ทำได้ง่ายกว่า)
-	// var req AuthRequest
-	// if err := c.BodyParser(&req); err != nil {
-	// 	return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-	// 		"status": "error", "message": "Invalid request body",
-	// 	})
-	// }
-	// shortLivedToken := req.AccessToken
+	// 2. อ่าน JSON (Fiber ทำได้ง่ายกว่า)
+	var req AuthRequest
+	if err := c.BodyParser(&req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"status": "error", "message": "Invalid request body",
+		})
+	}
+	shortLivedToken := req.AccessToken
 
-	// // 3. แลก Token (เรียกฟังก์ชันเดิม)
-	// longLivedToken, err := exchangeToken(shortLivedToken)
-	// if err != nil {
-	// 	return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-	// 		"status": "error", "message": err.Error(),
-	// 	})
-	// }
-	// log.Printf("ได้ Long-Lived User Token มาแล้ว: %s...", longLivedToken[:10])
+	// 3. แลก Token (เรียกฟังก์ชันเดิม)
+	longLivedToken, err := exchangeToken(shortLivedToken)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"status": "error", "message": err.Error(),
+		})
+	}
+	log.Printf("ได้ Long-Lived User Token มาแล้ว: %s...", longLivedToken[:10])
 
-	// // 4. ดึง Page Token (เรียกฟังก์ชันเดิม)
-	// pages, err := getPages(longLivedToken)
-	// if err != nil {
-	// 	return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-	// 		"status": "error", "message": err.Error(),
-	// 	})
-	// }
+	// 4. ดึง Page Token (เรียกฟังก์ชันเดิม)
+	pages, err := getPages(longLivedToken)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"status": "error", "message": err.Error(),
+		})
+	}
 
-	// // 5. บันทึกผลลัพธ์ (เหมือนเดิม)
-	// log.Println("--- พบเพจที่เชื่อมต่อ ---")
-	// for _, page := range pages.Data {
-	// 	log.Printf("  Page ID: %s", page.ID)
-	// 	log.Printf("  Page Name: %s", page.Name)
-	// 	log.Printf("  Page Access Token: %s...", page.AccessToken[:10])
-	// 	// **** จุดนี้คือจุดที่คุณต้องบันทึก page.AccessToken ลง Database ****
-	// }
-	// log.Println("--------------------------")
+	// 5. บันทึกผลลัพธ์ (เหมือนเดิม)
+	log.Println("--- พบเพจที่เชื่อมต่อ ---")
+	for _, page := range pages.Data {
+		log.Printf("  Page ID: %s", page.ID)
+		log.Printf("  Page Name: %s", page.Name)
+		log.Printf("  Page Access Token: %s...", page.AccessToken[:10])
+		// **** จุดนี้คือจุดที่คุณต้องบันทึก page.AccessToken ลง Database ****
+	}
+	log.Println("--------------------------")
 
 	// 6. ตอบกลับ (Fiber ทำได้ง่ายกว่า)
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
@@ -97,7 +98,7 @@ func exchangeToken(shortLivedToken string) (string, error) {
 	}
 	defer resp.Body.Close()
 
-	body, _ := ioutil.ReadAll(resp.Body)
+	body, _ := io.ReadAll(resp.Body)
 	var tokenResponse LongLivedTokenResponse
 	if err := json.Unmarshal(body, &tokenResponse); err != nil {
 		return "", fmt.Errorf("error decoding token response: %s", string(body))
@@ -119,7 +120,7 @@ func getPages(longLivedUserToken string) (*PagesResponse, error) {
 	}
 	defer resp.Body.Close()
 
-	body, _ := ioutil.ReadAll(resp.Body)
+	body, _ := io.ReadAll(resp.Body)
 	var pagesResponse PagesResponse
 	if err := json.Unmarshal(body, &pagesResponse); err != nil {
 		return nil, fmt.Errorf("error decoding pages response: %s", string(body))

@@ -319,7 +319,7 @@ func FacebookWebhookHandler(c *fiber.Ctx) error {
 		// -----------------------------------------------------------------
 
 		// Example logging the object type (page, user, etc.)
-		log.Printf("Received Facebook Webhook Event: Object Type: %v", webhookData["object"])
+		// log.Printf("Received Facebook Webhook Event: Object Type: %v", webhookData["object"])
 
 		// TODO: Implement parsing and processing of the nested 'entry' and 'messaging' arrays here.
 
