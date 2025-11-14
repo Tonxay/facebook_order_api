@@ -275,7 +275,6 @@ func FacebookWebhookHandler(c *fiber.Ctx) error {
 			return c.Status(fiber.StatusOK).SendString(challenge)
 		}
 
-		log.Println("❌ Verification failed: Token or mode mismatch.")
 		return c.Status(fiber.StatusForbidden).SendString("Forbidden: Invalid verification parameters")
 	}
 
