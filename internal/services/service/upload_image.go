@@ -5,6 +5,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	gormpkg "go-api/internal/pkg"
+	custommodel "go-api/internal/pkg/models/custom_model"
+	"go-api/internal/pkg/models/request"
+	dbservice "go-api/internal/services/db_service"
 	"image"
 	"image/jpeg"
 	"io"
@@ -12,6 +16,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/go-rod/rod"
@@ -19,7 +24,189 @@ import (
 	"github.com/go-rod/rod/lib/proto"
 )
 
-func Uploadimage() {
+type ItemsV2Response struct {
+	Data struct {
+		ItemsV2 struct {
+			Total int        `json:"total"`
+			Data  []ItemData `json:"data"`
+		} `json:"itemsV2"`
+	} `json:"data"`
+}
+
+type ItemData struct {
+	ID                string         `json:"_id"`
+	TrackingPlatform  string         `json:"trackingPlatform"`
+	TrackingId        string         `json:"trackingId"`
+	ItemName          string         `json:"itemName"`
+	ItemValueKIP      int            `json:"itemValueKIP"`
+	ItemValueTHB      int            `json:"itemValueTHB"`
+	ItemValueUSD      int            `json:"itemValueUSD"`
+	RealItemValueKIP  int            `json:"realItemValueKIP"`
+	RealItemValueTHB  int            `json:"realItemValueTHB"`
+	RealItemValueUSD  int            `json:"realItemValueUSD"`
+	ReceiverName      string         `json:"receiverName"`
+	ReceiverPhone     string         `json:"receiverPhone"`
+	Description       string         `json:"description"`
+	IsSummary         int            `json:"isSummary"`
+	DestSendDate      *string        `json:"destSendDate"`
+	ChargeOnShop      int            `json:"charge_on_shop"`
+	ItemStatus        string         `json:"itemStatus"`
+	ContactStatus     string         `json:"contactStatus"`
+	OriginSendDate    string         `json:"originSendDate"`
+	Width             int            `json:"width"`
+	Weight            int            `json:"weight"`
+	IsCod             string         `json:"isCod"`
+	IsExtraItem       int            `json:"isExtraItem"`
+	PackagePrice      int            `json:"packagePrice"`
+	OriginReceiveDate string         `json:"originReceiveDate"`
+	DestReceiveDate   *string        `json:"destReceiveDate"`
+	SendCompleteDate  *string        `json:"sendCompleteDate"`
+	IsBackward        int            `json:"isBackward"`
+	BillNumber        int            `json:"billNumber"`
+	OriginProvinceId  ProvinceInfo   `json:"originProvinceId"`
+	DestProvinceId    ProvinceInfo   `json:"destProvinceId"`
+	OriginBranchId    BranchInfo     `json:"originBranchId"`
+	DestBranchId      BranchDestInfo `json:"destBranchId"`
+	CustomerId        CustomerInfo   `json:"customerId"`
+	CreatedBy         EmployeeInfo   `json:"createdBy"`
+	OriginReceiveBy   EmployeeInfo   `json:"originReceiveBy"`
+	ProvidedBy        ProviderInfo   `json:"providedBy"`
+}
+
+type ProvinceInfo struct {
+	ProvinceName string `json:"provinceName"`
+}
+
+type BranchInfo struct {
+	BranchName string `json:"branch_name"`
+}
+
+type BranchDestInfo struct {
+	BranchName    string `json:"branch_name"`
+	BranchAddress string `json:"branch_address"`
+	ContactInfo   string `json:"contactInfo"`
+}
+
+type CustomerInfo struct {
+	IDList      string `json:"id_list"`
+	FullName    string `json:"full_name"`
+	ContactInfo string `json:"contact_info"`
+}
+
+type EmployeeInfo struct {
+	FirstName   string `json:"first_name"`
+	PhoneNumber string `json:"phone_number"`
+}
+
+type ProviderInfo struct {
+	ID string `json:"_id"`
+}
+
+func compareLists(list1 []*custommodel.OrderReponseNew, list2 []ItemData) (matched []custommodel.OrderReponseNew, onlyList1, dataNotMath []string) {
+	// normalize to digits only
+	normalize := func(s string) string {
+		var b strings.Builder
+		for _, r := range s {
+			if r >= '0' && r <= '9' {
+				b.WriteRune(r)
+			}
+		}
+		return b.String()
+	}
+
+	// Build map of normalized phone -> present for list1
+	m1 := make(map[string]bool)
+	for _, v := range list1 {
+		telStr := fmt.Sprintf("%d", v.Tel)
+		n := normalize(telStr)
+		m1[n] = true
+	}
+
+	// Build map of normalized receiver phone -> trackingId for list2
+	m2 := make(map[string]string)
+	for _, v := range list2 {
+		n := normalize(v.ReceiverPhone)
+		if n == "" {
+			continue
+		}
+		m2[n] = v.TrackingId
+	}
+
+	// Check list1 and assign tracking IDs when matched
+	for _, v := range list1 {
+		telStr := fmt.Sprintf("%d", v.Tel)
+		normTel := normalize(telStr)
+
+		if tracking, ok := m2[normTel]; ok {
+			// exact normalized match
+			v.TrackingNumber = tracking
+			matched = append(matched, *v)
+			continue
+		}
+
+		// fallback: try suffix match (handles different country code formats)
+		found := false
+		for recvNorm, tracking := range m2 {
+			if strings.HasSuffix(recvNorm, normTel) || strings.HasSuffix(normTel, recvNorm) {
+				v.TrackingNumber = tracking
+				matched = append(matched, *v)
+				found = true
+				break
+			}
+		}
+
+		if !found {
+			onlyList1 = append(onlyList1, telStr)
+		}
+	}
+
+	// Check list2 for items not in list1
+	for _, v := range list2 {
+		n := normalize(v.ReceiverPhone)
+		if n == "" {
+			dataNotMath = append(dataNotMath, v.ReceiverPhone)
+			continue
+		}
+		if !m1[n] {
+			dataNotMath = append(dataNotMath, v.ReceiverPhone)
+		}
+	}
+
+	return
+
+}
+
+// "ordered", // ສັ່ງຊື້ (Order placed)
+// "waiting_to_pack", // ລໍຖ້າແພັກເຄື່ອງ (Waiting to pack)
+// "packed", // ແພັກເຄື່ອງແລ້ວ (Packed)
+// "shipped", // ສົ່ງແລ້ວ (Shipped)
+// "customer_bill_notified", // ແຈ້ງບິນໃຫ້ລູກຄ້າແລ້ວ (Customer bill notified)
+// "delivery_complete", // ສົ່ງສຳເລັດ (Delivery complete)
+// "payment_completed", // ສຳລະເງິນແລ້ວ (Payment completed)
+// "order_cancelled", // ຍົກເລີກອໍເດີ (Order cancelled)
+// "return_to_sender", // ພັດສະດຸຕີກັບ (Returned to sender)
+// "customer_notified", // ແຈ້ງລູກແລ້ວ (Customer notified)
+
+func Uploadimage() error {
+	token := anousithLoging("92339355", "s0987654")
+	order, _ := dbservice.GetOrders(gormpkg.GetDB(), request.StatusOrderRequest{
+		IsCancel:   false,
+		ShippingID: "7891ba5a-516d-4efb-8305-343736a6b171",
+		Statuses:   []string{"delivery_complete"},
+	})
+
+	if len(order) == 0 {
+		return fmt.Errorf("No orders found")
+	}
+	amountBills := anousithOrder(token)
+
+	matched, onlyL1, dataNotMath := compareLists(order, amountBills.Data.ItemsV2.Data)
+
+	fmt.Println("Matched:", matched)
+	fmt.Println("Only in List1:", onlyL1)
+	fmt.Println("Only in data_not_matched:", dataNotMath)
+	return nil
+
 	// log.Println("Starting cron scheduler...")
 
 	// // 1. Set the time zone to Vientiane
@@ -116,7 +303,7 @@ func CropImage(imgData []byte, x, y, width, height int) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-func anousithLoging(tel string, password string) {
+func anousithLoging(tel string, password string) string {
 
 	payload := map[string]interface{}{
 		"operationName": "CustomerLogin",
@@ -175,6 +362,176 @@ func anousithLoging(tel string, password string) {
 	fmt.Println("Status:", resp.Status)
 	fmt.Println("Response Body:", string(body))
 
+	// Parse JSON response to extract accessToken safely
+	var respJSON map[string]interface{}
+	if err := json.Unmarshal(body, &respJSON); err != nil {
+		log.Fatal("Error parsing response JSON:", err)
+	}
+
+	accessToken := ""
+	if data, ok := respJSON["data"].(map[string]interface{}); ok {
+		if cl, ok := data["customerLogin"].(map[string]interface{}); ok {
+			if at, ok := cl["accessToken"].(string); ok {
+				accessToken = at
+			}
+		}
+	}
+
+	if accessToken == "" {
+		log.Printf("accessToken not found in response: %s", string(body))
+	}
+
+	return accessToken
+
+}
+
+func anousithOrder(token string) ItemsV2Response {
+
+	payload := map[string]interface{}{
+		"operationName": "ItemsV2",
+		"variables": map[string]interface{}{
+			"where": map[string]interface{}{
+				"multipleItemStatus": []string{
+					"TRANSIT_TO_DEST_BRANCH",
+					// "TRANSIT_TO_ORIGIN_BRANCH",
+					// "DEST_BRANCH_RECEIVED_FORWARD",
+					// "ORIGIN_BRANCH_RECEIVED_BACKWARD",
+					// "DEST_BRANCH_RECEIVED_BACKWARD",
+					// "ORIGIN_BRANCH_RECEIVED_FORWARD",
+					// "COMPLETED",
+				},
+				"originReceiveDate_gte": "2025-10-01",
+				"originReceiveDate_lt":  "2025-11-18",
+				"searchMultipleCOD":     []string{"0", "1"},
+				"customerId":            6216826,
+				"isDeleted":             0,
+			},
+			"orderBy": "originReceiveDate_DESC",
+			"skip":    0,
+			"limit":   100,
+		},
+		"query": `query ItemsV2($where: ItemV2WhereInput, $skip: Int, $noLimit: Boolean, $limit: Int, $orderBy: OrderByItem) {
+  itemsV2(
+    where: $where
+    skip: $skip
+    noLimit: $noLimit
+    limit: $limit
+    orderBy: $orderBy
+  ) {
+    total
+    data {
+      _id
+      trackingPlatform
+      trackingId
+      itemName
+      itemValueKIP
+      itemValueTHB
+      itemValueUSD
+      realItemValueKIP
+      realItemValueTHB
+      realItemValueUSD
+      receiverName
+      receiverPhone
+      description
+      isSummary
+      destSendDate
+      charge_on_shop
+      itemStatus
+      contactStatus
+      originSendDate
+      width
+      weight
+      isCod
+      isExtraItem
+      packagePrice
+      originReceiveDate
+      destReceiveDate
+      sendCompleteDate
+      isBackward
+      billNumber
+      originProvinceId {
+        provinceName
+      }
+      destProvinceId {
+        provinceName
+      }
+      originBranchId {
+        branch_name
+      }
+      destBranchId {
+        branch_name
+        branch_address
+        contactInfo
+      }
+      customerId {
+        id_list
+        full_name
+        contact_info
+      }
+      createdBy {
+        first_name
+        phone_number
+      }
+      originReceiveBy {
+        first_name
+        phone_number
+      }
+      providedBy {
+        _id
+      }
+    }
+  }
+}`,
+	}
+
+	// 2. "Marshal" the map into a JSON byte slice
+	// This will safely handle any special characters in your params.
+	jsonData, err := json.Marshal(payload)
+	if err != nil {
+		log.Fatal("Error creating JSON payload:", err)
+	}
+
+	// 'jsonData' is now ready to be used in an HTTP request
+	fmt.Println("--- Generated JSON Byte Slice ---")
+	// We use bytes.Buffer to pretty-print the JSON for demonstration
+	var prettyJSON bytes.Buffer
+	json.Indent(&prettyJSON, jsonData, "", "  ")
+
+	fmt.Println(prettyJSON.String()) // (Your JSON data)
+	apiUrl := "https://pro.api.anousith.express/graphql"
+
+	// 1. Create a new request, but don't send it yet
+	// (Note: http.MethodPost is just a constant for "POST")
+	req, err := http.NewRequest(http.MethodPost, apiUrl, bytes.NewBuffer(jsonData))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// 2. Set your headers (THE IMPORTANT PART)
+	// The "application/json" from your old code *is* a header, so set it here.
+	req.Header.Set("Content-Type", "application/json")
+
+	req.Header.Set("Authorization", token)
+	// Add any other headers you need
+	req.Header.Set("referer", "https://app.anousith.express/")
+
+	// 3. Send the request using the default client
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer resp.Body.Close()
+
+	// 4. Read the response (same as before)
+	body, err := io.ReadAll(resp.Body)
+	log.Println("Response body:", string(body))
+	if err != nil {
+		log.Fatal(err)
+	}
+	var response ItemsV2Response
+	json.Unmarshal(body, &response)
+
+	return response
 }
 
 // TakeScreenshot navigates to the bill URL, finds the '.bill-content' element,
@@ -385,6 +742,5 @@ func sendBillTofaceBook(trackingId string) {
 
 	fmt.Println("Status:", resp.Status)
 	fmt.Println("Response Body:", string(body))
-
 	log.Println("✅ Successfully sended:", req)
 }

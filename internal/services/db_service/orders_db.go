@@ -93,6 +93,9 @@ func GetOrders(db *gorm.DB, filter request.StatusOrderRequest) ([]*custommodel.O
 	if !filter.IsCancel {
 		tx = tx.Where("o.status IN ?", filter.Statuses)
 	}
+	if filter.ShippingID != "" {
+		tx = tx.Where("o.shipping_id = ?", filter.ShippingID)
+	}
 
 	if filter.Tel != "" {
 		tx = tx.Where("o.tel::text LIKE ?", "%"+filter.Tel+"%")
