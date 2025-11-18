@@ -401,7 +401,7 @@ func AnousithOrder(token string) ItemsV2Response {
 			"where": map[string]interface{}{
 				"multipleItemStatus": []string{
 					"TRANSIT_TO_DEST_BRANCH",
-					"TRANSIT_TO_ORIGIN_BRANCH",
+					// "TRANSIT_TO_ORIGIN_BRANCH",
 					// "DEST_BRANCH_RECEIVED_FORWARD",
 					// "ORIGIN_BRANCH_RECEIVED_BACKWARD",
 					// "DEST_BRANCH_RECEIVED_BACKWARD",
