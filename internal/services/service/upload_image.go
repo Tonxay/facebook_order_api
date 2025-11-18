@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"go-api/internal/config/presenters"
 	gormpkg "go-api/internal/pkg"
 	custommodel "go-api/internal/pkg/models/custom_model"
 	"go-api/internal/pkg/models/request"
@@ -17,11 +18,13 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/go-rod/rod"
 	"github.com/go-rod/rod/lib/devices" // Import consts for UserAgentIPhone
 	"github.com/go-rod/rod/lib/proto"
+	"github.com/gofiber/fiber/v2"
 )
 
 type ItemsV2Response struct {
@@ -114,13 +117,26 @@ func compareLists(list1 []*custommodel.OrderReponseNew, list2 []ItemData) (match
 		return b.String()
 	}
 
-	// Build map of normalized phone -> present for list1
+	// Build map of normalized phone -> present for list1 (concurrent-safe)
 	m1 := make(map[string]bool)
+	var mu sync.Mutex
+	var wg sync.WaitGroup
+
 	for _, v := range list1 {
 		telStr := fmt.Sprintf("%d", v.Tel)
-		n := normalize(telStr)
-		m1[n] = true
+		wg.Add(1)
+		go func(s string) {
+			defer wg.Done()
+			n := normalize(s)
+			if n == "" {
+				return
+			}
+			mu.Lock()
+			m1[n] = true
+			mu.Unlock()
+		}(telStr)
 	}
+	wg.Wait()
 
 	// Build map of normalized receiver phone -> trackingId for list2
 	m2 := make(map[string]string)
@@ -137,18 +153,20 @@ func compareLists(list1 []*custommodel.OrderReponseNew, list2 []ItemData) (match
 		telStr := fmt.Sprintf("%d", v.Tel)
 		normTel := normalize(telStr)
 
-		if tracking, ok := m2[normTel]; ok {
-			// exact normalized match
-			v.TrackingNumber = tracking
-			matched = append(matched, *v)
-			continue
-		}
+		// if tracking, ok := m2[normTel]; ok {
+		// 	// exact normalized match
+		// 	v.TrackingNumber = tracking
+		// 	matched = append(matched, *v)
+		// 	continue
+		// }
 
 		// fallback: try suffix match (handles different country code formats)
 		found := false
 		for recvNorm, tracking := range m2 {
+
 			if strings.HasSuffix(recvNorm, normTel) || strings.HasSuffix(normTel, recvNorm) {
 				v.TrackingNumber = tracking
+				v.LikeTackingNumberURL = "https://app.anousith.express/landing/search_tracking/bill_share?tacking_number=" + tracking
 				matched = append(matched, *v)
 				found = true
 				break
@@ -173,7 +191,6 @@ func compareLists(list1 []*custommodel.OrderReponseNew, list2 []ItemData) (match
 	}
 
 	return
-
 }
 
 // "ordered", // ສັ່ງຊື້ (Order placed)
@@ -187,8 +204,8 @@ func compareLists(list1 []*custommodel.OrderReponseNew, list2 []ItemData) (match
 // "return_to_sender", // ພັດສະດຸຕີກັບ (Returned to sender)
 // "customer_notified", // ແຈ້ງລູກແລ້ວ (Customer notified)
 
-func Uploadimage() error {
-	token := anousithLoging("92339355", "s0987654")
+func GetOrderbillInAnousith(c *fiber.Ctx) error {
+	token := AnousithLoging("92339355", "s0987654")
 	order, _ := dbservice.GetOrders(gormpkg.GetDB(), request.StatusOrderRequest{
 		IsCancel:   false,
 		ShippingID: "7891ba5a-516d-4efb-8305-343736a6b171",
@@ -198,14 +215,22 @@ func Uploadimage() error {
 	if len(order) == 0 {
 		return fmt.Errorf("No orders found")
 	}
-	amountBills := anousithOrder(token)
+	amountBills := AnousithOrder(token)
 
 	matched, onlyL1, dataNotMath := compareLists(order, amountBills.Data.ItemsV2.Data)
 
 	fmt.Println("Matched:", matched)
 	fmt.Println("Only in List1:", onlyL1)
 	fmt.Println("Only in data_not_matched:", dataNotMath)
-	return nil
+	return c.Status(fiber.StatusCreated).JSON(presenters.ResponseSuccess(fiber.Map{
+		"count_orders":                         len(order),
+		"count_order_matched":                  len(matched),
+		"count_order_not_matched":              len(onlyL1),
+		"count_anousith_bill_data_not_matched": len(dataNotMath),
+		"matched":                              matched,
+		"order_not_matched":                    onlyL1,
+		"anousith_bill_data_not_matched":       dataNotMath,
+	}))
 
 	// log.Println("Starting cron scheduler...")
 
@@ -303,7 +328,7 @@ func CropImage(imgData []byte, x, y, width, height int) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-func anousithLoging(tel string, password string) string {
+func AnousithLoging(tel string, password string) string {
 
 	payload := map[string]interface{}{
 		"operationName": "CustomerLogin",
@@ -385,7 +410,7 @@ func anousithLoging(tel string, password string) string {
 
 }
 
-func anousithOrder(token string) ItemsV2Response {
+func AnousithOrder(token string) ItemsV2Response {
 
 	payload := map[string]interface{}{
 		"operationName": "ItemsV2",
@@ -393,7 +418,7 @@ func anousithOrder(token string) ItemsV2Response {
 			"where": map[string]interface{}{
 				"multipleItemStatus": []string{
 					"TRANSIT_TO_DEST_BRANCH",
-					// "TRANSIT_TO_ORIGIN_BRANCH",
+					"TRANSIT_TO_ORIGIN_BRANCH",
 					// "DEST_BRANCH_RECEIVED_FORWARD",
 					// "ORIGIN_BRANCH_RECEIVED_BACKWARD",
 					// "DEST_BRANCH_RECEIVED_BACKWARD",

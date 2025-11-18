@@ -219,6 +219,7 @@ type OrderReponseNew struct {
 	Status                string          `gorm:"column:status;default:pending" json:"status"`
 	CustomerID            string          `gorm:"column:customer_id" json:"customer_id"`
 	TrackingNumber        string          `gorm:"column:tracking_number" json:"tracking_number"`
+	LikeTackingNumberURL  string          `gorm:"column:like_tracking_number_url" json:"like_tracking_number_url"`
 	IsCancel              bool            `gorm:"column:is_cancel;not null" json:"is_cancel"`
 	PageName              string          `gorm:"column:page_name" json:"page_name"`
 	PageTel               int32           `gorm:"column:page_tel" json:"page_tel"`
