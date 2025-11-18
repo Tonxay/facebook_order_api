@@ -18,7 +18,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/go-rod/rod"
@@ -117,26 +116,16 @@ func compareLists(list1 []*custommodel.OrderReponseNew, list2 []ItemData) (match
 		return b.String()
 	}
 
-	// Build map of normalized phone -> present for list1 (concurrent-safe)
+	// Build map of normalized phone -> present for list1 (no goroutines)
 	m1 := make(map[string]bool)
-	var mu sync.Mutex
-	var wg sync.WaitGroup
-
 	for _, v := range list1 {
 		telStr := fmt.Sprintf("%d", v.Tel)
-		wg.Add(1)
-		go func(s string) {
-			defer wg.Done()
-			n := normalize(s)
-			if n == "" {
-				return
-			}
-			mu.Lock()
-			m1[n] = true
-			mu.Unlock()
-		}(telStr)
+		n := normalize(telStr)
+		if n == "" {
+			continue
+		}
+		m1[n] = true
 	}
-	wg.Wait()
 
 	// Build map of normalized receiver phone -> trackingId for list2
 	m2 := make(map[string]string)
@@ -153,17 +142,11 @@ func compareLists(list1 []*custommodel.OrderReponseNew, list2 []ItemData) (match
 		telStr := fmt.Sprintf("%d", v.Tel)
 		normTel := normalize(telStr)
 
-		// if tracking, ok := m2[normTel]; ok {
-		// 	// exact normalized match
-		// 	v.TrackingNumber = tracking
-		// 	matched = append(matched, *v)
-		// 	continue
-		// }
-
-		// fallback: try suffix match (handles different country code formats)
 		found := false
 		for recvNorm, tracking := range m2 {
-
+			if normTel == "" {
+				continue
+			}
 			if strings.HasSuffix(recvNorm, normTel) || strings.HasSuffix(normTel, recvNorm) {
 				v.TrackingNumber = tracking
 				v.LikeTackingNumberURL = "https://app.anousith.express/landing/search_tracking/bill_share?tacking_number=" + tracking
