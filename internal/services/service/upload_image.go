@@ -419,21 +419,30 @@ func AnousithOrder(token string) ItemsV2Response {
 				"multipleItemStatus": []string{
 					"TRANSIT_TO_DEST_BRANCH",
 					"TRANSIT_TO_ORIGIN_BRANCH",
-					"DEST_BRANCH_RECEIVED_FORWARD",
-					"ORIGIN_BRANCH_RECEIVED_BACKWARD",
-					"DEST_BRANCH_RECEIVED_BACKWARD",
-					"ORIGIN_BRANCH_RECEIVED_FORWARD",
+					// "DEST_BRANCH_RECEIVED_FORWARD",
+					// "ORIGIN_BRANCH_RECEIVED_BACKWARD",
+					// "DEST_BRANCH_RECEIVED_BACKWARD",
+					// "ORIGIN_BRANCH_RECEIVED_FORWARD",
 					// "COMPLETED",
 				},
-				"originReceiveDate_gte": "2025-10-01",
-				"originReceiveDate_lt":  "2025-11-18",
-				"searchMultipleCOD":     []string{"0", "1"},
-				"customerId":            6216826,
-				"isDeleted":             0,
+				"originReceiveDate_gte": func() string {
+					now := time.Now().UTC()
+					start := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, time.UTC)
+					return start.Format("2006-01-02")
+				}(),
+				"originReceiveDate_lt": func() string {
+					now := time.Now().UTC()
+					start := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, time.UTC)
+					end := start.AddDate(0, 1, 0) // first day of next month (exclusive)
+					return end.Format("2006-01-02")
+				}(),
+				"searchMultipleCOD": []string{"0", "1"},
+				"customerId":        6216826,
+				"isDeleted":         0,
 			},
 			"orderBy": "originReceiveDate_DESC",
 			"skip":    0,
-			"limit":   100,
+			"limit":   1000,
 		},
 		"query": `query ItemsV2($where: ItemV2WhereInput, $skip: Int, $noLimit: Boolean, $limit: Int, $orderBy: OrderByItem) {
   itemsV2(
