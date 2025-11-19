@@ -263,6 +263,7 @@ type MessageUpdate struct {
 // --- Handler Function ---
 
 func FacebookWebhookHandler(c *fiber.Ctx) error {
+
 	// --- 1. Handle Verification Request (GET) ---
 	if c.Method() == fiber.MethodGet {
 		mode := c.Query("hub.mode")
