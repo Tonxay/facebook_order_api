@@ -274,7 +274,6 @@ func FacebookWebhookHandler(c *fiber.Ctx) error {
 			// Respond with the hub.challenge value
 			return c.Status(fiber.StatusOK).SendString(challenge)
 		}
-
 		return c.Status(fiber.StatusForbidden).SendString("Forbidden: Invalid verification parameters")
 	}
 
