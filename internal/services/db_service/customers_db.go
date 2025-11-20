@@ -42,10 +42,11 @@ func GetcustomersID(db *gorm.DB, fbID string) (custommodel.Customer, error) {
 	err := db.Table(models.TableNameCustomer).Where("facebook_id = ?", fbID).First(&user).Error
 	return user, err
 }
-func UpdateColumnsCustomer(db *gorm.DB, fbID string, gender int32, tel int64) (models.Customer, error) {
+func UpdateColumnsCustomer(db *gorm.DB, fbID string, gender int32, tel int64, FirstName string) (models.Customer, error) {
 	var user models.Customer
 	err := db.Table(models.TableNameCustomer).Where("facebook_id = ?", fbID).UpdateColumns(&models.Customer{
 		Gender:      gender,
+		FirstName:   FirstName,
 		PhoneNumber: tel,
 		UpdatedAt:   time.Now(),
 	}).First(&user).Error

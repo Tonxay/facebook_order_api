@@ -1,9 +1,6 @@
 package service
 
 import (
-	"crypto/hmac"
-	"crypto/sha256"
-	"encoding/hex"
 	"encoding/json"
 	"log"
 
@@ -426,21 +423,21 @@ func FacebookWebhookHandler(c *fiber.Ctx) error {
 // --- Security Helper ---
 
 // validateFacebookSignature verifies the HMAC signature using SHA256.
-func validateFacebookSignature(payloadBody []byte, providedSignature string, secret string) bool {
-	// Facebook signature is prefixed with 'sha256='
-	const signaturePrefix = "sha256="
-	if len(providedSignature) < len(signaturePrefix) || providedSignature[:len(signaturePrefix)] != signaturePrefix {
-		return false // Prefix not found
-	}
+// func validateFacebookSignature(payloadBody []byte, providedSignature string, secret string) bool {
+// 	// Facebook signature is prefixed with 'sha256='
+// 	const signaturePrefix = "sha256="
+// 	if len(providedSignature) < len(signaturePrefix) || providedSignature[:len(signaturePrefix)] != signaturePrefix {
+// 		return false // Prefix not found
+// 	}
 
-	// Strip the prefix
-	providedSignature = providedSignature[len(signaturePrefix):]
+// 	// Strip the prefix
+// 	providedSignature = providedSignature[len(signaturePrefix):]
 
-	key := []byte(secret)
-	h := hmac.New(sha256.New, key)
-	h.Write(payloadBody)
-	expectedMAC := hex.EncodeToString(h.Sum(nil))
+// 	key := []byte(secret)
+// 	h := hmac.New(sha256.New, key)
+// 	h.Write(payloadBody)
+// 	expectedMAC := hex.EncodeToString(h.Sum(nil))
 
-	// Use constant-time comparison for security
-	return hmac.Equal([]byte(expectedMAC), []byte(providedSignature))
-}
+// 	// Use constant-time comparison for security
+// 	return hmac.Equal([]byte(expectedMAC), []byte(providedSignature))
+// }
