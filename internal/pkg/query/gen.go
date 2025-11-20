@@ -23,6 +23,7 @@ var (
 	District                 *district
 	Expense                  *expense
 	ExpenseCategory          *expenseCategory
+	FacebookAdLead           *facebookAdLead
 	ImportProduct            *importProduct
 	ImportProductsDatail     *importProductsDatail
 	ImportProductsDatailItem *importProductsDatailItem
@@ -56,6 +57,7 @@ func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
 	District = &Q.District
 	Expense = &Q.Expense
 	ExpenseCategory = &Q.ExpenseCategory
+	FacebookAdLead = &Q.FacebookAdLead
 	ImportProduct = &Q.ImportProduct
 	ImportProductsDatail = &Q.ImportProductsDatail
 	ImportProductsDatailItem = &Q.ImportProductsDatailItem
@@ -90,6 +92,7 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		District:                 newDistrict(db, opts...),
 		Expense:                  newExpense(db, opts...),
 		ExpenseCategory:          newExpenseCategory(db, opts...),
+		FacebookAdLead:           newFacebookAdLead(db, opts...),
 		ImportProduct:            newImportProduct(db, opts...),
 		ImportProductsDatail:     newImportProductsDatail(db, opts...),
 		ImportProductsDatailItem: newImportProductsDatailItem(db, opts...),
@@ -125,6 +128,7 @@ type Query struct {
 	District                 district
 	Expense                  expense
 	ExpenseCategory          expenseCategory
+	FacebookAdLead           facebookAdLead
 	ImportProduct            importProduct
 	ImportProductsDatail     importProductsDatail
 	ImportProductsDatailItem importProductsDatailItem
@@ -161,6 +165,7 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		District:                 q.District.clone(db),
 		Expense:                  q.Expense.clone(db),
 		ExpenseCategory:          q.ExpenseCategory.clone(db),
+		FacebookAdLead:           q.FacebookAdLead.clone(db),
 		ImportProduct:            q.ImportProduct.clone(db),
 		ImportProductsDatail:     q.ImportProductsDatail.clone(db),
 		ImportProductsDatailItem: q.ImportProductsDatailItem.clone(db),
@@ -204,6 +209,7 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		District:                 q.District.replaceDB(db),
 		Expense:                  q.Expense.replaceDB(db),
 		ExpenseCategory:          q.ExpenseCategory.replaceDB(db),
+		FacebookAdLead:           q.FacebookAdLead.replaceDB(db),
 		ImportProduct:            q.ImportProduct.replaceDB(db),
 		ImportProductsDatail:     q.ImportProductsDatail.replaceDB(db),
 		ImportProductsDatailItem: q.ImportProductsDatailItem.replaceDB(db),
@@ -237,6 +243,7 @@ type queryCtx struct {
 	District                 IDistrictDo
 	Expense                  IExpenseDo
 	ExpenseCategory          IExpenseCategoryDo
+	FacebookAdLead           IFacebookAdLeadDo
 	ImportProduct            IImportProductDo
 	ImportProductsDatail     IImportProductsDatailDo
 	ImportProductsDatailItem IImportProductsDatailItemDo
@@ -270,6 +277,7 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		District:                 q.District.WithContext(ctx),
 		Expense:                  q.Expense.WithContext(ctx),
 		ExpenseCategory:          q.ExpenseCategory.WithContext(ctx),
+		FacebookAdLead:           q.FacebookAdLead.WithContext(ctx),
 		ImportProduct:            q.ImportProduct.WithContext(ctx),
 		ImportProductsDatail:     q.ImportProductsDatail.WithContext(ctx),
 		ImportProductsDatailItem: q.ImportProductsDatailItem.WithContext(ctx),

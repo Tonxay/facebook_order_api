@@ -67,6 +67,12 @@ func CreateCustomer(db *gorm.DB, newCustomer models.Customer) error {
 	return err
 }
 
+func FacebookAdLead(db *gorm.DB, facebookAdLead models.FacebookAdLead) error {
+
+	err := db.Table(models.TableNameFacebookAdLead).Create(&facebookAdLead).Error
+	return err
+}
+
 func GetUserInFaceBook(pageId, pageAccessToken string) (custommodel.FacebookConversationList, error) {
 	var result custommodel.FacebookConversationList
 

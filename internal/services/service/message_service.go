@@ -2,7 +2,11 @@ package service
 
 import (
 	"encoding/json"
+	gormpkg "go-api/internal/pkg"
+	"go-api/internal/pkg/models"
+	dbservice "go-api/internal/services/db_service"
 	"log"
+	"net/http"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -387,11 +391,54 @@ func FacebookWebhookHandler(c *fiber.Ctx) error {
 					// ตรวจสอบว่ามี Ad ID จริงๆ ไม่ใช่ค่าว่าง
 					if adID != "" {
 						userID := event.Sender.ID
+						pageID := event.Recipient.ID
 						// text := event.Message.Text
 						// [เพิ่ม]: ดึง Ad Title (ต้องเช็ค nil ก่อนเผื่อไม่มี)
 						adTitle := ""
 						if event.Message.Referral.AdsContextData != nil {
 							adTitle = event.Message.Referral.AdsContextData.AdTitle
+						}
+
+						// create new customer
+						if userID != "" {
+							db := gormpkg.GetDB().Begin()
+							defer func() {
+								db.Rollback()
+							}()
+
+							user, _ := dbservice.GetcustomersID(db, userID)
+
+							if user.FacebookID == "" {
+
+								err := dbservice.CreateCustomer(db, models.Customer{
+									FacebookID:  userID,
+									FirstName:   "",
+									LastName:    "",
+									Image:       "N/A",
+									PhoneNumber: 2099999999,
+									Gender:      0,
+									PageID:      pageID,
+								})
+
+								if err != nil {
+									return fiber.NewError(http.StatusInternalServerError, err.Error())
+								}
+
+							}
+							if adID != "" {
+								err1 := dbservice.FacebookAdLead(db, models.FacebookAdLead{
+									UserID:  userID,
+									AdID:    adID,
+									AdTitle: adTitle,
+									PageID:  pageID,
+								})
+
+								if err1 != nil {
+									return fiber.NewError(http.StatusInternalServerError, err1.Error())
+								}
+							}
+							db.Commit()
+
 						}
 
 						log.Printf("🎯 Found Ad Click! Title: %s (ID: %s)", adTitle, adID)
