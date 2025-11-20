@@ -192,7 +192,7 @@ func GetOrderbillInAnousith(c *fiber.Ctx) error {
 	order, _ := dbservice.GetOrders(gormpkg.GetDB(), request.StatusOrderRequest{
 		IsCancel:   false,
 		ShippingID: "7891ba5a-516d-4efb-8305-343736a6b171",
-		Statuses:   []string{"delivery_complete"},
+		Statuses:   []string{"shipped"},
 	})
 
 	if len(order) == 0 {
