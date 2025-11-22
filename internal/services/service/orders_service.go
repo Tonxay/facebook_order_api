@@ -572,7 +572,7 @@ func CreateOrder(c *fiber.Ctx) error {
 	for index, prouct := range req.Products {
 		orderProductID := uuid.New().String()
 
-		for index1, item := range prouct.ProductDetails {
+		for _, item := range prouct.ProductDetails {
 
 			productDetail, err1 := dbservice.GetProductDetailsByIDSizdID(db, item.ProductDetailID, item.SizeID, prouct.ProductID)
 			if err1 != nil {
@@ -598,44 +598,44 @@ func CreateOrder(c *fiber.Ctx) error {
 			req.Products[index].TotaProductPrice += float64((item.Quantity * int32(productDetail.Price)))
 
 			// check promotions
-			if index1 == (len(prouct.ProductDetails) - 1) {
-				productTotalQuantity := req.Products[index].TotalQuantities
-				promotions, _ := dbservice.GetPromotion(db, productDetail.ProductID)
-				var discount_only_product float32
-				println(productTotalQuantity)
-				for _, promtion := range promotions {
+			// if index1 == (len(prouct.ProductDetails) - 1) {
+			// 	productTotalQuantity := req.Products[index].TotalQuantities
+			// 	promotions, _ := dbservice.GetPromotion(db, productDetail.ProductID)
+			// 	var discount_only_product float32
+			// 	println(productTotalQuantity)
+			// 	for _, promtion := range promotions {
 
-					if productTotalQuantity == promtion.Quentity {
-						req.Products[index].Promotion = promtion
-						discount_only_product = float32(productTotalQuantity/promtion.Quentity) * promtion.Discount
-						if req.Products[index].Promotion.ID != "" {
-							ordProductDiscount = append(ordProductDiscount, &models.OrderProductDiscount{
-								OrderProductID:   orderProductID,
-								PromotionPriceID: req.Products[index].Promotion.ID,
-								Discount:         float64(discount_only_product),
-							})
-						}
-						break
-					} else {
-						if productTotalQuantity > promtion.Quentity {
-							pot := promotions[len(promotions)-1]
-							req.Products[index].Promotion = pot
-							discount_only_product = float32(productTotalQuantity/pot.Quentity) * pot.Discount
-							if req.Products[index].Promotion.ID != "" {
-								ordProductDiscount = append(ordProductDiscount, &models.OrderProductDiscount{
-									OrderProductID:   orderProductID,
-									PromotionPriceID: req.Products[index].Promotion.ID,
-									Discount:         float64(discount_only_product),
-								})
-							}
-							break
-						}
-					}
+			// 		if productTotalQuantity == promtion.Quentity {
+			// 			req.Products[index].Promotion = promtion
+			// 			discount_only_product = float32(productTotalQuantity/promtion.Quentity) * promtion.Discount
+			// 			if req.Products[index].Promotion.ID != "" {
+			// 				ordProductDiscount = append(ordProductDiscount, &models.OrderProductDiscount{
+			// 					OrderProductID:   orderProductID,
+			// 					PromotionPriceID: req.Products[index].Promotion.ID,
+			// 					Discount:         float64(discount_only_product),
+			// 				})
+			// 			}
+			// 			break
+			// 		} else {
+			// 			if productTotalQuantity > promtion.Quentity {
+			// 				pot := promotions[len(promotions)-1]
+			// 				req.Products[index].Promotion = pot
+			// 				discount_only_product = float32(productTotalQuantity/pot.Quentity) * pot.Discount
+			// 				if req.Products[index].Promotion.ID != "" {
+			// 					ordProductDiscount = append(ordProductDiscount, &models.OrderProductDiscount{
+			// 						OrderProductID:   orderProductID,
+			// 						PromotionPriceID: req.Products[index].Promotion.ID,
+			// 						Discount:         float64(discount_only_product),
+			// 					})
+			// 				}
+			// 				break
+			// 			}
+			// 		}
 
-				}
-				req.TotalDiscount += prouct.Discount
+			// 	}
+			// 	req.TotalDiscount += prouct.Discount
 
-			}
+			// }
 
 			ordProductDetails = append(ordProductDetails, &models.OrderProductsDetail{
 
