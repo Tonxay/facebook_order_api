@@ -2,6 +2,7 @@
 *.log
 *.pyc
 *.env
+*.docker-compose.yml
 *.env.dev
 *.env.prod
 ./tmp

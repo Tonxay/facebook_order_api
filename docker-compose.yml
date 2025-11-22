@@ -1,6 +1,39 @@
 version: "3.6"
 services:
-  web:
-    image: tonxay/go-api-web
+
+  postgres:
+    image: postgres:18
+    restart: always
+    volumes:
+      - db_data:/var/lib/postgresql/data
     ports:
-      - "8080:8080"
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: 0qS6pifNseLqkYZCipedAeD4b1m5k0
+
+  backend:
+    image: tonxay/go_api:latest
+    restart: always
+    container_name: app_order
+    ports:
+      - 3000:3000
+    environment:
+      VERIFY_TOKEN: "pukbBmMnn2aucseEzyPNePToKmbW2QVZAvjzEc3es2Ogkd"
+      PSQL_DB_URL: "postgres://user:pa12345678@165.22.242.43:5432/facebook?sslmode=disable"
+      SECRET_GENTOKEN: "EAAUZBHJspbTEBO5Fj8fUXGaOUIgCfqr5F4tTUNntdMtG8i2kWEzyPNePToKmbW2QVZAvjzEc3es2Ogkd"
+      APP_ID: "1475667466743089"
+      APP_SECRET: "79ee0ea7042c570913540b6bc140edbb"
+      ADS_TOKEN: "EAAUZBHJspbTEBO5Fj8fUXGaOUIgCfqr5F4tTUNntdMtG8i2kWsBid0FHOgvDUm1VbPXkkkoUsjZBFhmEPfM5DXU231uVhJl0TWjbyAyE06LOpRIZAZAswHkitwC8wkFZBulsrQ5ngXzYqCzHSCz7oDflWcNVOL45XMnCuhjBLVuQuq2QRNaXnlyBvBOIOkjBQrJVRD9zbZAQNhayNC"
+      PORT: "8880"
+      PAGE_ACCESS_TOKEN: "EAAbalUTmBKABP5qZAiHe0ZCevNJNogZC1f3XeX5ydZASpUBkHSWPtBh1Jf7TEiFKaWNbResIRvzJNL8CuF2KejdarfRWWgGcrqh3lHmLa3tb8NGVMT7aQVIakC8qNKSgr50vv43tTdjwZCqZCJdrhmj1Wdc7ZAcy0wTgv19bTlInxn1f75XjzE9sEgWKox7MQl7NzoDWlvs"
+      PAGE_ID: "105519898626814"
+      PAGE_ACCESS_TOKEN_NANA: "EAARDcwZBMbeQBP180hJZB9XXk8t3pJKKqdROgGNA0ZBuz3LPZAuUXzDPSfEL5YUBAvvFtf5GBs501V2vZCtUQPYiTvRZAhedr5tA64eAjvExBMMhj2CAcqM79YFP8hwdhniwgVWKieGT9PwPCdVEJRCoHRS2bISB2UZAuArnXhWZBZBIi4WvsXLzZCP2D86Oy2USybAnIZD"
+      PAGE_NANA_ID: "100376625971155"
+      PAGE_ACCESS_TOKEN_NANA_SHOP: "EAARDcwZBMbeQBPZB4I9EQf2M5OD5P3BH0zftHVL11ckyj03WPFztdlo6p4JZBzX22gvxIfzftcTNxtGXoG99ZAUmQmMH4tv7ZBcXxrYvP6ZCqFxr1qpoYXD6dznZACf95AnwEjZAElPQ7hxnb56LiFuQbv6J4i5HdcYsyPlD0s7XadDJ5NcK9PJoKpIjTWEhZAGoMX03ZB9xUZD"
+      PAGE_NANA_SHOP_ID: "107068352173100"
+      PAGE_ACCESS_TOKEN_CHINA_ZOME: "EAARDcwZBMbeQBPZCG1ZAHM1x7M2r7jqje54bH4NUSvIDKQvIxK3XZCorZAGWJIpLtc0reCaoSys6MpmcXzonHCpEKIE1O4df7Y4zloSZBHrYaGvZBtz9c4tTGFV3C2ZAOjWMw0VND1AbihbezHQxHS1UVr7mdveHdffmvOPwsNQiKhz4EexZBjIfBjbIPPOQe86q9yAmQ"
+      PAGE_NANA_CHINA_ID: "673533439185193"
+      ROBOFLOW_API_KEY: "nfo6qVumn0SgmD6gQP5C"
+
+volumes:
+  db_data:
