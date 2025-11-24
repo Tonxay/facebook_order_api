@@ -185,7 +185,7 @@ type OrderRequestNew struct {
 	CustomAddress string `json:"custom_address" validate:"required"`
 	FullName      string `json:"full_name" validate:"required"`
 	Tel           int64  `json:"tel" validate:"required,min=10000000"` // at least 8 digits
-	PlatForm      string `json:"plat_form" validate:"required,oneof=facebook tiktok"`
+	PlatForm      string `json:"plat_form" validate:"required,oneof=facebook whatsapp"`
 	Gender        int    `json:"gender" validate:"required,oneof=0 1 2"` // 0=other, 1=male, 2=female
 	COD           bool   `json:"cod"`
 	FreeShipping  bool   `json:"free_shipping"`
