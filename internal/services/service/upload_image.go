@@ -763,97 +763,89 @@ func sendBillTofaceBook(trackingId string) {
 	fmt.Println("Response Body:", string(body))
 	log.Println("✅ Successfully sended:", req)
 }
-
 func ScapingImage(c *fiber.Ctx) error {
 	var tracking_number = c.Query("tracking_number", "")
 	if tracking_number == "" {
-		return c.Status(fiber.ErrBadRequest.Code).SendString("❌ Missing 'tracking_number' parameter")
+		return c.Status(fiber.ErrBadRequest.Code).SendString("❌ Missing 'tracking_number'")
 	}
 
 	url := "https://app.anousith.express/landing/search_tracking/bill_share?tacking_number=" + tracking_number
-	jpegQuality := 90 // Good quality for bill readability
 	savePath := "../anousith/images/bills/" + tracking_number + ".jpg"
 
+	// 1. ປັບປຸງ Allocator Options
 	opts := append(chromedp.DefaultExecAllocatorOptions[:],
-		chromedp.Flag("headless", true),
-		chromedp.Flag("disable-gpu", true),
-		chromedp.Flag("chromium", true),
+		chromedp.NoSandbox,
+		chromedp.DisableGPU,
+		chromedp.Flag("disable-dev-shm-usage", true),
 	)
 	allocCtx, cancel := chromedp.NewExecAllocator(context.Background(), opts...)
 	defer cancel()
 
-	ctx, cancel := chromedp.NewContext(allocCtx, chromedp.WithLogf(log.Printf))
+	ctx, cancel := chromedp.NewContext(allocCtx)
 	defer cancel()
 
-	ctx, cancel = context.WithTimeout(ctx, 120*time.Second)
+	ctx, cancel = context.WithTimeout(ctx, 60*time.Second)
 	defer cancel()
 
 	var buf []byte
 	var billRect map[string]interface{}
 
-	log.Println("Starting screenshot task for:", url)
+	// 2. ໃຊ້ Emulate ດ້ວຍ Scale ທີ່ສູງຂຶ້ນເພື່ອຄວາມຊັດ (Scale 3.0 = 3x resolution)
+	highResDevice := device.Info{
+		Name:      "HighResDevice",
+		UserAgent: "Mozilla/5.0...",
+		Width:     500,
+		Height:    1000,
+		Scale:     20, // ເພີ່ມຈາກ 1.0 ເປັນ 100 ຈະຊັດຂຶ້ນຫຼາຍ
+		Landscape: false,
+		Mobile:    true,
+	}
 
-	// Get the bill-content's position and dimensions, then take full screenshot
 	err := chromedp.Run(ctx,
-		chromedp.Emulate(device.IPhone12),
+		chromedp.Emulate(highResDevice),
 		chromedp.Navigate(url),
-		chromedp.Sleep(2*time.Second), // Wait for page to load completely
+		chromedp.WaitVisible(`.bill-content`, chromedp.ByQuery), // ລໍຖ້າໃຫ້ Element ຂຶ້ນມາແທນການ Sleep
+		chromedp.Sleep(1*time.Second),                           // ຖ້າມີ QR code ໃຫ້ລໍຖ້າແປັບໜຶ່ງ
 
-		// Get the position and size of the bill-content element
 		chromedp.Evaluate(`
-			(() => {
-				const element = document.querySelector('.bill-content');
-				if (!element) {
-					console.error('Could not find .bill-content element');
-					return null;
-				}
-				const rect = element.getBoundingClientRect();
-				console.log('Bill content rect:', rect);
-				return {
-					x: rect.x,
-					y: rect.y,
-					width: rect.width,
-					height: rect.height
-				};
-			})()
-		`, &billRect),
+            (() => {
+                const element = document.querySelector('.bill-content');
+                if (!element) return null;
+                const rect = element.getBoundingClientRect();
+                const dpr = window.devicePixelRatio || 1;
+                return {
+                    x: rect.x * dpr,
+                    y: rect.y * dpr,
+                    width: rect.width * dpr,
+                    height: rect.height * dpr
+                };
+            })()
+        `, &billRect),
 
-		// Take full page screenshot
-		chromedp.FullScreenshot(&buf, jpegQuality),
+		// ປັບ Quality ເປັນ 100 (ສູງສຸດ)
+		chromedp.FullScreenshot(&buf, 100),
 	)
 
-	if err != nil {
-		log.Fatalf("Failed during screenshot: %v", err)
+	if err != nil || billRect == nil {
+		return c.Status(500).SendString("Capture Failed")
 	}
 
-	// Check if we found the bill-content element
-	if billRect == nil {
-		log.Fatalf("Could not find .bill-content element on the page")
-	}
-
+	// ຄິດໄລ່ຕຳແໜ່ງຕາມ Scale ທີ່ໄດ້ມາຈາກ JS ໂດຍກົງ
 	x := int(billRect["x"].(float64))
 	y := int(billRect["y"].(float64))
-	width := int(billRect["width"].(float64) * 4)
-	height := int(billRect["height"].(float64) * 3.4)
+	width := int(billRect["width"].(float64))
+	height := int(billRect["height"].(float64))
 
-	if width == 0 || height == 0 {
-		log.Fatalf("Bill content has invalid dimensions: width=%d, height=%d", width, height)
-	}
-
-	log.Printf("Bill content found at: x=%d, y=%d, width=%d, height=%d", x, y, width, height)
-
-	// Crop the image to the bill-content
+	// 3. Crop ດ້ວຍຄວາມລະອຽດສູງ
 	croppedBuf, err := CropImage(buf, x, y, width, height)
 	if err != nil {
-		log.Fatalf("Failed to crop image: %v", err)
+		return c.Status(500).SendString("Crop Failed")
 	}
-
-	log.Println("Screenshot captured and cropped. Saving to:", savePath)
 
 	if err := SaveImage(croppedBuf, savePath); err != nil {
-		log.Fatalf("Failed to save image: %v", err)
+		return c.Status(500).SendString("Save Failed")
 	}
-	message := fmt.Sprintf("✅ Successfully saved cropped screenshot to: %s", savePath)
-	return c.Status(fiber.StatusOK).SendString(message)
-	// sendBillTofaceBook(trackingId)
+
+	sendBillTofaceBook(tracking_number)
+	return c.SendString("✅ Saved High-Res Image")
 }
