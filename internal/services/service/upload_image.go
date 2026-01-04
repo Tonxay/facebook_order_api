@@ -867,6 +867,7 @@ func InitBrowser() {
 }
 
 func ScapingImage(c *fiber.Ctx) error {
+	log.Println("Starting ScapingImage handler")
 	trackingNo := c.Query("tracking_number", "")
 	if trackingNo == "" {
 		return c.Status(400).SendString("❌ Missing tracking_number")
@@ -887,7 +888,7 @@ func ScapingImage(c *fiber.Ctx) error {
 	ctx, cancel := chromedp.NewContext(GlobalAllocCtx)
 	defer cancel()
 
-	ctx, cancel = context.WithTimeout(ctx, 55*time.Second)
+	ctx, cancel = context.WithTimeout(ctx, 300*time.Second)
 	defer cancel()
 
 	var buf []byte
@@ -921,9 +922,11 @@ func ScapingImage(c *fiber.Ctx) error {
 	)
 
 	if err != nil {
+		log.Printf("Chromedp run error: %v", err)
 		return c.Status(500).SendString("❌ Chrome Error")
 	}
 	if pageError {
+		log.Println("❌ Tracking Not Found")
 		return c.Status(404).SendString("❌ Tracking Not Found")
 	}
 
@@ -933,11 +936,13 @@ func ScapingImage(c *fiber.Ctx) error {
 
 	croppedBuf, err := CropImage(buf, x, y, w, h)
 	if err != nil {
+		log.Printf("Crop image error: %v", err)
 		return c.Status(500).SendString("❌ Crop Failed")
 	}
 
 	// Save ຮູບ (ເອີ້ນໃຊ້ຈາກ utils.go)
 	if err := SaveImage(croppedBuf, savePath); err != nil {
+		log.Printf("Save image error: %v", err)
 		return c.Status(500).SendString("❌ Save Failed")
 	}
 
