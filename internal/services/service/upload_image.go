@@ -866,14 +866,98 @@ func InitBrowser() {
 	GlobalAllocCtx, _ = chromedp.NewExecAllocator(context.Background(), opts...)
 }
 
+// func ScapingImage(c *fiber.Ctx) error {
+// 	log.Println("Starting ScapingImage handler")
+// 	trackingNo := c.Query("tracking_number", "")
+// 	if trackingNo == "" {
+// 		return c.Status(400).SendString("❌ Missing tracking_number")
+// 	}
+
+// 	// ໃຊ້ Semaphore ຈາກ main.go
+// 	select {
+// 	case Sem <- struct{}{}:
+// 		defer func() { <-Sem }()
+// 	case <-time.After(50 * time.Second):
+// 		return c.Status(503).SendString("❌ Server is busy")
+// 	}
+
+// 	url := "https://app.anousith.express/landing/search_tracking/bill_share?tacking_number=" + trackingNo
+// 	savePath := "../anousith/images/bills/" + trackingNo + ".png"
+
+// 	// ໃຊ້ GlobalAllocCtx ຈາກ main.go
+// 	ctx, cancel := chromedp.NewContext(GlobalAllocCtx)
+// 	defer cancel()
+
+// 	ctx, cancel = context.WithTimeout(ctx, 300*time.Second)
+// 	defer cancel()
+
+// 	var buf []byte
+// 	var billRect map[string]interface{}
+// 	var pageError bool
+
+// 	err := chromedp.Run(ctx,
+// 		chromedp.Emulate(device.Info{Name: "UltraRes", Width: 800, Height: 1200, Scale: 10.0, Mobile: true}),
+// 		chromedp.Navigate(url),
+// 		chromedp.ActionFunc(func(ctx context.Context) error {
+// 			waitCtx, _ := context.WithTimeout(ctx, 15*time.Second)
+// 			return chromedp.WaitVisible(`.bill-content, .error-msg, .no-data`, chromedp.ByQuery).Do(waitCtx)
+// 		}),
+// 		chromedp.Evaluate(`
+//             (() => {
+//                 const element = document.querySelector('.bill-content');
+//                 if (!element) return { error: true };
+//                 const rect = element.getBoundingClientRect();
+//                 const dpr = window.devicePixelRatio || 1;
+//                 return { x: rect.x * dpr, y: rect.y * dpr, width: rect.width * dpr, height: rect.height * dpr, error: false };
+//             })()
+//         `, &billRect),
+// 		chromedp.ActionFunc(func(ctx context.Context) error {
+// 			if billRect == nil || billRect["error"].(bool) {
+// 				pageError = true
+// 				return nil
+// 			}
+// 			time.Sleep(2 * time.Second)
+// 			return chromedp.CaptureScreenshot(&buf).Do(ctx)
+// 		}),
+// 	)
+
+// 	if err != nil {
+// 		log.Printf("Chromedp run error: %v", err)
+// 		return c.Status(500).SendString("❌ Chrome Error")
+// 	}
+// 	if pageError {
+// 		log.Println("❌ Tracking Not Found")
+// 		return c.Status(404).SendString("❌ Tracking Not Found")
+// 	}
+
+// 	// Crop ຮູບ (ເອີ້ນໃຊ້ຈາກ utils.go)
+// 	x, y := int(billRect["x"].(float64)), int(billRect["y"].(float64))
+// 	w, h := int(billRect["width"].(float64)), int(billRect["height"].(float64))
+
+// 	croppedBuf, err := CropImage(buf, x, y, w, h)
+// 	if err != nil {
+// 		log.Printf("Crop image error: %v", err)
+// 		return c.Status(500).SendString("❌ Crop Failed")
+// 	}
+
+// 	// Save ຮູບ (ເອີ້ນໃຊ້ຈາກ utils.go)
+// 	if err := SaveImage(croppedBuf, savePath); err != nil {
+// 		log.Printf("Save image error: %v", err)
+// 		return c.Status(500).SendString("❌ Save Failed")
+// 	}
+
+// 	go sendBillTofaceBook(trackingNo) // ເອີ້ນໃຊ້ຈາກ utils.go
+
+// 	return c.Status(200).SendString("✅ Success")
+// }
+
 func ScapingImage(c *fiber.Ctx) error {
-	log.Println("Starting ScapingImage handler")
 	trackingNo := c.Query("tracking_number", "")
 	if trackingNo == "" {
 		return c.Status(400).SendString("❌ Missing tracking_number")
 	}
 
-	// ໃຊ້ Semaphore ຈາກ main.go
+	// 1. ຄຸມຄິວ (Semaphore)
 	select {
 	case Sem <- struct{}{}:
 		defer func() { <-Sem }()
@@ -882,73 +966,75 @@ func ScapingImage(c *fiber.Ctx) error {
 	}
 
 	url := "https://app.anousith.express/landing/search_tracking/bill_share?tacking_number=" + trackingNo
-	savePath := "../anousith/images/bills/" + trackingNo + ".jpg"
+	savePath := "../anousith/images/bills/" + trackingNo + ".png" // ໃຊ້ PNG ເພື່ອຄວາມຄົມຊັດ
 
-	// ໃຊ້ GlobalAllocCtx ຈາກ main.go
 	ctx, cancel := chromedp.NewContext(GlobalAllocCtx)
 	defer cancel()
 
-	ctx, cancel = context.WithTimeout(ctx, 300*time.Second)
+	ctx, cancel = context.WithTimeout(ctx, 60*time.Second)
 	defer cancel()
 
 	var buf []byte
 	var billRect map[string]interface{}
-	var pageError bool
+
+	log.Printf("📸 Processing HD Image: %s", trackingNo)
 
 	err := chromedp.Run(ctx,
-		chromedp.Emulate(device.Info{Name: "HighRes", Width: 500, Height: 1000, Scale: 3.0, Mobile: true}),
-		chromedp.Navigate(url),
-		chromedp.ActionFunc(func(ctx context.Context) error {
-			waitCtx, _ := context.WithTimeout(ctx, 15*time.Second)
-			return chromedp.WaitVisible(`.bill-content, .error-msg, .no-data`, chromedp.ByQuery).Do(waitCtx)
+		// 2. ຕັ້ງຄ່າຄວາມຊັດລະດັບ Ultra HD
+		chromedp.Emulate(device.Info{
+			Name: "UltraRes", Width: 800, Height: 1200, Scale: 4.0, Mobile: true,
 		}),
+		chromedp.Navigate(url),
+		// ລໍຖ້າໃຫ້ Element ຂຶ້ນມາແທ້ໆ (ປ້ອງກັນ Panic ຍ້ອນຫາ Element ບໍ່ເຫັນ)
+		chromedp.WaitVisible(`.bill-content`, chromedp.ByQuery),
+		chromedp.Sleep(2*time.Second), // ໃຫ້ເວລາ Font Render ໃຫ້ຄົມຊັດ
+
 		chromedp.Evaluate(`
             (() => {
                 const element = document.querySelector('.bill-content');
-                if (!element) return { error: true };
+                if (!element) return null;
                 const rect = element.getBoundingClientRect();
                 const dpr = window.devicePixelRatio || 1;
-                return { x: rect.x * dpr, y: rect.y * dpr, width: rect.width * dpr, height: rect.height * dpr, error: false };
+                return {
+                    x: rect.x * dpr,
+                    y: rect.y * dpr,
+                    width: rect.width * dpr,
+                    height: rect.height * dpr
+                };
             })()
         `, &billRect),
-		chromedp.ActionFunc(func(ctx context.Context) error {
-			if billRect == nil || billRect["error"].(bool) {
-				pageError = true
-				return nil
-			}
-			time.Sleep(1 * time.Second)
-			return chromedp.FullScreenshot(&buf, 100).Do(ctx)
-		}),
+		chromedp.CaptureScreenshot(&buf), // ໃຊ້ CaptureScreenshot ສຳລັບ PNG
 	)
 
+	// 3. ດັກ Error ປ້ອງກັນ Panic 100%
+	if err != nil || billRect == nil {
+		log.Printf("❌ Capture Failed or Element not found: %v", err)
+		return c.Status(500).SendString("❌ ຫາຂໍ້ມູນໃບບິນບໍ່ເຫັນ ຫຼື ເວັບໄຊທ໌ຕອບສະໜອງຊ້າ")
+	}
+
+	// 4. ດຶງຄ່າ Rect ແບບປອດໄພ (Safe Assertion)
+	// ປ້ອງກັນ Panic: interface conversion: interface {} is nil
+	valX, okX := billRect["x"].(float64)
+	valY, okY := billRect["y"].(float64)
+	valW, okW := billRect["width"].(float64)
+	valH, okH := billRect["height"].(float64)
+
+	if !okX || !okY || !okW || !okH {
+		return c.Status(500).SendString("❌ ບໍ່ສາມາດຄິດໄລ່ຕຳແໜ່ງໃບບິນໄດ້")
+	}
+
+	// 5. Crop ແລະ Save
+	croppedBuf, err := CropImage(buf, int(valX), int(valY), int(valW), int(valH))
 	if err != nil {
-		log.Printf("Chromedp run error: %v", err)
-		return c.Status(500).SendString("❌ Chrome Error")
-	}
-	if pageError {
-		log.Println("❌ Tracking Not Found")
-		return c.Status(404).SendString("❌ Tracking Not Found")
+		return c.Status(500).SendString("❌ Crop Image Failed")
 	}
 
-	// Crop ຮູບ (ເອີ້ນໃຊ້ຈາກ utils.go)
-	x, y := int(billRect["x"].(float64)), int(billRect["y"].(float64))
-	w, h := int(billRect["width"].(float64)), int(billRect["height"].(float64))
-
-	croppedBuf, err := CropImage(buf, x, y, w, h)
-	if err != nil {
-		log.Printf("Crop image error: %v", err)
-		return c.Status(500).SendString("❌ Crop Failed")
-	}
-
-	// Save ຮູບ (ເອີ້ນໃຊ້ຈາກ utils.go)
 	if err := SaveImage(croppedBuf, savePath); err != nil {
-		log.Printf("Save image error: %v", err)
-		return c.Status(500).SendString("❌ Save Failed")
+		return c.Status(500).SendString("❌ Save Image Failed")
 	}
 
-	go sendBillTofaceBook(trackingNo) // ເອີ້ນໃຊ້ຈາກ utils.go
-
-	return c.Status(200).SendString("✅ Success")
+	go sendBillTofaceBook(trackingNo)
+	return c.Status(200).SendString("✅ Success: HD Image Saved")
 }
 
 // // --- Helper Functions ---
