@@ -771,7 +771,7 @@ func ScapingImage(c *fiber.Ctx) error {
 	}
 
 	url := "https://app.anousith.express/landing/search_tracking/bill_share?tacking_number=" + tracking_number
-	jpegQuality := 60 // Good quality for bill readability
+	jpegQuality := 90 // Good quality for bill readability
 	savePath := "../anousith/images/bills/" + tracking_number + ".jpg"
 
 	opts := append(chromedp.DefaultExecAllocatorOptions[:],
