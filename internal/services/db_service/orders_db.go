@@ -88,6 +88,7 @@ func GetOrders(db *gorm.DB, filter request.StatusOrderRequest) ([]*custommodel.O
 	d.dr_name,provice.pr_name,
 	SUM(rc.discount) AS total_prodouct_discount,
 	page.name_page AS page_name,
+	page.page_id,
 	page.tel AS page_tel`)
 
 	if !filter.IsCancel {
@@ -115,7 +116,7 @@ func GetOrders(db *gorm.DB, filter request.StatusOrderRequest) ([]*custommodel.O
 
 	// tx = tx.Preload("OrderDiscounts")
 
-	tx = tx.Group(`o.id,d.dr_name,provice.pr_name,page.name_page,page.tel`)
+	tx = tx.Group(`o.id,d.dr_name,provice.pr_name,page.name_page,page.tel,page.page_id`)
 
 	err := tx.Order("o.updated_at DESC").Find(&orders).Error
 	return orders, err

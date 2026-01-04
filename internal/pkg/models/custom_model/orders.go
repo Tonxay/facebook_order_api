@@ -222,6 +222,7 @@ type OrderReponseNew struct {
 	LikeTackingNumberURL  string          `gorm:"column:like_tracking_number_url" json:"like_tracking_number_url"`
 	IsCancel              bool            `gorm:"column:is_cancel;not null" json:"is_cancel"`
 	PageName              string          `gorm:"column:page_name" json:"page_name"`
+	PageID                string          `gorm:"column:page_id" json:"page_id"`
 	PageTel               int32           `gorm:"column:page_tel" json:"page_tel"`
 	Tel                   int64           `gorm:"column:tel" json:"tel"`
 	CustomAddress         string          `gorm:"column:custom_address" json:"custom_address"`

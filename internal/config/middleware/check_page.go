@@ -20,9 +20,11 @@ func CheckPageId(sendId string, recipientID string) (string, string) {
 
 	// dd
 	if sendId == pageId || recipientID == pageId {
+
 		return pageId, pageToken
 		// nana
 	} else if sendId == pageNanaId || recipientID == pageNanaId {
+
 		return pageNanaId, pageNanaToken
 		// na shop
 	} else if sendId == pageNanaShopId || recipientID == pageNanaShopId {
@@ -33,6 +35,7 @@ func CheckPageId(sendId string, recipientID string) (string, string) {
 
 		return pageNanaChinaId, pageNanaChinaToken
 	} else {
+
 		return "", ""
 	}
 

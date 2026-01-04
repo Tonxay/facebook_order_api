@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"go-api/internal/config/middleware"
 	"go-api/internal/config/presenters"
 	gormpkg "go-api/internal/pkg"
 	custommodel "go-api/internal/pkg/models/custom_model"
@@ -715,13 +716,13 @@ func SaveBytes(buf []byte, filePath string) error {
 // 	// sendBillTofaceBook(trackingId)
 // }
 
-func sendBillTofaceBook(trackingId string) {
+func sendBillTofaceBook(trackingId string, token string, customerId string) {
 
-	facebookUrl := "https://graph.facebook.com/v18.0/me/messages?access_token=EAARDcwZBMbeQBPZC3KIzAjxMn2HOtRv498MYVpKxSc16Du03srxwRC8M26b9CLMY4qZCvVoj1e11HgZCNWEDCKCviosA831C4hn7IHPUUUfrPvUFKUjLBA4f9bzpRswtvg9RtveJT6ZCB6nI7FZA7wWFFxT0K0a6A8ft4pdsxW0sm1a2AkCyiz2lb1kyYPl1teU1QZD"
+	facebookUrl := "https://graph.facebook.com/v18.0/me/messages?access_token=" + token
 
 	msg := map[string]any{
 		"recipient": map[string]any{
-			"id": "23933715116288753",
+			"id": customerId,
 		},
 		"message": map[string]any{
 			"attachment": map[string]any{
@@ -869,6 +870,12 @@ func InitBrowser() {
 func ScapingImage(c *fiber.Ctx) error {
 	log.Println("Starting ScapingImage handler")
 	trackingNo := c.Query("tracking_number", "")
+	pageId := c.Query("page_id", "")
+	customerId := c.Query("customer_id", "")
+	var token string
+	log.Println("Parameters - tracking_number:", trackingNo, "page_id:", pageId, "customer_id:", customerId)
+	pageId, token = middleware.CheckPageId("100376625971155", "100376625971155")
+	log.Println("After CheckPageId - page_id:", pageId, "token:", token)
 	if trackingNo == "" {
 		return c.Status(400).SendString("❌ Missing tracking_number")
 	}
@@ -946,7 +953,7 @@ func ScapingImage(c *fiber.Ctx) error {
 		return c.Status(500).SendString("❌ Save Failed")
 	}
 
-	go sendBillTofaceBook(trackingNo) // ເອີ້ນໃຊ້ຈາກ utils.go
+	go sendBillTofaceBook(trackingNo, token, customerId) // ເອີ້ນໃຊ້ຈາກ utils.go
 
 	return c.Status(200).SendString("✅ Success")
 }
