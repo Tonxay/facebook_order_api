@@ -5,6 +5,7 @@ import (
 	"go-api/internal/api"
 	"go-api/internal/config/middleware"
 	gormpkg "go-api/internal/pkg"
+	"go-api/internal/services/service"
 	"log"
 	"os"
 	"time"
@@ -48,6 +49,7 @@ func main() {
 
 	app := fiber.New(myConfig)
 	middleware.Init()
+	service.InitBrowser()
 	api.SetupRoutes(app)
 	if err := gormpkg.Init("webhook"); err != nil {
 		log.Fatalf("❌ Failed to connect to DB: %v", err)
