@@ -395,6 +395,12 @@ func AnousithLoging(tel string, password string) string {
 
 }
 
+//  'ORIGIN_BRANCH_RECEIVED_FORWARD': return 'ສາຂາຕົ້ນທາງຮັບເຄື່ອງແລ້ວ';
+//  'TRANSIT_TO_DEST_BRANCH': return 'ກຳລັງຂົນສົ່ງໄປປາຍທາງ';
+//  'DEST_BRANCH_RECEIVED_FORWARD': return 'ສາຂາປາຍທາງຮັບເຄື່ອງແລ້ວ';
+//  'COMPLETED': return 'ສົ່ງສຳເລັດແລ້ວ';
+//  'TRANSIT_TO_ORIGIN_BRANCH': return 'ເຄື່ອງກຳລັງຕີກັບ';
+
 func AnousithOrder(token string) ItemsV2Response {
 
 	payload := map[string]interface{}{
@@ -402,13 +408,13 @@ func AnousithOrder(token string) ItemsV2Response {
 		"variables": map[string]interface{}{
 			"where": map[string]interface{}{
 				"multipleItemStatus": []string{
-					"TRANSIT_TO_DEST_BRANCH",
-					"TRANSIT_TO_ORIGIN_BRANCH",
-					"DEST_BRANCH_RECEIVED_FORWARD",
-					"ORIGIN_BRANCH_RECEIVED_BACKWARD",
-					"DEST_BRANCH_RECEIVED_BACKWARD",
-					"ORIGIN_BRANCH_RECEIVED_FORWARD",
-					"COMPLETED",
+					"TRANSIT_TO_DEST_BRANCH", // ກຳລັງຂົນສົ່ງໄປປາຍທາງ
+					// "TRANSIT_TO_ORIGIN_BRANCH", // ເຄື່ອງກຳລັງຕີກັບ
+					"DEST_BRANCH_RECEIVED_FORWARD",    // ສາຂາປາຍທາງຮັບເຄື່ອງແລ້ວ
+					"ORIGIN_BRANCH_RECEIVED_BACKWARD", // ສາຂາຕົ້ນທາງຮັບເຄື່ອງແລ້ວ
+					"DEST_BRANCH_RECEIVED_BACKWARD",   // ສາຂາປາຍທາງຮັບເຄື່ອງແລ້ວ
+					"ORIGIN_BRANCH_RECEIVED_FORWARD",  // ສາຂາຕົ້ນທາງຮັບເຄື່ອງແລ້ວ
+					"COMPLETED",                       // ສົ່ງສຳເລັດແລ້ວ
 				},
 				"originReceiveDate_gte": func() string {
 					now := time.Now().UTC()
