@@ -5,6 +5,7 @@ import (
 	"go-api/internal/api"
 	"go-api/internal/config/middleware"
 	gormpkg "go-api/internal/pkg"
+	"go-api/internal/services/service"
 	"log"
 	"os"
 	"time"
@@ -13,6 +14,7 @@ import (
 )
 
 func main() {
+
 	// app := fiber.New()
 	/// My custom config for Fiber
 	myConfig := fiber.Config{
@@ -43,7 +45,7 @@ func main() {
 			return err
 		},
 	}
-
+	service.InitBrowser()
 	app := fiber.New(myConfig)
 	middleware.Init()
 	if err := gormpkg.Init("api"); err != nil {
