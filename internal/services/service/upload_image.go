@@ -395,12 +395,6 @@ func AnousithLoging(tel string, password string) string {
 
 }
 
-//  'ORIGIN_BRANCH_RECEIVED_FORWARD': return 'ສາຂາຕົ້ນທາງຮັບເຄື່ອງແລ້ວ';
-//  'TRANSIT_TO_DEST_BRANCH': return 'ກຳລັງຂົນສົ່ງໄປປາຍທາງ';
-//  'DEST_BRANCH_RECEIVED_FORWARD': return 'ສາຂາປາຍທາງຮັບເຄື່ອງແລ້ວ';
-//  'COMPLETED': return 'ສົ່ງສຳເລັດແລ້ວ';
-//  'TRANSIT_TO_ORIGIN_BRANCH': return 'ເຄື່ອງກຳລັງຕີກັບ';
-
 func AnousithOrder(token string) ItemsV2Response {
 
 	payload := map[string]interface{}{
@@ -778,7 +772,7 @@ func ScapingImage(c *fiber.Ctx) error {
 
 	url := "https://app.anousith.express/landing/search_tracking/bill_share?tacking_number=" + tracking_number
 	jpegQuality := 60 // Good quality for bill readability
-	savePath := "../go-api/images/bills/" + tracking_number + ".jpg"
+	savePath := "../anousith/images/bills/" + tracking_number + ".jpg"
 
 	opts := append(chromedp.DefaultExecAllocatorOptions[:],
 		chromedp.Flag("headless", true),

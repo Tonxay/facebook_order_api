@@ -182,6 +182,14 @@ FROM debian:bookworm-slim AS release
 
 # Install ca-certificates HERE, using apt-get
 # This is the correct place for it
+RUN apt-get update && apt-get install -y \
+    chromium \
+    ca-certificates \
+    fonts-noto-core \
+    fonts-noto-ui-core \
+    --no-install-recommends && \
+    rm -rf /var/lib/apt/lists/*
+    
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     tzdata \

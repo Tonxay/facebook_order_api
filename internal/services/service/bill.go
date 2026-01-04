@@ -13,7 +13,7 @@ func Getbill(c *fiber.Ctx) error {
 	trackingNumber := c.Params("tracking_number")
 
 	// 2. Create the full path to the file
-	filePath := filepath.Join("../go-api/images/bills/", trackingNumber+".jpg")
+	filePath := filepath.Join("../anousith/images/bills/", trackingNumber+".jpg")
 
 	// 3. Check if the file exists
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
