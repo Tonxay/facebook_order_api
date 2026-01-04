@@ -20,6 +20,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/chromedp/chromedp"
+	"github.com/chromedp/chromedp/device"
 	"github.com/go-rod/rod"
 	"github.com/go-rod/rod/lib/devices" // Import consts for UserAgentIPhone
 	"github.com/go-rod/rod/lib/proto"
@@ -401,12 +403,12 @@ func AnousithOrder(token string) ItemsV2Response {
 			"where": map[string]interface{}{
 				"multipleItemStatus": []string{
 					"TRANSIT_TO_DEST_BRANCH",
-					// "TRANSIT_TO_ORIGIN_BRANCH",
-					// "DEST_BRANCH_RECEIVED_FORWARD",
-					// "ORIGIN_BRANCH_RECEIVED_BACKWARD",
-					// "DEST_BRANCH_RECEIVED_BACKWARD",
-					// "ORIGIN_BRANCH_RECEIVED_FORWARD",
-					// "COMPLETED",
+					"TRANSIT_TO_ORIGIN_BRANCH",
+					"DEST_BRANCH_RECEIVED_FORWARD",
+					"ORIGIN_BRANCH_RECEIVED_BACKWARD",
+					"DEST_BRANCH_RECEIVED_BACKWARD",
+					"ORIGIN_BRANCH_RECEIVED_FORWARD",
+					"COMPLETED",
 				},
 				"originReceiveDate_gte": func() string {
 					now := time.Now().UTC()
@@ -760,4 +762,98 @@ func sendBillTofaceBook(trackingId string) {
 	fmt.Println("Status:", resp.Status)
 	fmt.Println("Response Body:", string(body))
 	log.Println("✅ Successfully sended:", req)
+}
+
+func ScapingImage(c *fiber.Ctx) error {
+	var tracking_number = c.Query("tracking_number", "")
+	if tracking_number == "" {
+		return c.Status(fiber.ErrBadRequest.Code).SendString("❌ Missing 'tracking_number' parameter")
+	}
+
+	url := "https://app.anousith.express/landing/search_tracking/bill_share?tacking_number=" + tracking_number
+	jpegQuality := 60 // Good quality for bill readability
+	savePath := "../go-api/images/bills/" + tracking_number + ".jpg"
+
+	opts := append(chromedp.DefaultExecAllocatorOptions[:],
+		chromedp.Flag("headless", true),
+		chromedp.Flag("disable-gpu", true),
+		chromedp.Flag("chromium", true),
+	)
+	allocCtx, cancel := chromedp.NewExecAllocator(context.Background(), opts...)
+	defer cancel()
+
+	ctx, cancel := chromedp.NewContext(allocCtx, chromedp.WithLogf(log.Printf))
+	defer cancel()
+
+	ctx, cancel = context.WithTimeout(ctx, 120*time.Second)
+	defer cancel()
+
+	var buf []byte
+	var billRect map[string]interface{}
+
+	log.Println("Starting screenshot task for:", url)
+
+	// Get the bill-content's position and dimensions, then take full screenshot
+	err := chromedp.Run(ctx,
+		chromedp.Emulate(device.IPhone12),
+		chromedp.Navigate(url),
+		chromedp.Sleep(2*time.Second), // Wait for page to load completely
+
+		// Get the position and size of the bill-content element
+		chromedp.Evaluate(`
+			(() => {
+				const element = document.querySelector('.bill-content');
+				if (!element) {
+					console.error('Could not find .bill-content element');
+					return null;
+				}
+				const rect = element.getBoundingClientRect();
+				console.log('Bill content rect:', rect);
+				return {
+					x: rect.x,
+					y: rect.y,
+					width: rect.width,
+					height: rect.height
+				};
+			})()
+		`, &billRect),
+
+		// Take full page screenshot
+		chromedp.FullScreenshot(&buf, jpegQuality),
+	)
+
+	if err != nil {
+		log.Fatalf("Failed during screenshot: %v", err)
+	}
+
+	// Check if we found the bill-content element
+	if billRect == nil {
+		log.Fatalf("Could not find .bill-content element on the page")
+	}
+
+	x := int(billRect["x"].(float64))
+	y := int(billRect["y"].(float64))
+	width := int(billRect["width"].(float64) * 4)
+	height := int(billRect["height"].(float64) * 3.4)
+
+	if width == 0 || height == 0 {
+		log.Fatalf("Bill content has invalid dimensions: width=%d, height=%d", width, height)
+	}
+
+	log.Printf("Bill content found at: x=%d, y=%d, width=%d, height=%d", x, y, width, height)
+
+	// Crop the image to the bill-content
+	croppedBuf, err := CropImage(buf, x, y, width, height)
+	if err != nil {
+		log.Fatalf("Failed to crop image: %v", err)
+	}
+
+	log.Println("Screenshot captured and cropped. Saving to:", savePath)
+
+	if err := SaveImage(croppedBuf, savePath); err != nil {
+		log.Fatalf("Failed to save image: %v", err)
+	}
+	message := fmt.Sprintf("✅ Successfully saved cropped screenshot to: %s", savePath)
+	return c.Status(fiber.StatusOK).SendString(message)
+	// sendBillTofaceBook(trackingId)
 }
