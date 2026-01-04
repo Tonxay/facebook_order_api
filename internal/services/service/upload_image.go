@@ -11,7 +11,7 @@ import (
 	"go-api/internal/pkg/models/request"
 	dbservice "go-api/internal/services/db_service"
 	"image"
-	"image/jpeg"
+	"image/png"
 	"io"
 	"log"
 	"net/http"
@@ -247,71 +247,71 @@ func GetOrderbillInAnousith(c *fiber.Ctx) error {
 
 // SaveImage saves a data slice (like an image) to the specified file path.
 // It automatically creates all necessary parent directories if they do not exist.
-func SaveImage(data []byte, filePath string) error {
+// func SaveImage(data []byte, filePath string) error {
 
-	// 1. Get the directory part of the path
-	dir := filepath.Dir(filePath)
+// 	// 1. Get the directory part of the path
+// 	dir := filepath.Dir(filePath)
 
-	// 2. Create the directory (and all parents) if it doesn't exist
-	if err := os.MkdirAll(dir, os.ModePerm); err != nil {
-		return fmt.Errorf("failed to create directory %s: %w", dir, err)
-	}
+// 	// 2. Create the directory (and all parents) if it doesn't exist
+// 	if err := os.MkdirAll(dir, os.ModePerm); err != nil {
+// 		return fmt.Errorf("failed to create directory %s: %w", dir, err)
+// 	}
 
-	// 3. Write the file to the specified path
-	if err := os.WriteFile(filePath, data, 0644); err != nil {
-		return fmt.Errorf("failed to write file %s: %w", filePath, err)
-	}
+// 	// 3. Write the file to the specified path
+// 	if err := os.WriteFile(filePath, data, 0644); err != nil {
+// 		return fmt.Errorf("failed to write file %s: %w", filePath, err)
+// 	}
 
-	return nil
-}
+// 	return nil
+// }
 
 // CropImage crops an image to the specified rectangle
-func CropImage(imgData []byte, x, y, width, height int) ([]byte, error) {
-	// Decode the image
-	img, format, err := image.Decode(bytes.NewReader(imgData))
-	if err != nil {
-		return nil, fmt.Errorf("failed to decode image: %w", err)
-	}
+// func CropImage(imgData []byte, x, y, width, height int) ([]byte, error) {
+// 	// Decode the image
+// 	img, format, err := image.Decode(bytes.NewReader(imgData))
+// 	if err != nil {
+// 		return nil, fmt.Errorf("failed to decode image: %w", err)
+// 	}
 
-	log.Printf("Original image format: %s, bounds: %v", format, img.Bounds())
+// 	log.Printf("Original image format: %s, bounds: %v", format, img.Bounds())
 
-	// Ensure crop coordinates are within image bounds
-	bounds := img.Bounds()
-	if x < 0 {
-		x = 0
-	}
-	if y < 0 {
-		y = 0
-	}
-	if x+width > bounds.Dx() {
-		width = bounds.Dx() - x
-	}
-	if y+height > bounds.Dy() {
-		height = bounds.Dy() - y
-	}
+// 	// Ensure crop coordinates are within image bounds
+// 	bounds := img.Bounds()
+// 	if x < 0 {
+// 		x = 0
+// 	}
+// 	if y < 0 {
+// 		y = 0
+// 	}
+// 	if x+width > bounds.Dx() {
+// 		width = bounds.Dx() - x
+// 	}
+// 	if y+height > bounds.Dy() {
+// 		height = bounds.Dy() - y
+// 	}
 
-	// Define crop rectangle
-	rect := image.Rect(x, y, x+width, y+height)
+// 	// Define crop rectangle
+// 	rect := image.Rect(x, y, x+width, y+height)
 
-	log.Printf("Cropping to: %v", rect)
+// 	log.Printf("Cropping to: %v", rect)
 
-	// Create a new image with the cropped region
-	type subImager interface {
-		SubImage(r image.Rectangle) image.Image
-	}
+// 	// Create a new image with the cropped region
+// 	type subImager interface {
+// 		SubImage(r image.Rectangle) image.Image
+// 	}
 
-	croppedImg := img.(subImager).SubImage(rect)
+// 	croppedImg := img.(subImager).SubImage(rect)
 
-	// Encode back to JPEG with good quality for text readability
-	var buf bytes.Buffer
-	if err := jpeg.Encode(&buf, croppedImg, &jpeg.Options{Quality: 1}); err != nil {
-		return nil, fmt.Errorf("failed to encode cropped image: %w", err)
-	}
+// 	// Encode back to JPEG with good quality for text readability
+// 	var buf bytes.Buffer
+// 	if err := jpeg.Encode(&buf, croppedImg, &jpeg.Options{Quality: 1}); err != nil {
+// 		return nil, fmt.Errorf("failed to encode cropped image: %w", err)
+// 	}
 
-	log.Printf("Cropped image size: %d bytes", buf.Len())
+// 	log.Printf("Cropped image size: %d bytes", buf.Len())
 
-	return buf.Bytes(), nil
-}
+// 	return buf.Bytes(), nil
+// }
 
 func AnousithLoging(tel string, password string) string {
 
@@ -961,39 +961,47 @@ func ScapingImage(c *fiber.Ctx) error {
 	select {
 	case Sem <- struct{}{}:
 		defer func() { <-Sem }()
-	case <-time.After(50 * time.Second):
-		return c.Status(503).SendString("❌ Server is busy")
+	case <-time.After(60 * time.Second): // ເພີ່ມເວລາລໍຖ້າຄິວ
+		return c.Status(503).SendString("❌ Server is busy (Queue Full)")
 	}
 
 	url := "https://app.anousith.express/landing/search_tracking/bill_share?tacking_number=" + trackingNo
-	savePath := "../anousith/images/bills/" + trackingNo + ".png" // ໃຊ້ PNG ເພື່ອຄວາມຄົມຊັດ
+	// ✅ ປ່ຽນເປັນ .png ເພື່ອຄວາມຊັດສູງສຸດ
+	savePath := "../anousith/images/bills/" + trackingNo + ".png"
 
 	ctx, cancel := chromedp.NewContext(GlobalAllocCtx)
 	defer cancel()
 
-	ctx, cancel = context.WithTimeout(ctx, 60*time.Second)
+	// ✅ ເພີ່ມ Timeout ເປັນ 120 ວິນາທີ ສຳລັບການ Render ພາບ Ultra HD
+	ctx, cancel = context.WithTimeout(ctx, 120*time.Second)
 	defer cancel()
 
 	var buf []byte
 	var billRect map[string]interface{}
 
-	log.Printf("📸 Processing HD Image: %s", trackingNo)
+	log.Printf("📸 Processing Ultra-Clear Image: %s", trackingNo)
 
 	err := chromedp.Run(ctx,
-		// 2. ຕັ້ງຄ່າຄວາມຊັດລະດັບ Ultra HD
+		// 2. ຕັ້ງຄ່າ Emulation ລະດັບສູງສຸດ (Ultra HD)
 		chromedp.Emulate(device.Info{
-			Name: "UltraRes", Width: 800, Height: 1200, Scale: 4.0, Mobile: true,
+			Name:   "UltraClear",
+			Width:  1000, // ເພີ່ມຄວາມກວ້າງໃຫ້ສະບາຍຕາ
+			Height: 1500,
+			Scale:  8.0, // ✅ Scale 5.0 ຄືທີ່ສຸດຂອງຄວາມຄົມຊັດ
+			Mobile: true,
 		}),
 		chromedp.Navigate(url),
-		// ລໍຖ້າໃຫ້ Element ຂຶ້ນມາແທ້ໆ (ປ້ອງກັນ Panic ຍ້ອນຫາ Element ບໍ່ເຫັນ)
+		// ລໍຖ້າໃຫ້ Element ມາແທ້ໆ
 		chromedp.WaitVisible(`.bill-content`, chromedp.ByQuery),
-		chromedp.Sleep(2*time.Second), // ໃຫ້ເວລາ Font Render ໃຫ້ຄົມຊັດ
+		// ✅ ໃຫ້ເວລາ 3 ວິນາທີ ເພື່ອໃຫ້ Font ແລະ Barcode ຄົມຊັດທີ່ສຸດ
+		chromedp.Sleep(3*time.Second),
 
 		chromedp.Evaluate(`
             (() => {
                 const element = document.querySelector('.bill-content');
                 if (!element) return null;
                 const rect = element.getBoundingClientRect();
+                // ດຶງ DPR ຕົວຈິງຈາກ Browser
                 const dpr = window.devicePixelRatio || 1;
                 return {
                     x: rect.x * dpr,
@@ -1003,38 +1011,45 @@ func ScapingImage(c *fiber.Ctx) error {
                 };
             })()
         `, &billRect),
-		chromedp.CaptureScreenshot(&buf), // ໃຊ້ CaptureScreenshot ສຳລັບ PNG
+		// ✅ ໃຊ້ CaptureScreenshot ສຳລັບ PNG (ບໍ່ບີບອັດ)
+		chromedp.CaptureScreenshot(&buf),
 	)
 
-	// 3. ດັກ Error ປ້ອງກັນ Panic 100%
-	if err != nil || billRect == nil {
-		log.Printf("❌ Capture Failed or Element not found: %v", err)
-		return c.Status(500).SendString("❌ ຫາຂໍ້ມູນໃບບິນບໍ່ເຫັນ ຫຼື ເວັບໄຊທ໌ຕອບສະໜອງຊ້າ")
+	// 3. ກວດສອບ Error ແລະ Nil (ປ້ອງກັນ Panic)
+	if err != nil {
+		log.Printf("❌ Chrome Error: %v", err)
+		return c.Status(500).SendString("Capture Timed Out or Failed")
+	}
+	if billRect == nil || len(buf) == 0 {
+		log.Printf("❌ Element not found or buffer empty")
+		return c.Status(404).SendString("Bill Element Not Found")
 	}
 
-	// 4. ດຶງຄ່າ Rect ແບບປອດໄພ (Safe Assertion)
-	// ປ້ອງກັນ Panic: interface conversion: interface {} is nil
+	// 4. Safe Type Assertion (ປ້ອງກັນ Panic)
 	valX, okX := billRect["x"].(float64)
 	valY, okY := billRect["y"].(float64)
 	valW, okW := billRect["width"].(float64)
 	valH, okH := billRect["height"].(float64)
 
 	if !okX || !okY || !okW || !okH {
-		return c.Status(500).SendString("❌ ບໍ່ສາມາດຄິດໄລ່ຕຳແໜ່ງໃບບິນໄດ້")
+		return c.Status(500).SendString("Failed to calculate crop dimensions")
 	}
 
-	// 5. Crop ແລະ Save
-	croppedBuf, err := CropImage(buf, int(valX), int(valY), int(valW), int(valH))
+	// 5. Crop ແລະ Save ແບບ PNG
+	// ❗ສຳຄັນ: ຕ້ອງໃຊ້ຟັງຊັນ CropImagePNG ທີ່ຂຽນໃໝ່ທາງລຸ່ມ❗
+	croppedBuf, err := CropImagePNG(buf, int(valX), int(valY), int(valW), int(valH))
 	if err != nil {
-		return c.Status(500).SendString("❌ Crop Image Failed")
+		log.Printf("❌ Crop Error: %v", err)
+		return c.Status(500).SendString("Crop Failed")
 	}
 
 	if err := SaveImage(croppedBuf, savePath); err != nil {
-		return c.Status(500).SendString("❌ Save Image Failed")
+		log.Printf("❌ Save Error: %v", err)
+		return c.Status(500).SendString("Save Failed")
 	}
 
 	go sendBillTofaceBook(trackingNo)
-	return c.Status(200).SendString("✅ Success: HD Image Saved")
+	return c.Status(200).SendString("✅ Success: Ultra-Clear PNG Saved")
 }
 
 // // --- Helper Functions ---
@@ -1062,3 +1077,42 @@ func ScapingImage(c *fiber.Ctx) error {
 // 	os.MkdirAll(dir, 0755)
 // 	return os.WriteFile(path, data, 0644)
 // }
+
+// ✅ ຟັງຊັນໃໝ່: ສຳລັບ Crop ຮູບ PNG ໂດຍສະເພາະ (ຊັດທີ່ສຸດ)
+func CropImagePNG(input []byte, x, y, w, h int) ([]byte, error) {
+	// Decode ຂໍ້ມູນພາບ (Go ຈະຮູ້ເອງວ່າເປັນ PNG)
+	src, _, err := image.Decode(bytes.NewReader(input))
+	if err != nil {
+		return nil, fmt.Errorf("failed to decode image: %w", err)
+	}
+
+	// ດຳເນີນການຕັດພາບ
+	if sub, ok := src.(interface {
+		SubImage(r image.Rectangle) image.Image
+	}); ok {
+		// ສ້າງຂອບເຂດການຕັດ
+		rect := image.Rect(x, y, x+w, y+h)
+		// ຕັດພາບຕົວຈິງ
+		img := sub.SubImage(rect)
+
+		// ✅ Encode ກັບຄືນເປັນ PNG (Lossless - ບໍ່ເສຍຄວາມຊັດ)
+		buf := new(bytes.Buffer)
+		err := png.Encode(buf, img) // ບໍ່ຕ້ອງຕັ້ງຄ່າ Quality ເພາະ PNG ຊັດສຸດສະເໝີ
+		if err != nil {
+			return nil, fmt.Errorf("failed to encode PNG: %w", err)
+		}
+		return buf.Bytes(), nil
+	}
+	return nil, fmt.Errorf("image does not support cropping")
+}
+
+// ຟັງຊັນ Save ທີ່ປອດໄພ (ຄືເກົ່າ)
+func SaveImage(data []byte, path string) error {
+	// ຮັບປະກັນວ່າ Folder ປາຍທາງມີຢູ່ແທ້
+	dir := filepath.Dir(path)
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		return fmt.Errorf("failed to create directory: %w", err)
+	}
+	// ບັນທຶກໄຟລ໌
+	return os.WriteFile(path, data, 0644)
+}
