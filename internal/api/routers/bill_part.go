@@ -11,7 +11,7 @@ func SetupBillRoutesPart(route fiber.Router) {
 	// route.Get("/send", service.Uploadimage)
 
 	route.Get("/anousith", middleware.JWTProtected, service.GetOrderbillInAnousith)
-	route.Post("/screenshot", service.ScapingImage)
+	route.Post("/screenshot", middleware.JWTProtected, service.ScapingImage)
 	route.Get("proxy-anousith", service.ProxyAnousith)
 	route.Get("/:tracking_number", service.Getbill)
 

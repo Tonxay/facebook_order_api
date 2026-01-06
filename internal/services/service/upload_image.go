@@ -907,14 +907,14 @@ func ScapingImage(c *fiber.Ctx) error {
 
 	trackingNo := params.TrackingNumber
 	if trackingNo == "" {
-		return c.Status(400).SendString("❌ Missing tracking_number")
+		return fiber.NewError(400, "❌ Missing tracking_number")
 	}
 	if params.CustomerID == "" {
-		return c.Status(400).SendString("❌ Missing customer_id")
+		return fiber.NewError(400, "❌ Missing customer_id")
 	}
-	println(params.Platform)
+
 	if params.Platform == "whatsapp" {
-		return c.Status(400).SendString("❌ Missing whatapp")
+		return fiber.NewError(402, "❌ Missing whatapp")
 	}
 	_, token := middleware.CheckPageId(params.PageID, params.PageID)
 
