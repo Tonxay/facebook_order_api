@@ -20,7 +20,7 @@ type Customer struct {
 	CreatedAt   time.Time `gorm:"column:created_at;not null;default:CURRENT_TIMESTAMP" json:"created_at"`
 	UpdatedAt   time.Time `gorm:"column:updated_at;not null;default:now()" json:"updated_at"`
 	PageID      string    `gorm:"column:page_id;not null" json:"page_id"`
-	Gender      int32     `gorm:"column:gender;not null;comment:1 man" json:"gender"` // 1 man
+	Gender      int32     `gorm:"column:gender;not null" json:"gender"`
 }
 
 // TableName Customer's table name

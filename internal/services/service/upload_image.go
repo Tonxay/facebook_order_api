@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	cons "go-api/internal/config/constant"
 	"go-api/internal/config/middleware"
 	"go-api/internal/config/presenters"
 	gormpkg "go-api/internal/pkg"
@@ -22,92 +23,13 @@ import (
 	"time"
 
 	"github.com/chromedp/chromedp"
-	"github.com/chromedp/chromedp/device"
 	"github.com/go-rod/rod"
 	"github.com/go-rod/rod/lib/devices" // Import consts for UserAgentIPhone
 	"github.com/go-rod/rod/lib/proto"
 	"github.com/gofiber/fiber/v2"
 )
 
-type ItemsV2Response struct {
-	Data struct {
-		ItemsV2 struct {
-			Total int        `json:"total"`
-			Data  []ItemData `json:"data"`
-		} `json:"itemsV2"`
-	} `json:"data"`
-}
-
-type ItemData struct {
-	ID                string         `json:"_id"`
-	TrackingPlatform  string         `json:"trackingPlatform"`
-	TrackingId        string         `json:"trackingId"`
-	ItemName          string         `json:"itemName"`
-	ItemValueKIP      int            `json:"itemValueKIP"`
-	ItemValueTHB      int            `json:"itemValueTHB"`
-	ItemValueUSD      int            `json:"itemValueUSD"`
-	RealItemValueKIP  int            `json:"realItemValueKIP"`
-	RealItemValueTHB  int            `json:"realItemValueTHB"`
-	RealItemValueUSD  int            `json:"realItemValueUSD"`
-	ReceiverName      string         `json:"receiverName"`
-	ReceiverPhone     string         `json:"receiverPhone"`
-	Description       string         `json:"description"`
-	IsSummary         int            `json:"isSummary"`
-	DestSendDate      *string        `json:"destSendDate"`
-	ChargeOnShop      int            `json:"charge_on_shop"`
-	ItemStatus        string         `json:"itemStatus"`
-	ContactStatus     string         `json:"contactStatus"`
-	OriginSendDate    string         `json:"originSendDate"`
-	Width             int            `json:"width"`
-	Weight            int            `json:"weight"`
-	IsCod             string         `json:"isCod"`
-	IsExtraItem       int            `json:"isExtraItem"`
-	PackagePrice      int            `json:"packagePrice"`
-	OriginReceiveDate string         `json:"originReceiveDate"`
-	DestReceiveDate   *string        `json:"destReceiveDate"`
-	SendCompleteDate  *string        `json:"sendCompleteDate"`
-	IsBackward        int            `json:"isBackward"`
-	BillNumber        int            `json:"billNumber"`
-	OriginProvinceId  ProvinceInfo   `json:"originProvinceId"`
-	DestProvinceId    ProvinceInfo   `json:"destProvinceId"`
-	OriginBranchId    BranchInfo     `json:"originBranchId"`
-	DestBranchId      BranchDestInfo `json:"destBranchId"`
-	CustomerId        CustomerInfo   `json:"customerId"`
-	CreatedBy         EmployeeInfo   `json:"createdBy"`
-	OriginReceiveBy   EmployeeInfo   `json:"originReceiveBy"`
-	ProvidedBy        ProviderInfo   `json:"providedBy"`
-}
-
-type ProvinceInfo struct {
-	ProvinceName string `json:"provinceName"`
-}
-
-type BranchInfo struct {
-	BranchName string `json:"branch_name"`
-}
-
-type BranchDestInfo struct {
-	BranchName    string `json:"branch_name"`
-	BranchAddress string `json:"branch_address"`
-	ContactInfo   string `json:"contactInfo"`
-}
-
-type CustomerInfo struct {
-	IDList      string `json:"id_list"`
-	FullName    string `json:"full_name"`
-	ContactInfo string `json:"contact_info"`
-}
-
-type EmployeeInfo struct {
-	FirstName   string `json:"first_name"`
-	PhoneNumber string `json:"phone_number"`
-}
-
-type ProviderInfo struct {
-	ID string `json:"_id"`
-}
-
-func compareLists(list1 []*custommodel.OrderReponseNew, list2 []ItemData) (matched []custommodel.OrderReponseNew, onlyList1, dataNotMath []string) {
+func compareLists(list1 []*custommodel.OrderReponseNew, list2 []custommodel.AnousithBill) (matched []custommodel.OrderReponseNew, onlyList1, dataNotMath []string) {
 	// normalize to digits only
 	normalize := func(s string) string {
 		var b strings.Builder
@@ -151,6 +73,14 @@ func compareLists(list1 []*custommodel.OrderReponseNew, list2 []ItemData) (match
 				continue
 			}
 			if strings.HasSuffix(recvNorm, normTel) || strings.HasSuffix(normTel, recvNorm) {
+				for _, item := range list2 {
+
+					if item.TrackingId == tracking {
+						v.AnousithBillData = item
+					}
+
+				}
+
 				v.TrackingNumber = tracking
 				v.LikeTackingNumberURL = "https://app.anousith.express/landing/search_tracking/bill_share?tacking_number=" + tracking
 				matched = append(matched, *v)
@@ -396,7 +326,7 @@ func AnousithLoging(tel string, password string) string {
 
 }
 
-func AnousithOrder(token string) ItemsV2Response {
+func AnousithOrder(token string) custommodel.ItemsV2Response {
 
 	payload := map[string]interface{}{
 		"operationName": "ItemsV2",
@@ -548,7 +478,7 @@ func AnousithOrder(token string) ItemsV2Response {
 	if err != nil {
 		log.Fatal(err)
 	}
-	var response ItemsV2Response
+	var response custommodel.ItemsV2Response
 	json.Unmarshal(body, &response)
 
 	return response
@@ -627,143 +557,218 @@ func SaveBytes(buf []byte, filePath string) error {
 	return os.WriteFile(filePath, buf, 0644)
 }
 
-// func scapingImage(trackingId string) string {
-// 	url := "https://app.anousith.express/landing/search_tracking/bill_share?tacking_number=" + trackingId
-// 	jpegQuality := 60 // Good quality for bill readability
-// 	savePath := "../go-api/images/bills/" + trackingId + ".jpg"
-
-// 	opts := append(chromedp.DefaultExecAllocatorOptions[:],
-// 		chromedp.Flag("headless", true),
-// 		chromedp.Flag("disable-gpu", true),
-// 		chromedp.Flag("chromium", true),
-// 	)
-// 	allocCtx, cancel := chromedp.NewExecAllocator(context.Background(), opts...)
-// 	defer cancel()
-
-// 	ctx, cancel := chromedp.NewContext(allocCtx, chromedp.WithLogf(log.Printf))
-// 	defer cancel()
-
-// 	ctx, cancel = context.WithTimeout(ctx, 120*time.Second)
-// 	defer cancel()
-
-// 	var buf []byte
-// 	var billRect map[string]interface{}
-
-// 	log.Println("Starting screenshot task for:", url)
-
-// 	// Get the bill-content's position and dimensions, then take full screenshot
-// 	err := chromedp.Run(ctx,
-// 		chromedp.Emulate(device.IPhone12),
-// 		chromedp.Navigate(url),
-// 		chromedp.Sleep(2*time.Second), // Wait for page to load completely
-
-// 		// Get the position and size of the bill-content element
-// 		chromedp.Evaluate(`
-// 			(() => {
-// 				const element = document.querySelector('.bill-content');
-// 				if (!element) {
-// 					console.error('Could not find .bill-content element');
-// 					return null;
-// 				}
-// 				const rect = element.getBoundingClientRect();
-// 				console.log('Bill content rect:', rect);
-// 				return {
-// 					x: rect.x,
-// 					y: rect.y,
-// 					width: rect.width,
-// 					height: rect.height
-// 				};
-// 			})()
-// 		`, &billRect),
-
-// 		// Take full page screenshot
-// 		chromedp.FullScreenshot(&buf, jpegQuality),
-// 	)
-
-// 	if err != nil {
-// 		log.Fatalf("Failed during screenshot: %v", err)
-// 	}
-
-// 	// Check if we found the bill-content element
-// 	if billRect == nil {
-// 		log.Fatalf("Could not find .bill-content element on the page")
-// 	}
-
-// 	x := int(billRect["x"].(float64))
-// 	y := int(billRect["y"].(float64))
-// 	width := int(billRect["width"].(float64) * 4)
-// 	height := int(billRect["height"].(float64) * 3.4)
-
-// 	if width == 0 || height == 0 {
-// 		log.Fatalf("Bill content has invalid dimensions: width=%d, height=%d", width, height)
-// 	}
-
-// 	log.Printf("Bill content found at: x=%d, y=%d, width=%d, height=%d", x, y, width, height)
-
-// 	// Crop the image to the bill-content
-// 	croppedBuf, err := CropImage(buf, x, y, width, height)
-// 	if err != nil {
-// 		log.Fatalf("Failed to crop image: %v", err)
-// 	}
-
-// 	log.Println("Screenshot captured and cropped. Saving to:", savePath)
-
-// 	if err := SaveImage(croppedBuf, savePath); err != nil {
-// 		log.Fatalf("Failed to save image: %v", err)
-// 	}
-// 	message := fmt.Sprintf("✅ Successfully saved cropped screenshot to: %s", savePath)
-// 	return message
-// 	// sendBillTofaceBook(trackingId)
-// }
-
-func sendBillTofaceBook(trackingId string, token string, customerId string) {
+func sendBillTofaceBook(order OrderQueryParams, token string) error {
 
 	facebookUrl := "https://graph.facebook.com/v18.0/me/messages?access_token=" + token
 
-	msg := map[string]any{
+	// msg := map[string]any{
+	// 	"recipient": map[string]any{
+	// 		"id": "23933715116288753",
+	// 	},
+	// 	"message": map[string]any{
+	// 		"attachment": map[string]any{
+	// 			"type": "image",
+	// 			"payload": map[string]any{
+	// 				"url":         "https://api.chat-dd.uk/bill/" + trackingId,
+	// 				"is_reusable": true,
+	// 			},
+	// 		},
+	// 	},
+	// 	"messaging_type": "MESSAGE_TAG",
+	// 	"tag":            "POST_PURCHASE_UPDATE",
+	// }
+
+	textMessage := "ສະບາຍດີລູກຄ້າ: ຝາກເຄື່ອງລົງ ອານຸສິດ ໃຫ້ເເລ້ວເຈົ້າ \n" +
+		"ເລກຕິດຕາມ: " + order.TrackingNumber + "\n" +
+		"ຊື່: " + order.CustomerName + "\n" +
+		"ເບີ: " + order.CustomerTel + "\n" +
+		"ເບີສາຂາ: " + order.ContactInfo + "\n" +
+		"ຝາກລົງ: " + order.BranchAddress
+
+	textMessageThank := "ຂອບໃຈຫຼາຍໆ🙏🏻💖ສຳລັບການອຸດໜູນ! \n - ໃຫ້ລູກຄ້າກົດເບີ່ງຮູບ ເພື່ອບັນທຶກເອົາບິນ \n - ຫຼັງຈາກໄດ້ຮັບສິນຄ້າ ລົບກວນຖ່າຍວີດິໂອຕອນແກະເຄື່ອງໄວ້ແນ່ເດີ \n - ໃນກໍລະນີເຄື່ອງມີບັນຫາທາງຮ້ານເຮົາຈຶ່ງຈະຮັບຜິດຊອບໃຫ້ເດີເຈົ້າ. 🤗"
+
+	msgText := map[string]any{
 		"recipient": map[string]any{
-			"id": customerId,
+			"id": order.CustomerID,
 		},
 		"message": map[string]any{
-			"attachment": map[string]any{
-				"type": "image",
-				"payload": map[string]any{
-					"url":         "https://api.chat-dd.uk/bill/" + trackingId,
-					"is_reusable": true,
-				},
-			},
+			"text": textMessage, // ✅ Changed from 'attachment' to 'text'
+		},
+		"messaging_type": "MESSAGE_TAG",
+		"tag":            "POST_PURCHASE_UPDATE",
+	}
+	msgTextThank := map[string]any{
+		"recipient": map[string]any{
+			"id": order.CustomerID,
+		},
+		"message": map[string]any{
+			"text": textMessageThank, // ✅ Changed from 'attachment' to 'text'
 		},
 		"messaging_type": "MESSAGE_TAG",
 		"tag":            "POST_PURCHASE_UPDATE",
 	}
 
+	msg := map[string]any{
+		"recipient": map[string]any{
+			"id": order.CustomerID,
+		},
+		"message": map[string]any{
+			"attachment": map[string]any{
+				"type": "template",
+				"payload": map[string]any{
+					"template_type": "generic",
+					"elements": []map[string]any{
+						{
+							"title":     "ໃບບິນຝາກພັດສະດຸ (ອານຸສິດ)",
+							"image_url": "https://scontent.fvte1-1.fna.fbcdn.net/v/t1.6435-9/76994883_478719836071281_7632067609801785344_n.jpg?_nc_cat=102&ccb=1-7&_nc_sid=a5f93a&_nc_eui2=AeEMYTkT3fPflhxKDc1ovMS3SfthehKY9-xJ-2F6Epj37MjKYxXpDwqyzg8fSIqnekInSknoha-loEr-U-D08w78&_nc_ohc=ESG-LZEfBPEQ7kNvwEZaJIw&_nc_oc=Adm1npqBFHO_iyW6lpJczxoTlh36U2R--uH6bC1osVskDmrFe2lTpUi3tkiSA-dLP10&_nc_zt=23&_nc_ht=scontent.fvte1-1.fna&_nc_gid=LM_fVkkyNUTTcfJrl8Tuog&oh=00_AfrsIibwGtSWLvQOI6Q5Li4wEKUpqvLmomKpVFyg3NQSBQ&oe=698332AA",
+							"subtitle":  "ເລກຕິດຕາມ: " + order.TrackingNumber + "\nຊື່: " + order.CustomerName + "ເບີ: " + order.CustomerTel,
+							"buttons": []map[string]any{
+								{
+									"type":                 "web_url",
+									"url":                  "https://app.anousith.express/landing/search_tracking/bill_share?tacking_number=" + order.TrackingNumber,
+									"title":                "ກົດເບິ່ງຮູບໃບບິນ",
+									"webview_height_ratio": "full",
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		// ✅ ຕ້ອງຢູ່ບ່ອນນີ້! (Root level)
+		"messaging_type": "MESSAGE_TAG",
+		"tag":            "POST_PURCHASE_UPDATE",
+	}
+	var err error
+	err = send(msgText, facebookUrl)
+	err = send(msg, facebookUrl)
+	err = send(msgTextThank, facebookUrl)
+
+	if err != nil {
+		return err
+	}
+	db := gormpkg.GetDB()
+	status := "customer_bill_notified"
+	oldStatus, ok := cons.OrderStatusTransitions[status]
+	if !ok {
+		return fiber.NewError(400, "not found status")
+	}
+	_, err = dbservice.UpdateStatusOrder(db, order.OrderID, status, oldStatus, "", order.UserID, order.TrackingNumber)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func send(msg map[string]any, facebookUrl string) error {
 	// 2. Marshal it to JSON (same as before)
 	jsonData, err := json.Marshal(msg)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	req, err := http.NewRequest(http.MethodPost, facebookUrl, bytes.NewBuffer(jsonData))
 	req.Header.Set("Content-Type", "application/json")
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	// 3. Send the request using the default client
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	defer resp.Body.Close()
 
 	// 4. Read the response (same as before)
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	fmt.Println("Status:", resp.Status)
 	fmt.Println("Response Body:", string(body))
 	log.Println("✅ Successfully sended:", req)
+	return nil
 }
+
+// func sendBillTofaceBook(trackingId string, token string, customerId string) {
+
+// 	facebookUrl := "https://graph.facebook.com/v18.0/me/messages?access_token=EAARDcwZBMbeQBPZC3KIzAjxMn2HOtRv498MYVpKxSc16Du03srxwRC8M26b9CLMY4qZCvVoj1e11HgZCNWEDCKCviosA831C4hn7IHPUUUfrPvUFKUjLBA4f9bzpRswtvg9RtveJT6ZCB6nI7FZA7wWFFxT0K0a6A8ft4pdsxW0sm1a2AkCyiz2lb1kyYPl1teU1QZD"
+
+// 	// msg := map[string]any{
+// 	// 	"recipient": map[string]any{
+// 	// 		"id": "9608668882534684",
+// 	// 	},
+// 	// 	"message": map[string]any{
+// 	// 		"attachment": map[string]any{
+// 	// 			"type": "image",
+// 	// 			"payload": map[string]any{
+// 	// 				"url":         "https://api.chat-dd.uk/bill/" + trackingId,
+// 	// 				"is_reusable": true,
+// 	// 			},
+// 	// 		},
+// 	// 	},
+// 	// 	"messaging_type": "MESSAGE_TAG",
+// 	// 	"tag":            "POST_PURCHASE_UPDATE",
+// 	// }
+
+// 	// msg := map[string]any{
+// 	// 	"recipient": map[string]any{
+// 	// 		"id": "23933715116288753",
+// 	// 	},
+// 	// 	"message": map[string]any{
+// 	// 		"attachment": map[string]any{
+// 	// 			"type": "template",
+// 	// 			"payload": map[string]any{
+// 	// 				"template_type": "generic",
+// 	// 				"elements": []map[string]any{
+// 	// 					{
+// 	// 						"title":     "ໃບບິນຝາກພັດສະດຸ (ອານຸສິດ)",
+// 	// 						"image_url": "https://app.anousith.express/static/media/logo-app.08726185419ef9a8e073.png", // ຮູບໂລໂກ້ ຫຼື ໄອຄອນ
+// 	// 						"subtitle":  "ເລກຕິດຕາມ: " + trackingId,
+// 	// 						"buttons": []map[string]any{
+// 	// 							{
+// 	// 								"type":  "web_url",
+// 	// 								"url":   "https://app.anousith.express/landing/search_tracking/bill_share?tacking_number=" + trackingId,
+// 	// 								"title": "ກົດເບິ່ງໃບບິນຕົວຈິງ",
+// 	// 								// ✅ ເຮັດໃຫ້ເປີດຂຶ້ນມາເຕັມຈໍພາຍໃນ Messenger
+// 	// 								"webview_height_ratio": "full",
+// 	// 								"messenger_extensions": true,
+// 	// 							},
+// 	// 						},
+// 	// 					},
+// 	// 				},
+// 	// 			},
+// 	// 		},
+// 	// 	},
+// 	// }
+
+// 	// 2. Marshal it to JSON (same as before)
+// 	jsonData, err := json.Marshal(msg)
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
+// 	req, err := http.NewRequest(http.MethodPost, facebookUrl, bytes.NewBuffer(jsonData))
+// 	req.Header.Set("Content-Type", "application/json")
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
+// 	// 3. Send the request using the default client
+// 	resp, err := http.DefaultClient.Do(req)
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
+// 	defer resp.Body.Close()
+
+// 	// 4. Read the response (same as before)
+// 	body, err := io.ReadAll(resp.Body)
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
+
+// 	fmt.Println("Status:", resp.Status)
+// 	fmt.Println("Response Body:", string(body))
+// 	log.Println("✅ Successfully sended:", req)
+// }
 
 // func ScapingImage(c *fiber.Ctx) error {
 // 	var tracking_number = c.Query("tracking_number", "")
@@ -867,93 +872,53 @@ func InitBrowser() {
 	GlobalAllocCtx, _ = chromedp.NewExecAllocator(context.Background(), opts...)
 }
 
+type OrderQueryParams struct {
+	CustomerID     string `query:"customer_id" validate:"required"`
+	PageID         string `query:"page_id" validate:"required"`
+	OrderID        string `query:"order_id" validate:"required"`
+	UserID         string
+	TrackingNumber string  `query:"tracking_number" validate:"required"`
+	PackagePrice   float64 `query:"package_price" validate:"required"`
+	CustomerName   string  `query:"customer_name" validate:"required"`
+	CustomerTel    string  `query:"customer_tel" validate:"required"`
+	FreeShipping   bool    `query:"free_shipping" validate:"required"`
+	COD            bool    `query:"cod" validate:"required"`
+	Platform       string  `query:"platform" validate:"required"`
+	BranchAddress  string  `query:"branch_address" validate:"required"`
+	ContactInfo    string  `query:"contactinfo" validate:"required"`
+}
+
 func ScapingImage(c *fiber.Ctx) error {
-	log.Println("Starting ScapingImage handler")
-	trackingNo := c.Query("tracking_number", "")
-	pageId := c.Query("page_id", "")
-	customerId := c.Query("customer_id", "")
-	var token string
-	log.Println("Parameters - tracking_number:", trackingNo, "page_id:", pageId, "customer_id:", customerId)
-	pageId, token = middleware.CheckPageId("100376625971155", "100376625971155")
-	log.Println("After CheckPageId - page_id:", pageId, "token:", token)
+	// log.Println("Starting ScapingImage handler")
+
+	userID, ok := middleware.GetUserID(c)
+	if !ok {
+		return fiber.NewError(fiber.StatusUnauthorized, "Invalid user ID")
+	}
+
+	var params OrderQueryParams
+	err := c.QueryParser(&params)
+
+	if err != nil {
+		return fiber.NewError(400, " failed get data error")
+	}
+
+	params.UserID = userID
+
+	trackingNo := params.TrackingNumber
 	if trackingNo == "" {
 		return c.Status(400).SendString("❌ Missing tracking_number")
 	}
-
-	// ໃຊ້ Semaphore ຈາກ main.go
-	select {
-	case Sem <- struct{}{}:
-		defer func() { <-Sem }()
-	case <-time.After(50 * time.Second):
-		return c.Status(503).SendString("❌ Server is busy")
+	if params.CustomerID == "" {
+		return c.Status(400).SendString("❌ Missing customer_id")
 	}
-
-	url := "https://app.anousith.express/landing/search_tracking/bill_share?tacking_number=" + trackingNo
-	savePath := "../anousith/images/bills/" + trackingNo + ".jpg"
-
-	// ໃຊ້ GlobalAllocCtx ຈາກ main.go
-	ctx, cancel := chromedp.NewContext(GlobalAllocCtx)
-	defer cancel()
-
-	ctx, cancel = context.WithTimeout(ctx, 300*time.Second)
-	defer cancel()
-
-	var buf []byte
-	var billRect map[string]interface{}
-	var pageError bool
-
-	err := chromedp.Run(ctx,
-		chromedp.Emulate(device.Info{Name: "HighRes", Width: 500, Height: 1000, Scale: 3.0, Mobile: true}),
-		chromedp.Navigate(url),
-		chromedp.ActionFunc(func(ctx context.Context) error {
-			waitCtx, _ := context.WithTimeout(ctx, 15*time.Second)
-			return chromedp.WaitVisible(`.bill-content, .error-msg, .no-data`, chromedp.ByQuery).Do(waitCtx)
-		}),
-		chromedp.Evaluate(`
-            (() => {
-                const element = document.querySelector('.bill-content');
-                if (!element) return { error: true };
-                const rect = element.getBoundingClientRect();
-                const dpr = window.devicePixelRatio || 1;
-                return { x: rect.x * dpr, y: rect.y * dpr, width: rect.width * dpr, height: rect.height * dpr, error: false };
-            })()
-        `, &billRect),
-		chromedp.ActionFunc(func(ctx context.Context) error {
-			if billRect == nil || billRect["error"].(bool) {
-				pageError = true
-				return nil
-			}
-			time.Sleep(2 * time.Second)
-			return chromedp.FullScreenshot(&buf, 100).Do(ctx)
-		}),
-	)
-
-	if err != nil {
-		log.Printf("Chromedp run error: %v", err)
-		return c.Status(500).SendString("❌ Chrome Error")
+	println(params.Platform)
+	if params.Platform == "whatsapp" {
+		return c.Status(400).SendString("❌ Missing whatapp")
 	}
-	if pageError {
-		log.Println("❌ Tracking Not Found")
-		return c.Status(404).SendString("❌ Tracking Not Found")
-	}
+	_, token := middleware.CheckPageId(params.PageID, params.PageID)
 
-	// Crop ຮູບ (ເອີ້ນໃຊ້ຈາກ utils.go)
-	x, y := int(billRect["x"].(float64)), int(billRect["y"].(float64))
-	w, h := int(billRect["width"].(float64)), int(billRect["height"].(float64))
-
-	croppedBuf, err := CropImage(buf, x, y, w, h)
-	if err != nil {
-		log.Printf("Crop image error: %v", err)
-		return c.Status(500).SendString("❌ Crop Failed")
-	}
-
-	// Save ຮູບ (ເອີ້ນໃຊ້ຈາກ utils.go)
-	if err := SaveImage(croppedBuf, savePath); err != nil {
-		log.Printf("Save image error: %v", err)
-		return c.Status(500).SendString("❌ Save Failed")
-	}
-
-	go sendBillTofaceBook(trackingNo, token, customerId) // ເອີ້ນໃຊ້ຈາກ utils.go
+	sendBillTofaceBook(params, token) // ເອີ້ນໃຊ້ຈາກ utils.go
 
 	return c.Status(200).SendString("✅ Success")
 }

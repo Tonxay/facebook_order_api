@@ -32,6 +32,8 @@ func newDistrict(db *gorm.DB, opts ...gen.DOOption) district {
 	_district.ProvinceID = field.NewInt32(tableName, "province_id")
 	_district.DrName = field.NewString(tableName, "dr_name")
 	_district.DrNameEn = field.NewString(tableName, "dr_name_en")
+	_district.CreatedAt = field.NewTime(tableName, "created_at")
+	_district.UpdateAt = field.NewTime(tableName, "update_at")
 
 	_district.fillFieldMap()
 
@@ -46,6 +48,8 @@ type district struct {
 	ProvinceID field.Int32
 	DrName     field.String
 	DrNameEn   field.String
+	CreatedAt  field.Time
+	UpdateAt   field.Time
 
 	fieldMap map[string]field.Expr
 }
@@ -66,6 +70,8 @@ func (d *district) updateTableName(table string) *district {
 	d.ProvinceID = field.NewInt32(table, "province_id")
 	d.DrName = field.NewString(table, "dr_name")
 	d.DrNameEn = field.NewString(table, "dr_name_en")
+	d.CreatedAt = field.NewTime(table, "created_at")
+	d.UpdateAt = field.NewTime(table, "update_at")
 
 	d.fillFieldMap()
 
@@ -82,11 +88,13 @@ func (d *district) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (d *district) fillFieldMap() {
-	d.fieldMap = make(map[string]field.Expr, 4)
+	d.fieldMap = make(map[string]field.Expr, 6)
 	d.fieldMap["id"] = d.ID
 	d.fieldMap["province_id"] = d.ProvinceID
 	d.fieldMap["dr_name"] = d.DrName
 	d.fieldMap["dr_name_en"] = d.DrNameEn
+	d.fieldMap["created_at"] = d.CreatedAt
+	d.fieldMap["update_at"] = d.UpdateAt
 }
 
 func (d district) clone(db *gorm.DB) district {

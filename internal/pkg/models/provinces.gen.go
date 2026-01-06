@@ -4,13 +4,19 @@
 
 package models
 
+import (
+	"time"
+)
+
 const TableNameProvince = "provinces"
 
 // Province mapped from table <provinces>
 type Province struct {
-	ID       int32  `gorm:"column:id;primaryKey" json:"id"`
-	PrName   string `gorm:"column:pr_name" json:"pr_name"`
-	PrNameEn string `gorm:"column:pr_name_en" json:"pr_name_en"`
+	ID        int32     `gorm:"column:id;primaryKey" json:"id"`
+	PrName    string    `gorm:"column:pr_name" json:"pr_name"`
+	PrNameEn  string    `gorm:"column:pr_name_en" json:"pr_name_en"`
+	CreatedAt time.Time `gorm:"column:created_at;default:now()" json:"created_at"`
+	UpdateAt  time.Time `gorm:"column:update_at;default:now()" json:"update_at"`
 }
 
 // TableName Province's table name

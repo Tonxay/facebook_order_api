@@ -161,7 +161,7 @@ func CreateOrderTimeLine(db *gorm.DB, orderTimeLine *models.OrderTimeLine) error
 	return result.Error
 }
 
-func UpdateStatusOrder(db *gorm.DB, orderId, newStatus, oldStatus string, orderNo string, userId string) (models.Order, error) {
+func UpdateStatusOrder(db *gorm.DB, orderId, newStatus, oldStatus string, orderNo string, userId string, billNo string) (models.Order, error) {
 	var order models.Order
 	tx := db.Table(models.TableNameOrder)
 	if orderId != "" {
@@ -170,10 +170,19 @@ func UpdateStatusOrder(db *gorm.DB, orderId, newStatus, oldStatus string, orderN
 		tx = tx.Where("order_no = ? AND status = ? AND is_cancel = ?", orderNo, oldStatus, false)
 	}
 
-	result := tx.UpdateColumns(&models.Order{
-		Status:      newStatus,
-		UserUpdated: userId,
-	})
+	var result *gorm.DB
+	if billNo == "" {
+		result = tx.UpdateColumns(&models.Order{
+			Status:      newStatus,
+			UserUpdated: userId,
+		})
+	} else {
+		result = tx.UpdateColumns(&models.Order{
+			Status:      newStatus,
+			UserUpdated: userId,
+			BillNo:      billNo,
+		})
+	}
 
 	if result.Error != nil {
 		return order, fmt.Errorf("failed to update order: %w", result.Error)

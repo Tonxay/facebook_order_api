@@ -2,8 +2,87 @@ package custommodel
 
 import (
 	"go-api/internal/pkg/models"
+
 	"time"
 )
+
+type ItemsV2Response struct {
+	Data struct {
+		ItemsV2 struct {
+			Total int            `json:"total"`
+			Data  []AnousithBill `json:"data"`
+		} `json:"itemsV2"`
+	} `json:"data"`
+}
+
+type AnousithBill struct {
+	ID                string         `json:"_id"`
+	TrackingPlatform  string         `json:"trackingPlatform"`
+	TrackingId        string         `json:"trackingId"`
+	ItemName          string         `json:"itemName"`
+	ItemValueKIP      int            `json:"itemValueKIP"`
+	ItemValueTHB      int            `json:"itemValueTHB"`
+	ItemValueUSD      int            `json:"itemValueUSD"`
+	RealItemValueKIP  int            `json:"realItemValueKIP"`
+	RealItemValueTHB  int            `json:"realItemValueTHB"`
+	RealItemValueUSD  int            `json:"realItemValueUSD"`
+	ReceiverName      string         `json:"receiverName"`
+	ReceiverPhone     string         `json:"receiverPhone"`
+	Description       string         `json:"description"`
+	IsSummary         int            `json:"isSummary"`
+	DestSendDate      *string        `json:"destSendDate"`
+	ChargeOnShop      int            `json:"chargeOnShop"`
+	ItemStatus        string         `json:"itemStatus"`
+	ContactStatus     string         `json:"contactStatus"`
+	OriginSendDate    string         `json:"originSendDate"`
+	Width             int            `json:"width"`
+	Weight            int            `json:"weight"`
+	IsCod             string         `json:"isCod"`
+	IsExtraItem       int            `json:"isExtraItem"`
+	PackagePrice      int            `json:"packagePrice"`
+	OriginReceiveDate string         `json:"originReceiveDate"`
+	DestReceiveDate   *string        `json:"destReceiveDate"`
+	SendCompleteDate  *string        `json:"sendCompleteDate"`
+	IsBackward        int            `json:"isBackward"`
+	BillNumber        int            `json:"billNumber"`
+	OriginProvinceId  ProvinceInfo   `json:"originProvinceId"`
+	DestProvinceId    ProvinceInfo   `json:"destProvinceId"`
+	OriginBranchId    BranchInfo     `json:"originBranchId"`
+	DestBranchId      BranchDestInfo `json:"destBranchId"`
+	CustomerId        CustomerInfo   `json:"customerId"`
+	CreatedBy         EmployeeInfo   `json:"createdBy"`
+	OriginReceiveBy   EmployeeInfo   `json:"originReceiveBy"`
+	ProvidedBy        ProviderInfo   `json:"providedBy"`
+}
+
+type ProvinceInfo struct {
+	ProvinceName string `json:"provinceName"`
+}
+
+type BranchInfo struct {
+	BranchName string `json:"branch_name"`
+}
+
+type BranchDestInfo struct {
+	BranchName    string `json:"branch_name"`
+	BranchAddress string `json:"branch_address"`
+	ContactInfo   string `json:"contactInfo"`
+}
+
+type CustomerInfo struct {
+	IDList      string `json:"id_list"`
+	FullName    string `json:"full_name"`
+	ContactInfo string `json:"contact_info"`
+}
+
+type EmployeeInfo struct {
+	FirstName   string `json:"first_name"`
+	PhoneNumber string `json:"phone_number"`
+}
+
+type ProviderInfo struct {
+	ID string `json:"id"`
+}
 
 // OrderRequest represents the order payload with validation tags
 type OrderRequest struct {
@@ -244,6 +323,7 @@ type OrderReponseNew struct {
 	Cod                   bool            `gorm:"column:cod;default:true" json:"cod"`
 	Shipping              models.Shipping `gorm:"foreignKey:ShippingID;references:ID" json:"shipping"`
 	OrderProducts         []OrderProduct  `gorm:"foreignKey:OrderID;references:ID" json:"products"`
+	AnousithBillData      AnousithBill    `gorm:"-" json:"anousith_bill_data"`
 }
 
 // OrderProduct mapped from table <order_products>

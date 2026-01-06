@@ -31,6 +31,8 @@ func newProvince(db *gorm.DB, opts ...gen.DOOption) province {
 	_province.ID = field.NewInt32(tableName, "id")
 	_province.PrName = field.NewString(tableName, "pr_name")
 	_province.PrNameEn = field.NewString(tableName, "pr_name_en")
+	_province.CreatedAt = field.NewTime(tableName, "created_at")
+	_province.UpdateAt = field.NewTime(tableName, "update_at")
 
 	_province.fillFieldMap()
 
@@ -40,10 +42,12 @@ func newProvince(db *gorm.DB, opts ...gen.DOOption) province {
 type province struct {
 	provinceDo
 
-	ALL      field.Asterisk
-	ID       field.Int32
-	PrName   field.String
-	PrNameEn field.String
+	ALL       field.Asterisk
+	ID        field.Int32
+	PrName    field.String
+	PrNameEn  field.String
+	CreatedAt field.Time
+	UpdateAt  field.Time
 
 	fieldMap map[string]field.Expr
 }
@@ -63,6 +67,8 @@ func (p *province) updateTableName(table string) *province {
 	p.ID = field.NewInt32(table, "id")
 	p.PrName = field.NewString(table, "pr_name")
 	p.PrNameEn = field.NewString(table, "pr_name_en")
+	p.CreatedAt = field.NewTime(table, "created_at")
+	p.UpdateAt = field.NewTime(table, "update_at")
 
 	p.fillFieldMap()
 
@@ -79,10 +85,12 @@ func (p *province) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (p *province) fillFieldMap() {
-	p.fieldMap = make(map[string]field.Expr, 3)
+	p.fieldMap = make(map[string]field.Expr, 5)
 	p.fieldMap["id"] = p.ID
 	p.fieldMap["pr_name"] = p.PrName
 	p.fieldMap["pr_name_en"] = p.PrNameEn
+	p.fieldMap["created_at"] = p.CreatedAt
+	p.fieldMap["update_at"] = p.UpdateAt
 }
 
 func (p province) clone(db *gorm.DB) province {

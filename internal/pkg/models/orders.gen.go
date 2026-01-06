@@ -32,6 +32,7 @@ type Order struct {
 	Cod           bool      `gorm:"column:cod;not null" json:"cod"`
 	IsCancel      bool      `gorm:"column:is_cancel;not null" json:"is_cancel"`
 	UserUpdated   string    `gorm:"column:user_updated;not null" json:"user_updated"`
+	BillNo        string    `gorm:"column:bill_no;default:N/A" json:"bill_no"`
 }
 
 // TableName Order's table name

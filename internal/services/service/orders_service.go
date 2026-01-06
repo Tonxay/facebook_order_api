@@ -402,7 +402,7 @@ func UpdateStatusOrder(c *fiber.Ctx) error {
 		db.Rollback()
 	}()
 
-	order, err := dbservice.UpdateStatusOrder(db, orderId, status, oldStatus, orderNo, userID)
+	order, err := dbservice.UpdateStatusOrder(db, orderId, status, oldStatus, orderNo, userID, "")
 
 	if err != nil {
 		return fiber.NewError(500, err.Error())

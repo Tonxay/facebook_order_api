@@ -48,6 +48,7 @@ func newOrder(db *gorm.DB, opts ...gen.DOOption) order {
 	_order.Cod = field.NewBool(tableName, "cod")
 	_order.IsCancel = field.NewBool(tableName, "is_cancel")
 	_order.UserUpdated = field.NewString(tableName, "user_updated")
+	_order.BillNo = field.NewString(tableName, "bill_no")
 
 	_order.fillFieldMap()
 
@@ -78,6 +79,7 @@ type order struct {
 	Cod           field.Bool
 	IsCancel      field.Bool
 	UserUpdated   field.String
+	BillNo        field.String
 
 	fieldMap map[string]field.Expr
 }
@@ -114,6 +116,7 @@ func (o *order) updateTableName(table string) *order {
 	o.Cod = field.NewBool(table, "cod")
 	o.IsCancel = field.NewBool(table, "is_cancel")
 	o.UserUpdated = field.NewString(table, "user_updated")
+	o.BillNo = field.NewString(table, "bill_no")
 
 	o.fillFieldMap()
 
@@ -130,7 +133,7 @@ func (o *order) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (o *order) fillFieldMap() {
-	o.fieldMap = make(map[string]field.Expr, 20)
+	o.fieldMap = make(map[string]field.Expr, 21)
 	o.fieldMap["id"] = o.ID
 	o.fieldMap["status"] = o.Status
 	o.fieldMap["customer_id"] = o.CustomerID
@@ -151,6 +154,7 @@ func (o *order) fillFieldMap() {
 	o.fieldMap["cod"] = o.Cod
 	o.fieldMap["is_cancel"] = o.IsCancel
 	o.fieldMap["user_updated"] = o.UserUpdated
+	o.fieldMap["bill_no"] = o.BillNo
 }
 
 func (o order) clone(db *gorm.DB) order {

@@ -4,14 +4,20 @@
 
 package models
 
+import (
+	"time"
+)
+
 const TableNameDistrict = "districts"
 
 // District mapped from table <districts>
 type District struct {
-	ID         int32  `gorm:"column:id;primaryKey" json:"id"`
-	ProvinceID int32  `gorm:"column:province_id" json:"province_id"`
-	DrName     string `gorm:"column:dr_name" json:"dr_name"`
-	DrNameEn   string `gorm:"column:dr_name_en" json:"dr_name_en"`
+	ID         int32     `gorm:"column:id;primaryKey" json:"id"`
+	ProvinceID int32     `gorm:"column:province_id" json:"province_id"`
+	DrName     string    `gorm:"column:dr_name" json:"dr_name"`
+	DrNameEn   string    `gorm:"column:dr_name_en" json:"dr_name_en"`
+	CreatedAt  time.Time `gorm:"column:created_at;default:now()" json:"created_at"`
+	UpdateAt   time.Time `gorm:"column:update_at;default:now()" json:"update_at"`
 }
 
 // TableName District's table name
