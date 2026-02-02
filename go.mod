@@ -37,6 +37,7 @@ require (
 	github.com/ysmood/gson v0.7.3 // indirect
 	github.com/ysmood/leakless v0.9.0 // indirect
 	golang.org/x/mod v0.28.0 // indirect
+	golang.org/x/net v0.44.0 // indirect
 	golang.org/x/sync v0.17.0 // indirect
 	golang.org/x/tools v0.37.0 // indirect
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
@@ -50,6 +51,7 @@ require (
 	github.com/boombuler/barcode v1.0.2
 	github.com/chromedp/chromedp v0.14.2
 	github.com/go-playground/validator v9.31.0+incompatible
+	github.com/go-resty/resty/v2 v2.17.1
 	github.com/go-rod/rod v0.116.2
 	github.com/gofiber/websocket/v2 v2.2.1
 	github.com/golang-jwt/jwt v3.2.2+incompatible

@@ -50,6 +50,12 @@ func SetupRoutes(app *fiber.App) {
 	facebook := app.Group("/facebook")
 	routers_part.FacebookRoutesPart(facebook)
 
+	income := app.Group("/income")
+	routers_part.SetupIncomeRoutesPart(income)
+
+	tictok := app.Group("/tiktok")
+	routers_part.SetupTictokRoutesPart(tictok)
+
 }
 
 func SetupWebsocketRoutes(app *fiber.App) {

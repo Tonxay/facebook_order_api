@@ -27,6 +27,8 @@ var (
 	ImportProduct            *importProduct
 	ImportProductsDatail     *importProductsDatail
 	ImportProductsDatailItem *importProductsDatailItem
+	Income                   *income
+	IncomeCategory           *incomeCategory
 	Order                    *order
 	OrderDiscount            *orderDiscount
 	OrderProduct             *orderProduct
@@ -61,6 +63,8 @@ func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
 	ImportProduct = &Q.ImportProduct
 	ImportProductsDatail = &Q.ImportProductsDatail
 	ImportProductsDatailItem = &Q.ImportProductsDatailItem
+	Income = &Q.Income
+	IncomeCategory = &Q.IncomeCategory
 	Order = &Q.Order
 	OrderDiscount = &Q.OrderDiscount
 	OrderProduct = &Q.OrderProduct
@@ -96,6 +100,8 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		ImportProduct:            newImportProduct(db, opts...),
 		ImportProductsDatail:     newImportProductsDatail(db, opts...),
 		ImportProductsDatailItem: newImportProductsDatailItem(db, opts...),
+		Income:                   newIncome(db, opts...),
+		IncomeCategory:           newIncomeCategory(db, opts...),
 		Order:                    newOrder(db, opts...),
 		OrderDiscount:            newOrderDiscount(db, opts...),
 		OrderProduct:             newOrderProduct(db, opts...),
@@ -132,6 +138,8 @@ type Query struct {
 	ImportProduct            importProduct
 	ImportProductsDatail     importProductsDatail
 	ImportProductsDatailItem importProductsDatailItem
+	Income                   income
+	IncomeCategory           incomeCategory
 	Order                    order
 	OrderDiscount            orderDiscount
 	OrderProduct             orderProduct
@@ -169,6 +177,8 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		ImportProduct:            q.ImportProduct.clone(db),
 		ImportProductsDatail:     q.ImportProductsDatail.clone(db),
 		ImportProductsDatailItem: q.ImportProductsDatailItem.clone(db),
+		Income:                   q.Income.clone(db),
+		IncomeCategory:           q.IncomeCategory.clone(db),
 		Order:                    q.Order.clone(db),
 		OrderDiscount:            q.OrderDiscount.clone(db),
 		OrderProduct:             q.OrderProduct.clone(db),
@@ -213,6 +223,8 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		ImportProduct:            q.ImportProduct.replaceDB(db),
 		ImportProductsDatail:     q.ImportProductsDatail.replaceDB(db),
 		ImportProductsDatailItem: q.ImportProductsDatailItem.replaceDB(db),
+		Income:                   q.Income.replaceDB(db),
+		IncomeCategory:           q.IncomeCategory.replaceDB(db),
 		Order:                    q.Order.replaceDB(db),
 		OrderDiscount:            q.OrderDiscount.replaceDB(db),
 		OrderProduct:             q.OrderProduct.replaceDB(db),
@@ -247,6 +259,8 @@ type queryCtx struct {
 	ImportProduct            IImportProductDo
 	ImportProductsDatail     IImportProductsDatailDo
 	ImportProductsDatailItem IImportProductsDatailItemDo
+	Income                   IIncomeDo
+	IncomeCategory           IIncomeCategoryDo
 	Order                    IOrderDo
 	OrderDiscount            IOrderDiscountDo
 	OrderProduct             IOrderProductDo
@@ -281,6 +295,8 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		ImportProduct:            q.ImportProduct.WithContext(ctx),
 		ImportProductsDatail:     q.ImportProductsDatail.WithContext(ctx),
 		ImportProductsDatailItem: q.ImportProductsDatailItem.WithContext(ctx),
+		Income:                   q.Income.WithContext(ctx),
+		IncomeCategory:           q.IncomeCategory.WithContext(ctx),
 		Order:                    q.Order.WithContext(ctx),
 		OrderDiscount:            q.OrderDiscount.WithContext(ctx),
 		OrderProduct:             q.OrderProduct.WithContext(ctx),

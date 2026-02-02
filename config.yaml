@@ -1,0 +1,7 @@
+# ตั้งค่าให้ oapi-codegen รู้ว่าจะ gen อะไรบ้าง
+package: main
+generate:
+  - fiber-server # สร้าง Interface และ Router สำหรับ Fiber
+  - models       # สร้าง Struct จาก components/schemas
+  - spec         # เก็บไฟล์ spec ไว้ใน code
+output: api.gen.go # ชื่อไฟล์ปลายทาง
