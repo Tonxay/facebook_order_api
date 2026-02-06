@@ -395,6 +395,41 @@ func FacebookWebhookHandler(c *fiber.Ctx) error {
 			}
 		}
 
+		// 1. ดึงข้อมูลพื้นฐานที่ต้องใช้แน่ๆ
+		senderID := gjson.GetBytes(raw, "entry.0.messaging.0.sender.id").String()
+
+		// 2. เช็คว่ามี Attachments ไหม (รูป, วิดีโอ, ไฟล์)
+		attachments := gjson.GetBytes(raw, "entry.0.messaging.0.message.attachments")
+
+		if attachments.Exists() {
+			attachments.ForEach(func(key, value gjson.Result) bool {
+				fileType := value.Get("type").String() // image, video, file, audio
+				fileURL := value.Get("payload.url").String()
+
+				switch fileType {
+				case "image":
+					// เช็คว่าเป็น Sticker ไหม (สติกเกอร์ Facebook คือ image ประเภทหนึ่ง)
+					stickerID := value.Get("payload.sticker_id").Int()
+					if stickerID > 0 {
+						fmt.Printf("User %s ส่ง Sticker ID: %d\n", senderID, stickerID)
+					} else {
+						fmt.Printf("User %s ส่งรูปภาพ: %s\n", senderID, fileURL)
+					}
+
+				case "video":
+					fmt.Printf("User %s ส่งวิดีโอ: %s\n", senderID, fileURL)
+
+				case "audio":
+					fmt.Printf("User %s ส่งข้อความเสียง: %s\n", senderID, fileURL)
+				}
+				return true // วนลูปต่อจนครบทุกไฟล์
+			})
+		} else {
+			// เป็นข้อความธรรมดา
+			msgText := gjson.GetBytes(raw, "entry.0.messaging.0.message.text").String()
+			fmt.Printf("User %s ส่งข้อความ: %s\n", senderID, msgText)
+		}
+
 		// log.Printf("--- Received Webhook --- :\n%s", string(jsonData))
 
 		// -----------------------------------------------------------------
