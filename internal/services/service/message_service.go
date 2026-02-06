@@ -373,8 +373,28 @@ func FacebookWebhookHandler(c *fiber.Ctx) error {
 		// jsonData, _ := json.MarshalIndent(payload, "", "  ")
 		raw := c.Body()
 
-		// แปลงเป็น string เพื่อ print ดู
-		fmt.Println(string(raw))
+		// 1. ตรวจสอบก่อนว่าเป็น Webhook ประเภทไหน
+		objectType := gjson.GetBytes(raw, "object").String()
+
+		if objectType == "page" {
+			// ลองดึง Message จาก "แชท"
+			msgText := gjson.GetBytes(raw, "entry.0.messaging.0.message.text").String()
+			
+			// ลองดึง Message จาก "คอมเมนต์ใต้โพสต์" (Feed)
+			commentText := gjson.GetBytes(raw, "entry.0.changes.0.value.message").String()
+
+			if msgText != "" {
+				fmt.Println("ข้อความจากแชท:", msgText) // จะแสดงเป็น "Test"
+			}
+
+			if commentText != "" {
+				// ตรงนี้แหละครับที่ \u0ea5... จะถูกแปลงเป็น "ราคาเท่า" โดยอัตโนมัติ
+				fmt.Println("ข้อความจากคอมเมนต์:", commentText) 
+			}
+		}
+
+		return c.SendStatus(200)
+	}
 		// log.Printf("--- Received Webhook --- :\n%s", string(jsonData))
 
 		// -----------------------------------------------------------------
