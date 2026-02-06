@@ -1,7 +1,7 @@
 package service
 
 import (
-	"encoding/json"
+	"fmt"
 	gormpkg "go-api/internal/pkg"
 	"go-api/internal/pkg/models"
 	dbservice "go-api/internal/services/db_service"
@@ -370,8 +370,12 @@ func FacebookWebhookHandler(c *fiber.Ctx) error {
 		}
 
 		// (Optional) Print JSON แบบอ่านง่ายเหมือนเดิม
-		jsonData, _ := json.MarshalIndent(payload, "", "  ")
-		log.Printf("--- Received Webhook --- :\n%s", string(jsonData))
+		// jsonData, _ := json.MarshalIndent(payload, "", "  ")
+		raw := c.Body()
+
+		// แปลงเป็น string เพื่อ print ดู
+		fmt.Println(string(raw))
+		// log.Printf("--- Received Webhook --- :\n%s", string(jsonData))
 
 		// -----------------------------------------------------------------
 		//  Logic: Check Ad ID and Save to DB
