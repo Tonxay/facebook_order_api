@@ -2,6 +2,8 @@ package service
 
 import (
 	"github.com/go-resty/resty/v2"
+	"github.com/go-rod/rod"
+	"github.com/go-rod/rod/lib/launcher"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -54,6 +56,57 @@ func TictokVideoService(c *fiber.Ctx) error {
 			"video_no_wm": tikRes.Data.Play,
 			"cover":       tikRes.Data.Cover,
 			"music":       tikRes.Data.Music,
+		},
+	})
+}
+
+func PinduoduoService(c *fiber.Ctx) error {
+	targetURL := c.Query("url")
+	if targetURL == "" {
+		return c.Status(400).JSON(fiber.Map{"error": "URL is required"})
+	}
+
+	// 1. ตั้งค่า Browser (ปลอมตัวเป็น Mobile)
+	l := launcher.New().
+		Headless(true). // เปิดแบบไม่โชว์หน้าต่าง
+		Set("user-agent", "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/04.1")
+
+	browserURL := l.MustLaunch()
+	browser := rod.New().ControlURL(browserURL).MustConnect()
+	defer browser.MustClose()
+
+	// 2. เปิดหน้าเว็บและรอให้วิดีโอโหลด
+	page := browser.MustPage(targetURL)
+
+	// รอจนกว่าแท็ก video จะปรากฏ (timeout 10 วินาที)
+	var videoSrc string
+	err := rod.Try(func() {
+		page.MustWaitLoad()
+		// ค้นหาแท็ก video และดึง src
+		el := page.MustElement("video")
+		videoSrc = ""
+		if src := el.MustAttribute("src"); src != nil {
+			videoSrc = *src
+		}
+		if videoSrc == "" {
+			src := el.MustElement("source").MustAttribute("src")
+			if src != nil {
+				videoSrc = *src
+			}
+		}
+	})
+
+	if err != nil || videoSrc == "" {
+		return c.Status(500).JSON(fiber.Map{"error": "หาลิงก์วิดีโอไม่เจอ (อาจต้องใช้การวิเคราะห์ขั้นสูง)"})
+	}
+
+	// 3. ส่งข้อมูลกลับไปให้ Flutter
+	return c.JSON(fiber.Map{
+		"status": "success",
+		"data": fiber.Map{
+			"title":       "Pinduoduo Video",
+			"video_no_wm": videoSrc,
+			"cover":       "", // สามารถใช้ rod ดึงรูป og:image เพิ่มได้
 		},
 	})
 }

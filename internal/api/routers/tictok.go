@@ -9,4 +9,6 @@ import (
 func SetupTictokRoutesPart(route fiber.Router) {
 	// route.Use(middleware.JWTProtected)
 	route.Get("/download", service.TictokVideoService)
+
+	// route.Get("/pinduoduo/download", service.PinduoduoService)
 }

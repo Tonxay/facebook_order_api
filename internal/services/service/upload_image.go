@@ -121,7 +121,8 @@ func compareLists(list1 []*custommodel.OrderReponseNew, list2 []custommodel.Anou
 // "customer_notified", // ແຈ້ງລູກແລ້ວ (Customer notified)
 
 func GetOrderbillInAnousith(c *fiber.Ctx) error {
-	token := AnousithLoging("92339355", "s0987654")
+	// token := AnousithLoging("92339355", "s0987654")
+	token := AnousithLoging("2076681339", "76681339")
 	order, _ := dbservice.GetOrders(gormpkg.GetDB(), request.StatusOrderRequest{
 		IsCancel:   false,
 		ShippingID: "3531696c-af5b-4d73-b677-dbd9e1bb4f1b",
