@@ -133,6 +133,7 @@ func GetOrderbillInAnousith(c *fiber.Ctx) error {
 	if len(order) == 0 {
 		return fmt.Errorf("No orders found")
 	}
+
 	amountBills := AnousithOrder(token)
 
 	matched, onlyL1, dataNotMath := compareLists(order, amountBills.Data.ItemsV2.Data)
@@ -245,8 +246,12 @@ func CropImage(imgData []byte, x, y, width, height int) ([]byte, error) {
 
 	return buf.Bytes(), nil
 }
-
 func AnousithLoging(tel string, password string) string {
+	// Add this safety check before doing anything else
+	if strings.TrimSpace(tel) == "" || strings.TrimSpace(password) == "" {
+		log.Println("❌ Error: Phone number or password is empty. Canceling request.")
+		return ""
+	}
 
 	payload := map[string]interface{}{
 		"operationName": "CustomerLogin",
@@ -259,56 +264,71 @@ func AnousithLoging(tel string, password string) string {
 		"query": "mutation CustomerLogin($where: CustomerLoginInput!) {\n  customerLogin(where: $where) {\n    accessToken\n    data {\n      id_list\n      full_name\n      profile_img\n      status\n      contact_info\n      address\n      village\n      district {\n        id_list\n        title\n      }\n      state {\n        provinceName\n        id_state\n      }\n      Bank_KIP\n      BANK_THB\n      BANK_USD\n      BANK_NAME\n      gender\n      isActive\n      isVerify\n    }\n  }\n}",
 	}
 
-	// 2. "Marshal" the map into a JSON byte slice
-	// This will safely handle any special characters in your params.
+	println("Logging in with tel:", tel)
+	// Avoid printing passwords in production logs for security!
+	println("Logging in with password:", password)
+
 	jsonData, err := json.Marshal(payload)
 	if err != nil {
-		log.Fatal("Error creating JSON payload:", err)
+		log.Println("Error creating JSON payload:", err)
+		return "" // Return empty string instead of crashing the app
 	}
 
-	// 'jsonData' is now ready to be used in an HTTP request
 	fmt.Println("--- Generated JSON Byte Slice ---")
-	// We use bytes.Buffer to pretty-print the JSON for demonstration
 	var prettyJSON bytes.Buffer
 	json.Indent(&prettyJSON, jsonData, "", "  ")
+	fmt.Println(prettyJSON.String())
 
-	fmt.Println(prettyJSON.String()) // (Your JSON data)
 	apiUrl := "https://pro.api.anousith.express/graphql"
 
-	// 1. Create a new request, but don't send it yet
-	// (Note: http.MethodPost is just a constant for "POST")
 	req, err := http.NewRequest(http.MethodPost, apiUrl, bytes.NewBuffer(jsonData))
 	if err != nil {
-		log.Fatal(err)
+		log.Println("Error creating request:", err)
+		return ""
 	}
 
-	// 2. Set your headers (THE IMPORTANT PART)
-	// The "application/json" from your old code *is* a header, so set it here.
-	req.Header.Set("Content-Type", "application/json")
+	// Forces the connection to close after finishing (Clears Network Cache)
+	req.Close = true
 
-	// Add any other headers you need
+	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("referer", "https://app.anousith.express/")
 
-	// 3. Send the request using the default client
-	resp, err := http.DefaultClient.Do(req)
+	// --- THE FIX: Create a fresh client here ---
+	myClient := &http.Client{
+		Timeout: 15 * time.Second, // Prevents the request from hanging forever
+	}
+
+	// Send the request using the NEW client, NOT DefaultClient
+	resp, err := myClient.Do(req)
 	if err != nil {
-		log.Fatal(err)
+		log.Println("HTTP request failed:", err)
+		return ""
 	}
 	defer resp.Body.Close()
+	// -------------------------------------------
 
-	// 4. Read the response (same as before)
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		log.Fatal(err)
+		log.Println("Error reading response body:", err)
+		return ""
 	}
 
 	fmt.Println("Status:", resp.Status)
 	fmt.Println("Response Body:", string(body))
 
-	// Parse JSON response to extract accessToken safely
 	var respJSON map[string]interface{}
 	if err := json.Unmarshal(body, &respJSON); err != nil {
-		log.Fatal("Error parsing response JSON:", err)
+		log.Println("Error parsing response JSON:", err)
+		return ""
+	}
+
+	// Check for GraphQL errors first
+	if errors, ok := respJSON["errors"].([]interface{}); ok && len(errors) > 0 {
+		if errObj, ok := errors[0].(map[string]interface{}); ok {
+			errMsg := errObj["message"]
+			log.Printf("⚠️ Anousith API returned error: %v", errMsg)
+		}
+		return ""
 	}
 
 	accessToken := ""
@@ -325,8 +345,102 @@ func AnousithLoging(tel string, password string) string {
 	}
 
 	return accessToken
-
 }
+
+// func AnousithLoging(tel string, password string) string {
+
+// 	payload := map[string]interface{}{
+// 		"operationName": "CustomerLogin",
+// 		"variables": map[string]interface{}{
+// 			"where": map[string]interface{}{
+// 				"username": tel,      // Use the parameter here
+// 				"password": password, // And here
+// 			},
+// 		},
+// 		"query": "mutation CustomerLogin($where: CustomerLoginInput!) {\n  customerLogin(where: $where) {\n    accessToken\n    data {\n      id_list\n      full_name\n      profile_img\n      status\n      contact_info\n      address\n      village\n      district {\n        id_list\n        title\n      }\n      state {\n        provinceName\n        id_state\n      }\n      Bank_KIP\n      BANK_THB\n      BANK_USD\n      BANK_NAME\n      gender\n      isActive\n      isVerify\n    }\n  }\n}",
+// 	}
+// 	println("Logging in with tel:", tel)
+// 	println("Logging in with password:", password)
+// 	// Debug: print the tel being used
+// 	// 2. "Marshal" the map into a JSON byte slice
+// 	// This will safely handle any special characters in your params.
+// 	jsonData, err := json.Marshal(payload)
+// 	if err != nil {
+// 		log.Fatal("Error creating JSON payload:", err)
+// 	}
+
+// 	// 'jsonData' is now ready to be used in an HTTP request
+// 	fmt.Println("--- Generated JSON Byte Slice ---")
+// 	// We use bytes.Buffer to pretty-print the JSON for demonstration
+// 	var prettyJSON bytes.Buffer
+// 	json.Indent(&prettyJSON, jsonData, "", "  ")
+
+// 	fmt.Println(prettyJSON.String()) // (Your JSON data)
+// 	apiUrl := "https://pro.api.anousith.express/graphql"
+
+// 	// 1. Create a new request, but don't send it yet
+// 	// (Note: http.MethodPost is just a constant for "POST")
+// 	req, err := http.NewRequest(http.MethodPost, apiUrl, bytes.NewBuffer(jsonData))
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
+// 	req.Close = true
+
+// 	// 2. Set your headers (THE IMPORTANT PART)
+// 	// The "application/json" from your old code *is* a header, so set it here.
+// 	req.Header.Set("Content-Type", "application/json")
+// 	// Add any other headers you need
+// 	req.Header.Set("referer", "https://app.anousith.express/")
+
+// 	// 3. Send the request using the default client
+// 	resp, err := http.DefaultClient.Do(req)
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
+
+// 	defer resp.Body.Close()
+
+// 	// 4. Read the response (same as before)
+// 	body, err := io.ReadAll(resp.Body)
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
+
+// 	fmt.Println("Status:", resp.Status)
+// 	fmt.Println("Response Body:", string(body))
+
+// 	// Parse JSON response to extract accessToken safely
+// 	var respJSON map[string]interface{}
+// 	if err := json.Unmarshal(body, &respJSON); err != nil {
+// 		log.Fatal("Error parsing response JSON:", err)
+// 	}
+
+// 	// Check for GraphQL errors first
+// 	if errors, ok := respJSON["errors"].([]interface{}); ok && len(errors) > 0 {
+// 		if errObj, ok := errors[0].(map[string]interface{}); ok {
+// 			errMsg := errObj["message"]
+// 			log.Printf("⚠️ Anousith API returned error: %v", errMsg)
+// 			log.Printf("Please verify credentials - tel: %s, password: %s", tel, password)
+// 		}
+// 		return ""
+// 	}
+
+// 	accessToken := ""
+// 	if data, ok := respJSON["data"].(map[string]interface{}); ok {
+// 		if cl, ok := data["customerLogin"].(map[string]interface{}); ok {
+// 			if at, ok := cl["accessToken"].(string); ok {
+// 				accessToken = at
+// 			}
+// 		}
+// 	}
+
+// 	if accessToken == "" {
+// 		log.Printf("accessToken not found in response: %s", string(body))
+// 	}
+
+// 	return accessToken
+
+// }
 
 func AnousithOrder(token string) custommodel.ItemsV2Response {
 
@@ -462,8 +576,7 @@ func AnousithOrder(token string) custommodel.ItemsV2Response {
 	// 2. Set your headers (THE IMPORTANT PART)
 	// The "application/json" from your old code *is* a header, so set it here.
 	req.Header.Set("Content-Type", "application/json")
-
-	req.Header.Set("Authorization", token)
+	println("Using access token:", token) // Debug: print the token being used
 	// Add any other headers you need
 	req.Header.Set("referer", "https://app.anousith.express/")
 
